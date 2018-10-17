@@ -16,9 +16,12 @@ namespace NBrowse
 
         public Script(IEnumerable<Assembly> assemblies)
         {
+            var imports = new [] { "System", "System.Collections.Generic", "System.Linq" };
+            var references = new [] { typeof(Script).Assembly }.Concat(assemblies);
+
             _options = ScriptOptions.Default
-                .WithImports("System", "System.Collections.Generic", "System.Linq")
-                .WithReferences(assemblies);
+                .WithImports(imports)
+                .WithReferences(references);
         }
 
         public async Task<object> Execute<T>(T input, string expression)
