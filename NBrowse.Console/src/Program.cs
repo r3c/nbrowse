@@ -20,9 +20,9 @@ namespace NBrowse.Console
 
             var options = new OptionSet
             {
-                { "f|file=", "read assemblies list from given text file (one path per line)", f => file = f },
+                { "f|file=", "read assemblies from text file (one path per line)", f => file = f },
                 { "h|help", "show this message and exit", h => help = h != null },
-                { "o|output=", "change output format", o => output = o },
+                { "o|output=", "change output format (pretty)", o => output = o },
                 { "q|query=", "read query from command line argument", q => query = q},
                 { "s|source=", "read query from text file", s => query = File.ReadAllText(s)}
             };
@@ -70,7 +70,11 @@ namespace NBrowse.Console
 
         private static void ShowHelp(TextWriter writer, OptionSet options)
         {
-            writer.WriteLine("NBrowse:");
+            writer.WriteLine(".NET assembly query utility");
+            writer.WriteLine();
+            writer.WriteLine("Usage: NBrowse.exe [options] -q \"query expression\" Assembly1 [Assembly2...]");
+            writer.WriteLine("Example: NBrowse.exe -q \"assemblies => assemblies.SelectMany(a => a.Types())\" MyAssembly.dll");
+            writer.WriteLine();
 
             options.WriteOptionDescriptions(writer);
 
