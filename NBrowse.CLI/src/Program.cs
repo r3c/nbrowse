@@ -8,7 +8,7 @@ using NBrowse.Formatting;
 using NBrowse.Formatting.Printers;
 using NBrowse.Reflection;
 
-namespace NBrowse.Console
+namespace NBrowse.CLI
 {
     class Program
     {
@@ -35,14 +35,14 @@ namespace NBrowse.Console
             }
             catch (OptionException exception)
             {
-                System.Console.Error.WriteLine("error when parsing command line arguments: " + exception.Message);
+                Console.Error.WriteLine("error when parsing command line arguments: " + exception.Message);
 
                 return;
             }
 
             if (help)
             {
-                ShowHelp(System.Console.Error, options);
+                ShowHelp(Console.Error, options);
 
                 return;
             }
@@ -56,7 +56,7 @@ namespace NBrowse.Console
             var input = assemblies.Select(a => new AssemblyModel(a)).ToArray();
             var script = new Script(assemblies);
 
-            printer.Print(System.Console.Out, script.Execute(input, query).Result);
+            printer.Print(Console.Out, script.Execute(input, query).Result);
         }
 
         private static IPrinter CreatePrinter(string output)

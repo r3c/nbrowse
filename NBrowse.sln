@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBrowse", "NBrowse\NBrowse.csproj", "{5AD556A9-C01D-4627-B1DF-D967BE46210A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBrowse.Console", "NBrowse.Console\NBrowse.Console.csproj", "{57BADFB8-8987-40F5-B464-FF0033809780}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBrowse.CLI", "NBrowse.CLI\NBrowse.CLI.csproj", "{57BADFB8-8987-40F5-B464-FF0033809780}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
