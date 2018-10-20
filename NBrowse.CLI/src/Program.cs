@@ -52,11 +52,9 @@ namespace NBrowse.CLI
             if (!string.IsNullOrEmpty(file))
                 sources = sources.Concat(File.ReadAllLines(file));
 
-            var assemblies = sources.Select(path => Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, path)));
-            var input = assemblies.Select(a => new AssemblyModel(a)).ToArray();
-            var script = new Script(assemblies);
+            var repository = new Repository(sources);
 
-            printer.Print(Console.Out, script.Execute(input, query).Result);
+            printer.Print(Console.Out, repository.Query(query).Result);
         }
 
         private static IPrinter CreatePrinter(string output)
