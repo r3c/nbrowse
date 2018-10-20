@@ -7,7 +7,7 @@ using NBrowse.Reflection;
 
 namespace NBrowse.Reflection
 {
-    public struct Type
+    public struct Type : IEquatable<Type>
     {
         public IEnumerable<Field> Fields => _definition != null ? _definition.Fields.Select(field => new Field(field)) : Array.Empty<Field>();
         public string FullName => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
@@ -31,10 +31,10 @@ namespace NBrowse.Reflection
             _reference = type;
         }
 
-        internal bool Equals(TypeReference type)
+        public bool Equals(Type other)
         {
-            // FIXME: most probably inaccurate
-            return _reference.FullName == type.FullName;
+            // FIXME: most probably inaccurate, waiting for https://github.com/jbevain/cecil/pull/394
+            return _reference.FullName == other._reference.FullName;
         }
 
         public override string ToString()
