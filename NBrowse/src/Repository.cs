@@ -15,8 +15,8 @@ namespace NBrowse
     public class Repository : IDisposable
     {
         private readonly IReadOnlyList<AssemblyDefinition> _definitions;
-        private readonly IReadOnlyList<AssemblyModel> _models;
         private readonly ScriptOptions _options;
+        private readonly Project _project;
 
         public Repository(IEnumerable<string> sources)
         {
@@ -25,10 +25,10 @@ namespace NBrowse
             var references = new [] { typeof(Repository).Assembly };
 
             _definitions = definitions;
-            _models = definitions.Select(assembly => new AssemblyModel(assembly)).ToArray();
             _options = ScriptOptions.Default
                 .WithImports(imports)
                 .WithReferences(references);
+            _project = new Project(definitions.Select(assembly => new AssemblyModel(assembly)));
         }
 
         public void Dispose()
@@ -39,9 +39,9 @@ namespace NBrowse
 
         public async Task<object> Query(string expression)
         {
-            Func<IReadOnlyList<AssemblyModel>, object> selector = await CSharpScript.EvaluateAsync<Func<IReadOnlyList<AssemblyModel>, object>>(expression, _options);
+            Func<Project, object> selector = await CSharpScript.EvaluateAsync<Func<Project, object>>(expression, _options);
 
-            return selector(_models);
+            return selector(_project);
         }
     }
 }

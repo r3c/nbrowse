@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using NBrowse.Reflection;
 
 namespace NBrowse.Reflection
@@ -21,9 +22,23 @@ namespace NBrowse.Reflection
 			_method = method;
 		}
 
+		public bool IsUsing(TypeModel type)
+		{
+			var usedInArguments = Arguments.Any(argument => type.Equals(argument.Type));
+			var usedInBody = MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new TypeModel(operand)));
+
+			// FIXME: should also detect for custom attributes & generic parameter guards
+			return usedInArguments || usedInBody;
+		}
+
 		public override string ToString()
 		{
 			return $"{{Method={FullName}}}";
+		}
+
+		private bool MatchInstruction(Func<Instruction, bool> predicate)
+		{
+			return _method.Body != null && _method.Body.Instructions.Any(predicate);
 		}
 	}
 }

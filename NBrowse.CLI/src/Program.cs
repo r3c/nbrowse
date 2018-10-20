@@ -17,7 +17,7 @@ namespace NBrowse.CLI
             var file = string.Empty;
             var help = false;
             var output = "plain";
-            var query = "assemblies => assemblies";
+            var query = "project => project.Assemblies";
             var sources = Enumerable.Empty<string>();
 
             var options = new OptionSet
@@ -75,7 +75,7 @@ namespace NBrowse.CLI
             writer.WriteLine(".NET assembly query utility");
             writer.WriteLine();
             writer.WriteLine("Usage: NBrowse [options] -q \"query expression\" Assembly1 [Assembly2...]");
-            writer.WriteLine("Example: NBrowse -q \"assemblies => assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
+            writer.WriteLine("Example: NBrowse -q \"project => project.Assemblies.SelectMany(assembly => assembly.Types)\" MyAssembly.dll");
             writer.WriteLine();
 
             options.WriteOptionDescriptions(writer);

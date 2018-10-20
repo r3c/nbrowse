@@ -31,6 +31,12 @@ namespace NBrowse.Reflection
             _reference = type;
         }
 
+        internal bool Equals(TypeReference type)
+        {
+            // FIXME: most probably inaccurate
+            return _reference.FullName == type.FullName;
+        }
+
         public override string ToString()
         {
             return $"{{Type={FullName}}}";
