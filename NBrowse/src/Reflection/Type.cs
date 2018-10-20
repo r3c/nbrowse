@@ -10,7 +10,7 @@ namespace NBrowse.Reflection
     {
         public IEnumerable<Attribute> Attributes => _definition != null ? _definition.CustomAttributes.Select(attribute => new Attribute(attribute)) : Array.Empty<Attribute>();
         public IEnumerable<Field> Fields => _definition != null ? _definition.Fields.Select(field => new Field(field)) : Array.Empty<Field>();
-        public string FullName => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
+        public string Identifier => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
         public IEnumerable<Method> Methods => _definition != null ? _definition.Methods.Select(method => new Method(method)) : Array.Empty<Method>();
         public string Name => _reference.Name;
         public string Namespace => _reference.Namespace;
@@ -39,7 +39,7 @@ namespace NBrowse.Reflection
 
         public override string ToString()
         {
-            return $"{{Type={FullName}}}";
+            return $"{{Type={Identifier}}}";
         }
     }
 }

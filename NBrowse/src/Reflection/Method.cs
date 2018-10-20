@@ -10,7 +10,7 @@ namespace NBrowse.Reflection
 	{
 		public IEnumerable<Argument> Arguments => _method.Parameters.Select(argument => new Argument(argument));
 		public IEnumerable<Attribute> Attributes => _method.CustomAttributes.Select(attribute => new Attribute(attribute));
-		public string FullName => $"{Parent.FullName}.{Name}({string.Join(", ", Arguments.Select(argument => argument.FullName))})";
+		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
 		public string Name => _method.Name;
 		public Type Parent => new Type(_method.DeclaringType);
 
@@ -32,7 +32,7 @@ namespace NBrowse.Reflection
 
 		public override string ToString()
 		{
-			return $"{{Method={FullName}}}";
+			return $"{{Method={Identifier}}}";
 		}
 
 		private bool MatchInstruction(Func<Instruction, bool> predicate)

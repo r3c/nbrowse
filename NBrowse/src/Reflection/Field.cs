@@ -6,6 +6,7 @@ namespace NBrowse.Reflection
 {
     public struct Field
     {
+        public string Identifier => $"{Parent.Identifier}.{Name}";
         public bool IsPrivate => _field.IsPrivate;
         public bool IsPublic => _field.IsPublic;
         public bool IsStatic => _field.IsStatic;
@@ -22,7 +23,7 @@ namespace NBrowse.Reflection
 
         public override string ToString()
         {
-            return $"{{Field={Parent.FullName}.{Name}}}";
+            return $"{{Field={Identifier}}}";
         }
     }
 }

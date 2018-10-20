@@ -6,7 +6,7 @@ namespace NBrowse.Reflection
 {
     public struct Attribute
     {
-        public string Identifier => Type.FullName;
+        public string Identifier => Type.Identifier;
         public Type Type => new Type(_attribute.AttributeType);
 
         private readonly CustomAttribute _attribute;

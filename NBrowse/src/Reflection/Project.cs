@@ -27,7 +27,7 @@ namespace NBrowse.Reflection
 			{
 				foreach (var type in assembly.Types)
 				{
-					if (type.FullName == fullName)
+					if (type.Identifier == fullName)
 						return type;
 				}
 			}

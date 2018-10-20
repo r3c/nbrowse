@@ -8,7 +8,7 @@ namespace NBrowse.Reflection
 {
     public struct Argument
     {
-        public string FullName => $"{Type.FullName} {Name}";
+        public string Identifier => $"{Type.Identifier} {Name}";
         public string Name => _argument.Name;
         public Type Type => new Type(_argument.ParameterType);
 
