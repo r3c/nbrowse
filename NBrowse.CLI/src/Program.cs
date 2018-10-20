@@ -52,9 +52,10 @@ namespace NBrowse.CLI
             if (!string.IsNullOrEmpty(file))
                 sources = sources.Concat(File.ReadAllLines(file));
 
-            var repository = new Repository(sources);
-
-            printer.Print(Console.Out, repository.Query(query).Result);
+            using (var repository = new Repository(sources))
+            {
+                printer.Print(Console.Out, repository.Query(query).Result);
+            }
         }
 
         private static IPrinter CreatePrinter(string output)

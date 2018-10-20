@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Mono.Cecil;
 
 namespace NBrowse.Reflection
 {
@@ -11,18 +12,18 @@ namespace NBrowse.Reflection
         public bool IsStatic => _field.IsStatic;
         public string Name => _field.Name;
         public TypeModel Parent => new TypeModel(_field.DeclaringType);
-        public TypeModel Type => new TypeModel(_field.FieldType);
+        public TypeModel Type => new TypeModel(_field.FieldType.Resolve());
 
-        private readonly FieldInfo _field;
+        private readonly FieldDefinition _field;
 
-        public FieldModel(FieldInfo field)
+        public FieldModel(FieldDefinition field)
         {
             _field = field;
         }
 
         public override string ToString()
         {
-            return $"{{Field={Parent.Namespace}.{Parent.Name}.{Name}}}";
+            return $"{{Field={Parent.FullName}.{Name}}}";
         }
     }
 }
