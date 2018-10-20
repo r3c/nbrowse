@@ -7,15 +7,15 @@ using NBrowse.Reflection;
 
 namespace NBrowse.Reflection
 {
-    public struct ArgumentModel
+    public struct Argument
     {
         public string FullName => $"{Type.FullName} {Name}";
         public string Name => _argument.Name;
-        public TypeModel Type => new TypeModel(_argument.ParameterType);
+        public Type Type => new Type(_argument.ParameterType);
 
         private readonly ParameterDefinition _argument;
 
-        public ArgumentModel(ParameterDefinition argument)
+        public Argument(ParameterDefinition argument)
         {
             _argument = argument;
         }

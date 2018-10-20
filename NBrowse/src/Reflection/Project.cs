@@ -6,11 +6,11 @@ namespace NBrowse.Reflection
 {
 	public class Project
 	{
-		public IEnumerable<AssemblyModel> Assemblies => _assemblies;
+		public IEnumerable<Assembly> Assemblies => _assemblies;
 
-		private readonly IReadOnlyList<AssemblyModel> _assemblies;
+		private readonly IReadOnlyList<Assembly> _assemblies;
 
-		public TypeModel FindType(string fullName)
+		public Type FindType(string fullName)
 		{
 			foreach (var assembly in _assemblies)
 			{
@@ -24,7 +24,7 @@ namespace NBrowse.Reflection
 			throw new ArgumentOutOfRangeException(nameof(fullName), fullName, "no matching type found");
 		}
 
-		public Project(IEnumerable<AssemblyModel> assemblies)
+		public Project(IEnumerable<Assembly> assemblies)
 		{
 			_assemblies = assemblies.ToArray();
 		}

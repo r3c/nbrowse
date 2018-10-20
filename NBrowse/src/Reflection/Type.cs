@@ -7,25 +7,25 @@ using NBrowse.Reflection;
 
 namespace NBrowse.Reflection
 {
-    public struct TypeModel
+    public struct Type
     {
-        public IEnumerable<FieldModel> Fields => _definition != null ? _definition.Fields.Select(field => new FieldModel(field)) : Array.Empty<FieldModel>();
+        public IEnumerable<Field> Fields => _definition != null ? _definition.Fields.Select(field => new Field(field)) : Array.Empty<Field>();
         public string FullName => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
-        public IEnumerable<MethodModel> Methods => _definition != null ? _definition.Methods.Select(method => new MethodModel(method)) : Array.Empty<MethodModel>();
+        public IEnumerable<Method> Methods => _definition != null ? _definition.Methods.Select(method => new Method(method)) : Array.Empty<Method>();
         public string Name => _reference.Name;
         public string Namespace => _reference.Namespace;
-        public AssemblyModel Parent => new AssemblyModel(_reference.Module.Assembly);
+        public Assembly Parent => new Assembly(_reference.Module.Assembly);
 
         private readonly TypeDefinition _definition;
         private readonly TypeReference _reference;
 
-        public TypeModel(TypeDefinition type)
+        public Type(TypeDefinition type)
         {
             _definition = type;
             _reference = type;
         }
 
-        public TypeModel(TypeReference type)
+        public Type(TypeReference type)
         {
             _definition = type.Resolve();
             _reference = type;

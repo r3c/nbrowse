@@ -28,7 +28,7 @@ namespace NBrowse
             _options = ScriptOptions.Default
                 .WithImports(imports)
                 .WithReferences(references);
-            _project = new Project(definitions.Select(assembly => new AssemblyModel(assembly)));
+			_project = new Project(definitions.Select(assembly => new Reflection.Assembly(assembly)));
         }
 
         public void Dispose()
