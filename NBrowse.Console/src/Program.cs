@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Mono.Options;
-using NBrowse.Printers;
+using NBrowse.Formatting;
+using NBrowse.Formatting.Printers;
+using NBrowse.Reflection;
 
 namespace NBrowse.Console
 {
@@ -51,9 +53,10 @@ namespace NBrowse.Console
                 sources = sources.Concat(File.ReadAllLines(file));
 
             var assemblies = sources.Select(path => Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, path)));
+            var input = assemblies.Select(a => new AssemblyModel(a)).ToArray();
             var script = new Script(assemblies);
 
-            printer.Print(System.Console.Out, script.Execute(assemblies, query).Result);
+            printer.Print(System.Console.Out, script.Execute(input, query).Result);
         }
 
         private static IPrinter CreatePrinter(string output)

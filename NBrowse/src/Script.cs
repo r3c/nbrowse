@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using NBrowse.Reflection;
 
 namespace NBrowse
 {
@@ -15,7 +16,7 @@ namespace NBrowse
 
         public Script(IEnumerable<Assembly> assemblies)
         {
-            var imports = new [] { "NBrowse.Inspectors", "System", "System.Collections.Generic", "System.Linq" };
+            var imports = new [] { "System", "System.Collections.Generic", "System.Linq" };
             var references = new [] { typeof(Script).Assembly }.Concat(assemblies);
 
             _options = ScriptOptions.Default

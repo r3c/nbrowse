@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace NBrowse
+namespace NBrowse.Formatting
 {
     public interface IPrinter
     {

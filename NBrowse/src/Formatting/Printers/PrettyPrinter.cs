@@ -2,7 +2,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 
-namespace NBrowse.Printers
+namespace NBrowse.Formatting.Printers
 {
 	public class PrettyPrinter : IPrinter
 	{
