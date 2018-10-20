@@ -74,8 +74,8 @@ namespace NBrowse.CLI
         {
             writer.WriteLine(".NET assembly query utility");
             writer.WriteLine();
-            writer.WriteLine("Usage: NBrowse.exe [options] -q \"query expression\" Assembly1 [Assembly2...]");
-            writer.WriteLine("Example: NBrowse.exe -q \"assemblies => assemblies.SelectMany(a => a.Types())\" MyAssembly.dll");
+            writer.WriteLine("Usage: NBrowse [options] -q \"query expression\" Assembly1 [Assembly2...]");
+            writer.WriteLine("Example: NBrowse -q \"assemblies => assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
             writer.WriteLine();
 
             options.WriteOptionDescriptions(writer);
