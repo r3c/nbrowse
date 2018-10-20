@@ -17,7 +17,7 @@ namespace NBrowse.CLI
             var file = string.Empty;
             var help = false;
             var output = "pretty";
-            var query = "1";
+            var query = "assemblies => assemblies";
             var sources = Enumerable.Empty<string>();
 
             var options = new OptionSet
