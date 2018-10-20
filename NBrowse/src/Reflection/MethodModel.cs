@@ -10,9 +10,9 @@ namespace NBrowse.Reflection
 	public struct MethodModel
 	{
 		public IEnumerable<ArgumentModel> Arguments => _method.Parameters.Select(argument => new ArgumentModel(argument));
-		public TypeModel Parent => new TypeModel(_method.DeclaringType);
 		public string FullName => $"{Parent.FullName}.{Name}({string.Join(", ", Arguments.Select(argument => argument.FullName))})";
 		public string Name => _method.Name;
+		public TypeModel Parent => new TypeModel(_method.DeclaringType);
 
 		private readonly MethodDefinition _method;
 
