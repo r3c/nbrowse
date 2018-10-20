@@ -9,18 +9,26 @@ namespace NBrowse.Reflection
 {
     public struct TypeModel
     {
-        public AssemblyModel Assembly => new AssemblyModel(_type.Module.Assembly);
-        public IEnumerable<FieldModel> Fields => _type.Fields.Select(field => new FieldModel(field));
-        //public IEnumerable<MethodModel> Methods => _type.GetMethods(Discovery.Bindings).Where(m => Discovery.IsVisible(m)).Select(m => new MethodModel(m));
+        public IEnumerable<FieldModel> Fields => _definition != null ? _definition.Fields.Select(field => new FieldModel(field)) : Array.Empty<FieldModel>();
         public string FullName => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
-        public string Name => _type.Name;
-        public string Namespace => _type.Namespace;
+        public IEnumerable<MethodModel> Methods => _definition != null ? _definition.Methods.Select(method => new MethodModel(method)) : Array.Empty<MethodModel>();
+        public string Name => _reference.Name;
+        public string Namespace => _reference.Namespace;
+        public AssemblyModel Parent => new AssemblyModel(_reference.Module.Assembly);
 
-        private readonly TypeDefinition _type;
+        private readonly TypeDefinition _definition;
+        private readonly TypeReference _reference;
 
         public TypeModel(TypeDefinition type)
         {
-            _type = type;
+            _definition = type;
+            _reference = type;
+        }
+
+        public TypeModel(TypeReference type)
+        {
+            _definition = type.Resolve();
+            _reference = type;
         }
 
         public override string ToString()

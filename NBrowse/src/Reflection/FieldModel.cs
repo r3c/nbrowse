@@ -12,7 +12,7 @@ namespace NBrowse.Reflection
         public bool IsStatic => _field.IsStatic;
         public string Name => _field.Name;
         public TypeModel Parent => new TypeModel(_field.DeclaringType);
-        public TypeModel Type => new TypeModel(_field.FieldType.Resolve());
+        public TypeModel Type => new TypeModel(_field.FieldType);
 
         private readonly FieldDefinition _field;
 
