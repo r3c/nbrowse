@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace NBrowse.Formatting.Printers
 {
-	public class PrettyPrinter : IPrinter
+	public class PlainPrinter : IPrinter
 	{
 		public void Print(TextWriter writer, object result)
 		{

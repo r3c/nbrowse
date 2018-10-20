@@ -16,7 +16,7 @@ namespace NBrowse.CLI
         {
             var file = string.Empty;
             var help = false;
-            var output = "pretty";
+            var output = "plain";
             var query = "assemblies => assemblies";
             var sources = Enumerable.Empty<string>();
 
@@ -24,7 +24,7 @@ namespace NBrowse.CLI
             {
                 { "f|file=", "read assemblies from text file (one path per line)", f => file = f },
                 { "h|help", "show this message and exit", h => help = h != null },
-                { "o|output=", "change output format (pretty)", o => output = o },
+                { "o|output=", "change output format (plain)", o => output = o },
                 { "q|query=", "read query from command line argument", q => query = q},
                 { "s|source=", "read query from text file", s => query = File.ReadAllText(s)}
             };
@@ -62,8 +62,8 @@ namespace NBrowse.CLI
         {
             switch (output)
             {
-                case "pretty":
-                    return new PrettyPrinter();
+                case "plain":
+                    return new PlainPrinter();
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(output), output, "unknown output format");
