@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using NBrowse.Reflection;
 
 namespace NBrowse.Reflection
 {

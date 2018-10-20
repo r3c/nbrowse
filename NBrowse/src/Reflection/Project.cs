@@ -10,6 +10,17 @@ namespace NBrowse.Reflection
 
 		private readonly IReadOnlyList<Assembly> _assemblies;
 
+		public Assembly FindAssembly(string fullName)
+		{
+			foreach (var assembly in _assemblies)
+			{
+				if (assembly.Name == fullName)
+					return assembly;
+			}
+
+			throw new ArgumentOutOfRangeException(nameof(fullName), fullName, "no matching assembly found");
+		}
+
 		public Type FindType(string fullName)
 		{
 			foreach (var assembly in _assemblies)

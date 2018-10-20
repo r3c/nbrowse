@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using NBrowse.Reflection;
 
 namespace NBrowse.Reflection
 {
 	public struct Method
 	{
 		public IEnumerable<Argument> Arguments => _method.Parameters.Select(argument => new Argument(argument));
+		public IEnumerable<Attribute> Attributes => _method.CustomAttributes.Select(attribute => new Attribute(attribute));
 		public string FullName => $"{Parent.FullName}.{Name}({string.Join(", ", Arguments.Select(argument => argument.FullName))})";
 		public string Name => _method.Name;
 		public Type Parent => new Type(_method.DeclaringType);
