@@ -19,11 +19,12 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_SingleType_PrivateClassWithFields()
         {
-            var candidateType = await FindTypeByName("PrivateClassWithFields");
+            var candidateName = $"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}";
+            var candidateType = await FindTypeByName(candidateName);
             var expectedType = typeof(PrivateClassWithFields);
 
             Assert.AreEqual(Inheritance.Virtual, candidateType.Inheritance);
-            Assert.AreEqual(expectedType.Name, candidateType.Name);
+            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -57,11 +58,12 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_SingleType_ProtectedDelegate()
         {
-            var candidateType = await FindTypeByName("ProtectedDelegate");
+            var candidateName = $"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}";
+            var candidateType = await FindTypeByName(candidateName);
             var expectedType = typeof(ProtectedDelegate);
 
             Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
-            Assert.AreEqual(expectedType.Name, candidateType.Name);
+            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -71,11 +73,12 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_SingleType_PublicClassWithMethods()
         {
-            var candidateType = await FindTypeByName("PublicClassWithMethods");
+            var candidateName = $"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}";
+            var candidateType = await FindTypeByName(candidateName);
             var expectedType = typeof(PublicClassWithMethods);
 
             Assert.AreEqual(Inheritance.Abstract, candidateType.Inheritance);
-            Assert.AreEqual(expectedType.Name, candidateType.Name);
+            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -131,11 +134,12 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_SingleType_InternalStructure()
         {
-            var candidateType = await FindTypeByName("InternalStructure");
+            var candidateName = $"{nameof(RepositoryTest)}+{nameof(InternalStructure)}";
+            var candidateType = await FindTypeByName(candidateName);
             var expectedType = typeof(InternalStructure);
 
             Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
-            Assert.AreEqual(expectedType.Name, candidateType.Name);
+            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Structure, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -170,9 +174,7 @@ namespace NBrowse.Test
 
         public abstract class PublicClassWithMethods
         {
-            public PublicClassWithMethods(int index)
-            {
-            }
+            public PublicClassWithMethods(int index) {}
 
             public sealed override int GetHashCode()
             {
@@ -197,7 +199,6 @@ namespace NBrowse.Test
             internal abstract Guid InternalAbstractMethod();
         }
 
-        internal struct InternalStructure
-        {}
+        internal struct InternalStructure {}
     }
 }

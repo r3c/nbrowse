@@ -14,7 +14,7 @@ namespace NBrowse.Reflection
         public Inheritance Inheritance => _definition != null && _definition.IsAbstract ? Inheritance.Abstract : (_definition != null && _definition.IsSealed ? Inheritance.Final : Inheritance.Virtual);
         public IEnumerable<Method> Methods => _definition != null ? _definition.Methods.Select(method => new Method(method)) : Array.Empty<Method>();
         public Model Model => _definition.IsEnum ? Model.Enumeration : (_definition.IsInterface ? Model.Interface : (_definition.IsValueType ? Model.Structure : Model.Class));
-        public string Name => _reference.Name;
+        public string Name => _definition != null && _definition.IsNested ? $"{new Type(_definition.DeclaringType).Name}+{_reference.Name}" : _reference.Name;
         public string Namespace => _definition == null ? string.Empty : (_definition.IsNested ? new Type(_definition.DeclaringType).Namespace : _definition.Namespace);
         public IEnumerable<Parameter> Parameters => _definition != null ? _definition.GenericParameters.Select(parameter => new Parameter(parameter)) : Array.Empty<Parameter>();
         public Assembly Parent => new Assembly(_reference.Module.Assembly);
