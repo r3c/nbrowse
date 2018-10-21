@@ -12,12 +12,12 @@ namespace NBrowse.Reflection
 		public IEnumerable<Attribute> Attributes => _method.CustomAttributes.Select(attribute => new Attribute(attribute));
 		public Binding Binding => _method.IsConstructor ? Binding.Constructor : (_method.IsStatic ? Binding.Static : Binding.Dynamic);
 		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
-		public Inheritance Inheritance => _method.IsAbstract ? Inheritance.Abstract : (_method.IsVirtual ? Inheritance.Virtual : Inheritance.Final);
+		public Inheritance Inheritance => _method.IsAbstract ? Inheritance.Abstract : (_method.IsFinal ? Inheritance.Final : (_method.IsVirtual ? Inheritance.Virtual : Inheritance.Actual));
 		public string Name => _method.Name;
 		public IEnumerable<Parameter> Parameters => _method.GenericParameters.Select(parameter => new Parameter(parameter));
 		public Type Parent => new Type(_method.DeclaringType);
 		public Type ReturnType => new Type(_method.ReturnType);
-		public Visibility Visibility => _method == null || _method.IsPublic ? Visibility.Public : (_method.IsFamily ? Visibility.Internal : Visibility.Private);
+		public Visibility Visibility => _method.IsPublic ? Visibility.Public : (_method.IsPrivate ? Visibility.Private : (_method.IsFamily ? Visibility.Protected : Visibility.Internal));
 
 		private readonly MethodDefinition _method;
 

@@ -6,13 +6,12 @@ namespace NBrowse.Reflection
 {
     public struct Field
     {
+        public Binding Binding => _field.IsStatic ? Binding.Static : Binding.Dynamic;
         public string Identifier => $"{Parent.Identifier}.{Name}";
-        public bool IsPrivate => _field.IsPrivate;
-        public bool IsPublic => _field.IsPublic;
-        public bool IsStatic => _field.IsStatic;
         public string Name => _field.Name;
         public Type Parent => new Type(_field.DeclaringType);
         public Type Type => new Type(_field.FieldType);
+        public Visibility Visibility => _field.IsPublic ? Visibility.Public : (_field.IsPrivate ? Visibility.Private : (_field.IsFamily ? Visibility.Protected : Visibility.Internal));
 
         private readonly FieldDefinition _field;
 
