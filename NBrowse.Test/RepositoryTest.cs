@@ -54,6 +54,19 @@ namespace NBrowse.Test
         }
 
         [Test]
+        public async Task Query_SingleType_ProtectedDelegate()
+        {
+            var candidateType = await FindTypeByName("ProtectedDelegate");
+            var expectedType = typeof(ProtectedDelegate);
+
+            Assert.AreEqual(expectedType.Name, candidateType.Name);
+            Assert.AreEqual(Model.Class, candidateType.Model);
+            Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
+            Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
+            Assert.AreEqual(Visibility.Protected, candidateType.Visibility);
+        }
+
+        [Test]
         public async Task Query_SingleType_PublicClassWithMethods()
         {
             var candidateType = await FindTypeByName("PublicClassWithMethods");
@@ -140,6 +153,8 @@ namespace NBrowse.Test
         {
             return CreateAndQuery<Reflection.Type>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").First()");
         }
+
+        protected delegate int ProtectedDelegate();
 
         private class PrivateClassWithFields
         {
