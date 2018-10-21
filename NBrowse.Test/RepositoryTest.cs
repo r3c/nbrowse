@@ -157,9 +157,13 @@ namespace NBrowse.Test
             throw new InvalidOperationException("invalid return type");
         }
 
-        private static Task<Reflection.Type> FindTypeByName(string name)
+        private static async Task<Reflection.Type> FindTypeByName(string name)
         {
-            return CreateAndQuery<Reflection.Type>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").First()");
+            var types = await CreateAndQuery<Reflection.Type[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
+
+            Assert.AreEqual(1, types.Length, $"exactly one type must match name {name}");
+
+            return types[0];
         }
 
         protected delegate int ProtectedDelegate();
