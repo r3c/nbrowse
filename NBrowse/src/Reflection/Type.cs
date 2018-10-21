@@ -12,9 +12,12 @@ namespace NBrowse.Reflection
         public IEnumerable<Field> Fields => _definition != null ? _definition.Fields.Select(field => new Field(field)) : Array.Empty<Field>();
         public string Identifier => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
         public IEnumerable<Method> Methods => _definition != null ? _definition.Methods.Select(method => new Method(method)) : Array.Empty<Method>();
+        public Model Model => _definition.IsEnum ? Model.Enumeration : (_definition.IsInterface ? Model.Interface : (_definition.IsValueType ? Model.Structure : Model.Class));
         public string Name => _reference.Name;
         public string Namespace => _reference.Namespace;
+        public IEnumerable<Parameter> Parameters => _definition != null ? _definition.GenericParameters.Select(parameter => new Parameter(parameter)) : Array.Empty<Parameter>();
         public Assembly Parent => new Assembly(_reference.Module.Assembly);
+        public Visibility Visibility => _definition == null || _definition.IsPublic ? Visibility.Public : (_definition.IsNotPublic ? Visibility.Private : Visibility.Internal);
 
         private readonly TypeDefinition _definition;
         private readonly TypeReference _reference;

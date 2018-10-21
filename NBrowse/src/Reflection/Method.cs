@@ -10,9 +10,13 @@ namespace NBrowse.Reflection
 	{
 		public IEnumerable<Argument> Arguments => _method.Parameters.Select(argument => new Argument(argument));
 		public IEnumerable<Attribute> Attributes => _method.CustomAttributes.Select(attribute => new Attribute(attribute));
+		public Binding Binding => _method.IsConstructor ? Binding.Constructor : (_method.IsStatic ? Binding.Static : Binding.Dynamic);
 		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
+		public Inheritance Inheritance => _method.IsAbstract ? Inheritance.Abstract : (_method.IsVirtual ? Inheritance.Virtual : Inheritance.Final);
 		public string Name => _method.Name;
+		public IEnumerable<Parameter> Parameters => _method.GenericParameters.Select(parameter => new Parameter(parameter));
 		public Type Parent => new Type(_method.DeclaringType);
+		public Visibility Visibility => _method == null || _method.IsPublic ? Visibility.Public : (_method.IsPrivate ? Visibility.Private : Visibility.Internal);
 
 		private readonly MethodDefinition _method;
 
@@ -24,10 +28,12 @@ namespace NBrowse.Reflection
 		public bool IsUsing(Type type)
 		{
 			var usedInArguments = Arguments.Any(argument => type.Equals(argument.Type));
+			var usedInAttributes = Attributes.Any(attribute => type.Equals(attribute.Type));
 			var usedInBody = MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new Type(operand)));
+			var usedInReturn = type.Equals(_method.ReturnType);
 
-			// FIXME: should also detect for custom attributes & generic parameter guards
-			return usedInArguments || usedInBody;
+			// FIXME: should also detect for generic parameter guards
+			return usedInArguments || usedInAttributes || usedInBody || usedInReturn;
 		}
 
 		public override string ToString()
