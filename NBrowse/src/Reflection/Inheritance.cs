@@ -2,7 +2,7 @@ namespace NBrowse.Reflection
 {
     public enum Inheritance
     {
-        Actual,
+        None,
         Abstract,
         Virtual,
         Final

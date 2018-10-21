@@ -11,6 +11,7 @@ namespace NBrowse.Reflection
         public IEnumerable<Attribute> Attributes => _definition != null ? _definition.CustomAttributes.Select(attribute => new Attribute(attribute)) : Array.Empty<Attribute>();
         public IEnumerable<Field> Fields => _definition != null ? _definition.Fields.Select(field => new Field(field)) : Array.Empty<Field>();
         public string Identifier => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
+        public Inheritance Inheritance => _definition != null && _definition.IsAbstract ? Inheritance.Abstract : (_definition != null && _definition.IsSealed ? Inheritance.Final : Inheritance.Virtual);
         public IEnumerable<Method> Methods => _definition != null ? _definition.Methods.Select(method => new Method(method)) : Array.Empty<Method>();
         public Model Model => _definition.IsEnum ? Model.Enumeration : (_definition.IsInterface ? Model.Interface : (_definition.IsValueType ? Model.Structure : Model.Class));
         public string Name => _reference.Name;

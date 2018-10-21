@@ -22,6 +22,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName("PrivateClassWithFields");
             var expectedType = typeof(PrivateClassWithFields);
 
+            Assert.AreEqual(Inheritance.Virtual, candidateType.Inheritance);
             Assert.AreEqual(expectedType.Name, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
@@ -59,6 +60,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName("ProtectedDelegate");
             var expectedType = typeof(ProtectedDelegate);
 
+            Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
             Assert.AreEqual(expectedType.Name, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
@@ -72,6 +74,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName("PublicClassWithMethods");
             var expectedType = typeof(PublicClassWithMethods);
 
+            Assert.AreEqual(Inheritance.Abstract, candidateType.Inheritance);
             Assert.AreEqual(expectedType.Name, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
@@ -83,7 +86,7 @@ namespace NBrowse.Test
             Assert.AreEqual(6, candidateMethods.Length);
 
             Assert.AreEqual(Binding.Constructor, candidateMethods[0].Binding);
-            Assert.AreEqual(Inheritance.Actual, candidateMethods[0].Inheritance);
+            Assert.AreEqual(Inheritance.None, candidateMethods[0].Inheritance);
             Assert.AreEqual(".ctor", candidateMethods[0].Name);
             Assert.AreEqual("Void", candidateMethods[0].ReturnType.Name);
             Assert.AreEqual(Visibility.Public, candidateMethods[0].Visibility);
@@ -113,7 +116,7 @@ namespace NBrowse.Test
             Assert.AreEqual(Visibility.Protected, candidateMethods[3].Visibility);
 
             Assert.AreEqual(Binding.Static, candidateMethods[4].Binding);
-            Assert.AreEqual(Inheritance.Actual, candidateMethods[4].Inheritance);
+            Assert.AreEqual(Inheritance.None, candidateMethods[4].Inheritance);
             Assert.AreEqual("PrivateStaticMethod", candidateMethods[4].Name);
             Assert.AreEqual("Uri", candidateMethods[4].ReturnType.Name);
             Assert.AreEqual(Visibility.Private, candidateMethods[4].Visibility);
@@ -131,6 +134,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName("InternalStructure");
             var expectedType = typeof(InternalStructure);
 
+            Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
             Assert.AreEqual(expectedType.Name, candidateType.Name);
             Assert.AreEqual(Model.Structure, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
