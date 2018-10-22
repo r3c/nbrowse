@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Scripting;
 using Mono.Options;
 using NBrowse.Formatting;
 using NBrowse.Formatting.Printers;
@@ -14,80 +16,111 @@ namespace NBrowse.CLI
     {
         static void Main(string[] args)
         {
-            var file = string.Empty;
-            var help = false;
-            var inputs = Enumerable.Empty<string>();
-            var output = "plain";
-            var query = "project => project.Assemblies";
+            var displayHelp = false;
+            var printer = new PlainPrinter() as IPrinter;
+            var queryIsFile = false;
+            var sources = Array.Empty<string>();
 
             var options = new OptionSet
             {
-                { "f|file=", "read assemblies from text file (one path per line)", f => file = f },
-                { "h|help", "show this message and exit", h => help = h != null },
-                { "o|output=", "change output format (plain)", o => output = o },
-                { "q|query=", "read query from command line argument", q => query = q},
-                { "s|source=", "read query from text file", s => query = File.ReadAllText(s)}
+                { "f|format=", "change output format (plain)", format => printer = CreatePrinter(format) },
+                { "h|help", "show this message and exit", h => displayHelp = h != null },
+                { "i|input=", "read assemblies from text file (one path per line)", i => sources = File.ReadAllLines(i) },
+                { "s|source", "assume query is a text file, not a plain query", s => queryIsFile = s != null }
             };
+
+            List<string> remainder;
 
             try
             {
-                inputs = options.Parse(args);
+                remainder = options.Parse(args);
+            }
+            catch (ArgumentOutOfRangeException exception)
+            {
+                Console.Error.WriteLine($"invalid argument: {exception.Message}");
+                Environment.Exit(1);
+
+                return;
             }
             catch (OptionException exception)
             {
-                Console.Error.WriteLine("error when parsing command line arguments: " + exception.Message);
+                Console.Error.WriteLine($"error when parsing command line arguments: {exception.Message}");
+                Environment.Exit(1);
 
                 return;
             }
 
-            if (help)
+            // Display help on request or missing input arguments
+            if (displayHelp || remainder.Count < 1)
             {
                 ShowHelp(Console.Error, options);
 
                 return;
             }
 
-            var printer = CreatePrinter(output);
+            // Read assemblies and query from input arguments, then execute query on target assemblies
+            var assemblies = ReadAssemblies(sources, remainder.Skip(1));
+            var query = queryIsFile ? File.ReadAllText(remainder[0]) : remainder[0];
 
-            if (!string.IsNullOrEmpty(file))
-                inputs = inputs.Concat(File.ReadAllLines(file));
-
-            var sources = new List<string>();
-
-            foreach (string input in inputs)
-            {
-                if (Directory.Exists(input))
-                    sources.AddRange(Directory.EnumerateFiles(input, "*.dll"));
-                else if (File.Exists(input))
-                    sources.Add(input);
-                else
-                    throw new FileNotFoundException("could not find input assembly nor directory", input);
-            }
-
-            using (var repository = new Repository(sources))
-            {
-                printer.Print(Console.Out, repository.Query(query).Result);
-            }
+            ExecuteQuery(assemblies, query, printer).Wait();
         }
 
-        private static IPrinter CreatePrinter(string output)
+        private static IPrinter CreatePrinter(string format)
         {
-            switch (output)
+            switch (format)
             {
                 case "plain":
                     return new PlainPrinter();
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(output), output, "unknown output format");
+                    throw new ArgumentOutOfRangeException(nameof(format), format, "unknown output format");
             }
+        }
+
+        private static async Task ExecuteQuery(IEnumerable<string> assemblies, string query, IPrinter printer)
+        {
+            using (var repository = new Repository(assemblies))
+            {
+                try
+                {
+                    var result = await repository.Query(query);
+
+                    printer.Print(Console.Out, result);
+                }
+                catch (CompilationErrorException exception)
+                {
+                    Console.Error.WriteLine($"could not compile query: {exception.Message}");
+                    Environment.Exit(3);
+                }
+            }
+        }
+
+        private static IEnumerable<string> ReadAssemblies(IEnumerable<string> sources, IEnumerable<string> arguments)
+        {
+            var assemblies = new List<string>();
+
+            foreach (string source in sources.Concat(arguments))
+            {
+                if (Directory.Exists(source))
+                    assemblies.AddRange(Directory.EnumerateFiles(source, "*.dll"));
+                else if (File.Exists(source))
+                    assemblies.Add(source);
+                else
+                {
+                    Console.Error.WriteLine($"could not find input assembly nor directory '{source}'");
+                    Environment.Exit(2);
+                }
+            }
+
+            return assemblies;
         }
 
         private static void ShowHelp(TextWriter writer, OptionSet options)
         {
             writer.WriteLine(".NET assembly query utility");
             writer.WriteLine();
-            writer.WriteLine("Usage: NBrowse [options] -q \"query expression\" AssemblyOrDirectory [AssemblyOrDirectory...]");
-            writer.WriteLine("Example: NBrowse -q \"project => project.Assemblies.SelectMany(assembly => assembly.Types)\" MyAssembly.dll");
+            writer.WriteLine("Usage: NBrowse [options] \"query expression\" AssemblyOrDirectory [AssemblyOrDirectory...]");
+            writer.WriteLine("Example: NBrowse \"project => project.Assemblies.SelectMany(assembly => assembly.Types)\" MyAssembly.dll");
             writer.WriteLine();
 
             options.WriteOptionDescriptions(writer);
