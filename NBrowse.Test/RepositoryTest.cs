@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NBrowse.Reflection;
@@ -17,7 +18,67 @@ namespace NBrowse.Test
         }
 
         [Test]
-        public async Task Query_SingleType_PrivateClassWithFields()
+        public async Task Query_Method_GenericDefaultConstructorMethod()
+        {
+            var method = await FindMethodByName("GenericDefaultConstructorMethod");
+            var parameters = method.Parameters.ToArray();
+
+            Assert.AreEqual(1, parameters.Length);
+
+            Assert.AreEqual(true, parameters[0].HasDefaultConstructor);
+            Assert.AreEqual(false, parameters[0].IsContravariant);
+            Assert.AreEqual(false, parameters[0].IsCovariant);
+            Assert.AreEqual("U", parameters[0].Name);
+
+            var constraints = parameters[0].Constraints.ToArray();
+
+            Assert.AreEqual(0, constraints.Length);
+        }
+
+        [Test]
+        public async Task Query_Method_GenericValueTypeMethod()
+        {
+            var method = await FindMethodByName("GenericValueTypeMethod");
+            var parameters = method.Parameters.ToArray();
+
+            Assert.AreEqual(1, parameters.Length);
+
+            Assert.AreEqual(true, parameters[0].HasDefaultConstructor);
+            Assert.AreEqual(false, parameters[0].IsContravariant);
+            Assert.AreEqual(false, parameters[0].IsCovariant);
+            Assert.AreEqual("U", parameters[0].Name);
+
+            var constraints = parameters[0].Constraints.ToArray();
+
+            Assert.AreEqual(1, constraints.Length);
+
+            Assert.AreEqual("ValueType", constraints[0].Name);
+        }
+
+        [Test]
+        public async Task Query_Type_GenericInterface()
+        {
+            var candidateName = $"{nameof(RepositoryTest)}+{nameof(GenericInterface<Stream>)}`1";
+            var candidateType = await FindTypeByName(candidateName);
+
+            var parameters = candidateType.Parameters.ToArray();
+
+            Assert.AreEqual(1, parameters.Length);
+
+            Assert.AreEqual(false, parameters[0].HasDefaultConstructor);
+            Assert.AreEqual(true, parameters[0].IsContravariant);
+            Assert.AreEqual(false, parameters[0].IsCovariant);
+            Assert.AreEqual("T", parameters[0].Name);
+
+            var constraints = parameters[0].Constraints.ToArray();
+
+            Assert.AreEqual(1, constraints.Length);
+
+            Assert.AreEqual("IDisposable", constraints[0].Name);
+        }
+
+        [Test]
+        public async Task Query_Type_PrivateClassWithFields()
         {
             var candidateName = $"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}";
             var candidateType = await FindTypeByName(candidateName);
@@ -56,7 +117,7 @@ namespace NBrowse.Test
         }
 
         [Test]
-        public async Task Query_SingleType_ProtectedDelegate()
+        public async Task Query_Type_ProtectedDelegate()
         {
             var candidateName = $"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}";
             var candidateType = await FindTypeByName(candidateName);
@@ -71,7 +132,7 @@ namespace NBrowse.Test
         }
 
         [Test]
-        public async Task Query_SingleType_PublicClassWithMethods()
+        public async Task Query_Type_PublicClassWithMethods()
         {
             var candidateName = $"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}";
             var candidateType = await FindTypeByName(candidateName);
@@ -132,7 +193,7 @@ namespace NBrowse.Test
         }
 
         [Test]
-        public async Task Query_SingleType_InternalStructure()
+        public async Task Query_Type_InternalStructure()
         {
             var candidateName = $"{nameof(RepositoryTest)}+{nameof(InternalStructure)}";
             var candidateType = await FindTypeByName(candidateName);
@@ -157,6 +218,15 @@ namespace NBrowse.Test
             throw new InvalidOperationException("invalid return type");
         }
 
+        private static async Task<Method> FindMethodByName(string name)
+        {
+            var methods = await CreateAndQuery<Method[]>($"project => project.Assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods).Where(m => m.Name == \"{name}\").ToArray()");
+
+            Assert.AreEqual(1, methods.Length, $"exactly one method must match name {name}");
+
+            return methods[0];
+        }
+
         private static async Task<Reflection.Type> FindTypeByName(string name)
         {
             var types = await CreateAndQuery<Reflection.Type[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
@@ -164,6 +234,12 @@ namespace NBrowse.Test
             Assert.AreEqual(1, types.Length, $"exactly one type must match name {name}");
 
             return types[0];
+        }
+
+        interface GenericInterface<in T> where T : IDisposable
+        {
+            U GenericDefaultConstructorMethod<U>() where U : new();
+            U GenericValueTypeMethod<U>() where U : struct;
         }
 
         protected delegate int ProtectedDelegate();

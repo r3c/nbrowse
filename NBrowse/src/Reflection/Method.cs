@@ -31,10 +31,10 @@ namespace NBrowse.Reflection
 			var usedInArguments = Arguments.Any(argument => type.Equals(argument.Type));
 			var usedInAttributes = Attributes.Any(attribute => type.Equals(attribute.Type));
 			var usedInBody = MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new Type(operand)));
+			var usedInParameters = Parameters.Any(parameter => parameter.Constraints.Any(constraint => type.Equals(constraint)));
 			var usedInReturn = type.Equals(ReturnType);
 
-			// FIXME: should also detect for generic parameter guards
-			return usedInArguments || usedInAttributes || usedInBody || usedInReturn;
+			return usedInArguments || usedInAttributes || usedInBody || usedInParameters || usedInReturn;
 		}
 
 		public override string ToString()

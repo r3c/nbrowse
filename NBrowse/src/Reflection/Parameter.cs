@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mono.Cecil;
 
 namespace NBrowse.Reflection
 {
     public struct Parameter
     {
-        public bool HasDefaultConstructorConstraint => _parameter.HasDefaultConstructorConstraint;
-        public bool HasValueTypeConstraint => _parameter.HasNotNullableValueTypeConstraint;
+        public IEnumerable<Type> Constraints => _parameter.Constraints.Select(constraint => new Type(constraint));
+        public bool HasDefaultConstructor => _parameter.HasDefaultConstructorConstraint;
         public string Identifier => _parameter.FullName;
         public bool IsContravariant => _parameter.IsContravariant;
         public bool IsCovariant => _parameter.IsCovariant;
         public string Name => _parameter.Name;
-        public Type Type => new Type(_parameter);
 
         private readonly GenericParameter _parameter;
 
