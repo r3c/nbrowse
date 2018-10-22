@@ -16,9 +16,9 @@ namespace NBrowse.CLI
         {
             var file = string.Empty;
             var help = false;
+            var inputs = Enumerable.Empty<string>();
             var output = "plain";
             var query = "project => project.Assemblies";
-            var sources = Enumerable.Empty<string>();
 
             var options = new OptionSet
             {
@@ -31,7 +31,7 @@ namespace NBrowse.CLI
 
             try
             {
-                sources = options.Parse(args);
+                inputs = options.Parse(args);
             }
             catch (OptionException exception)
             {
@@ -50,7 +50,19 @@ namespace NBrowse.CLI
             var printer = CreatePrinter(output);
 
             if (!string.IsNullOrEmpty(file))
-                sources = sources.Concat(File.ReadAllLines(file));
+                inputs = inputs.Concat(File.ReadAllLines(file));
+
+            var sources = new List<string>();
+
+            foreach (string input in inputs)
+            {
+                if (Directory.Exists(input))
+                    sources.AddRange(Directory.EnumerateFiles(input, "*.dll"));
+                else if (File.Exists(input))
+                    sources.Add(input);
+                else
+                    throw new FileNotFoundException("could not find input assembly nor directory", input);
+            }
 
             using (var repository = new Repository(sources))
             {
@@ -74,7 +86,7 @@ namespace NBrowse.CLI
         {
             writer.WriteLine(".NET assembly query utility");
             writer.WriteLine();
-            writer.WriteLine("Usage: NBrowse [options] -q \"query expression\" Assembly1 [Assembly2...]");
+            writer.WriteLine("Usage: NBrowse [options] -q \"query expression\" AssemblyOrDirectory [AssemblyOrDirectory...]");
             writer.WriteLine("Example: NBrowse -q \"project => project.Assemblies.SelectMany(assembly => assembly.Types)\" MyAssembly.dll");
             writer.WriteLine();
 
