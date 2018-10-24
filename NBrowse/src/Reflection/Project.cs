@@ -6,19 +6,16 @@ namespace NBrowse.Reflection
 {
 	public class Project
 	{
-		public IEnumerable<Assembly> Assemblies => _assemblies;
+		public IEnumerable<Assembly> Assemblies => _assemblies.Values;
 
-		private readonly IReadOnlyList<Assembly> _assemblies;
+		private readonly IReadOnlyDictionary<string, Assembly> _assemblies;
 
 		public Assembly FindAssembly(string fullName)
 		{
-			foreach (var assembly in _assemblies)
-			{
-				if (assembly.Name == fullName)
-					return assembly;
-			}
+			if (!_assemblies.TryGetValue(fullName, out Assembly assembly))
+				throw new ArgumentOutOfRangeException(nameof(fullName), fullName, "no matching assembly found");
 
-			throw new ArgumentOutOfRangeException(nameof(fullName), fullName, "no matching assembly found");
+			return assembly;
 		}
 
 		public Type FindType(string search)
@@ -28,7 +25,7 @@ namespace NBrowse.Reflection
 			bool foundIdentifier = false;
 			bool foundName = false;
 
-			foreach (var assembly in _assemblies)
+			foreach (var assembly in _assemblies.Values)
 			{
 				foreach (var type in assembly.Types)
 				{
@@ -58,7 +55,7 @@ namespace NBrowse.Reflection
 				if (byIdentifier.HasValue)
 					return byIdentifier.Value;
 
-				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type matches identifier '{search}'");
+				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type match identifier '{search}'");
 			}
 
 			if (foundName)
@@ -66,7 +63,7 @@ namespace NBrowse.Reflection
 				if (byName.HasValue)
 					return byName.Value;
 
-				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type matches name '{search}'");
+				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type match name '{search}'");
 			}
 
 			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching type found");
@@ -74,7 +71,12 @@ namespace NBrowse.Reflection
 
 		public Project(IEnumerable<Assembly> assemblies)
 		{
-			_assemblies = assemblies.ToArray();
+			var byIdentifier = new Dictionary<string, Assembly>();
+
+			foreach (var assembly in assemblies)
+				byIdentifier[assembly.Name] = assembly;
+
+			_assemblies = byIdentifier;
 		}
 	}
 }

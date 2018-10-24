@@ -56,6 +56,42 @@ namespace NBrowse.Test
         }
 
         [Test]
+        public async Task Query_Project_FindExistingAssembly()
+        {
+            var assembly = await CreateAndQuery<Reflection.Assembly>($"project => project.FindAssembly(\"{typeof(RepositoryTest).Assembly.GetName().Name}\")");
+
+            StringAssert.EndsWith("NBrowse.Test.dll", assembly.FileName);
+        }
+
+        [Test]
+        public void Query_Project_FindMissingAssembly()
+        {
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async() => await CreateAndQuery<Reflection.Assembly>("project => project.FindAssembly(\"DoesNotExist\")"));
+        }
+
+        [Test]
+        public async Task Query_Project_FindExistingTypeByIdentifier()
+        {
+            var type = await CreateAndQuery<Reflection.Type>($"project => project.FindType(\"{typeof(RepositoryTest).FullName}\")");
+
+            Assert.AreEqual(typeof(RepositoryTest).FullName, type.Identifier);
+        }
+
+        [Test]
+        public async Task Query_Project_FindExistingTypeByName()
+        {
+            var type = await CreateAndQuery<Reflection.Type>("project => project.FindType(\"RepositoryTest\")");
+
+            Assert.AreEqual(typeof(RepositoryTest).FullName, type.Identifier);
+        }
+
+        [Test]
+        public void Query_Project_FindMissingType()
+        {
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async() => await CreateAndQuery<Reflection.Type>("project => project.FindType(\"DoesNotExist\")"));
+        }
+
+        [Test]
         public async Task Query_Type_GenericInterface()
         {
             var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(GenericInterface<Stream>)}`1");
