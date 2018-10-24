@@ -6,7 +6,7 @@ namespace NBrowse.Reflection
 {
     public struct Field
     {
-        public Binding Binding => _field.IsStatic ? Binding.Static : Binding.Dynamic;
+        public Binding Binding => _field.IsStatic ? Binding.Static : Binding.Instance;
         public string Identifier => $"{Parent.Identifier}.{Name}";
         public string Name => _field.Name;
         public Type Parent => new Type(_field.DeclaringType);

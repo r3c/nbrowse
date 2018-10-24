@@ -2,8 +2,8 @@ namespace NBrowse.Reflection
 {
     public enum Binding
     {
-        Static,
+        Instance,
         Constructor,
-        Dynamic
+        Static
     }
 }

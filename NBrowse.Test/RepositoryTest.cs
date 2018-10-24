@@ -137,16 +137,16 @@ namespace NBrowse.Test
 
             Assert.AreEqual(4, candidateFields.Length);
 
-            Assert.AreEqual(Binding.Dynamic, candidateFields[0].Binding);
+            Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
             Assert.AreEqual("A", candidateFields[0].Name);
             Assert.AreEqual("String", candidateFields[0].Type.Name);
             Assert.AreEqual(Visibility.Public, candidateFields[0].Visibility);
-            Assert.AreEqual(Binding.Dynamic, candidateFields[0].Binding);
+            Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
 
             Assert.AreEqual("B", candidateFields[1].Name);
             Assert.AreEqual("Int32", candidateFields[1].Type.Name);
             Assert.AreEqual(Visibility.Protected, candidateFields[1].Visibility);
-            Assert.AreEqual(Binding.Dynamic, candidateFields[1].Binding);
+            Assert.AreEqual(Binding.Instance, candidateFields[1].Binding);
 
             Assert.AreEqual("C", candidateFields[2].Name);
             Assert.AreEqual("Single", candidateFields[2].Type.Name);
@@ -174,11 +174,11 @@ namespace NBrowse.Test
 
             Assert.AreEqual(1, candidateFields.Count());
 
-            Assert.AreEqual(Binding.Dynamic, candidateFields[0].Binding);
+            Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
             Assert.AreEqual("E", candidateFields[0].Name);
             Assert.AreEqual("Byte", candidateFields[0].Type.Name);
             Assert.AreEqual(Visibility.Public, candidateFields[0].Visibility);
-            Assert.AreEqual(Binding.Dynamic, candidateFields[0].Binding);
+            Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
 
             Assert.IsNotNull(candidateType.Base);
             Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}", candidateType.Base.Value.Name);
@@ -225,19 +225,19 @@ namespace NBrowse.Test
             Assert.AreEqual("index", candidateMethodArguments[0].Name);
             Assert.AreEqual("Int32", candidateMethodArguments[0].Type.Name);
 
-            Assert.AreEqual(Binding.Dynamic, candidateMethods[1].Binding);
+            Assert.AreEqual(Binding.Instance, candidateMethods[1].Binding);
             Assert.AreEqual(Implementation.Final, candidateMethods[1].Implementation);
             Assert.AreEqual("GetHashCode", candidateMethods[1].Name);
             Assert.AreEqual("Int32", candidateMethods[1].ReturnType.Name);
             Assert.AreEqual(Visibility.Public, candidateMethods[1].Visibility);
 
-            Assert.AreEqual(Binding.Dynamic, candidateMethods[2].Binding);
+            Assert.AreEqual(Binding.Instance, candidateMethods[2].Binding);
             Assert.AreEqual(Implementation.Virtual, candidateMethods[2].Implementation);
             Assert.AreEqual("ToString", candidateMethods[2].Name);
             Assert.AreEqual("String", candidateMethods[2].ReturnType.Name);
             Assert.AreEqual(Visibility.Public, candidateMethods[2].Visibility);
 
-            Assert.AreEqual(Binding.Dynamic, candidateMethods[3].Binding);
+            Assert.AreEqual(Binding.Instance, candidateMethods[3].Binding);
             Assert.AreEqual(Implementation.Virtual, candidateMethods[3].Implementation);
             Assert.AreEqual("ProtectedVirtualDynamicMethod", candidateMethods[3].Name);
             Assert.AreEqual("TimeSpan", candidateMethods[3].ReturnType.Name);
@@ -249,7 +249,7 @@ namespace NBrowse.Test
             Assert.AreEqual("Uri", candidateMethods[4].ReturnType.Name);
             Assert.AreEqual(Visibility.Private, candidateMethods[4].Visibility);
 
-            Assert.AreEqual(Binding.Dynamic, candidateMethods[5].Binding);
+            Assert.AreEqual(Binding.Instance, candidateMethods[5].Binding);
             Assert.AreEqual(Implementation.Abstract, candidateMethods[5].Implementation);
             Assert.AreEqual("InternalAbstractMethod", candidateMethods[5].Name);
             Assert.AreEqual("Guid", candidateMethods[5].ReturnType.Name);
