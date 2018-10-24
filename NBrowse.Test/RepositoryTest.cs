@@ -56,6 +56,15 @@ namespace NBrowse.Test
         }
 
         [Test]
+        public async Task Query_Project_FilterAssemblies()
+        {
+            var assemblies = await CreateAndQuery<Reflection.Assembly[]>($"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(RepositoryTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");
+
+            Assert.AreEqual(1, assemblies.Length);
+            Assert.AreEqual(typeof(RepositoryTest).Assembly.GetName().Name, assemblies[0].Name);
+        }
+
+        [Test]
         public async Task Query_Project_FindExistingAssembly()
         {
             var assembly = await CreateAndQuery<Reflection.Assembly>($"project => project.FindAssembly(\"{typeof(RepositoryTest).Assembly.GetName().Name}\")");

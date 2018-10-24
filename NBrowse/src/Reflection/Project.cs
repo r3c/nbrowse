@@ -10,6 +10,15 @@ namespace NBrowse.Reflection
 
 		private readonly IReadOnlyDictionary<string, Assembly> _assemblies;
 
+		public IEnumerable<Assembly> FilterAssemblies(IEnumerable<string> fullNames)
+		{
+			foreach (var fullName in fullNames)
+			{
+				if (_assemblies.TryGetValue(fullName, out Assembly assembly))
+					yield return assembly;
+			}
+		}
+
 		public Assembly FindAssembly(string fullName)
 		{
 			if (!_assemblies.TryGetValue(fullName, out Assembly assembly))
