@@ -125,7 +125,40 @@ namespace NBrowse.CLI
 
             options.WriteOptionDescriptions(writer);
 
-            return;
+            writer.WriteLine();
+            writer.WriteLine("Entities available in queries are:");
+            writer.WriteLine();
+
+            var entities = new Queue<System.Type>();
+
+            entities.Enqueue(typeof(Project));
+
+            var uniques = new HashSet<System.Type>(entities);
+
+            while (entities.Count > 0)
+            {
+                var entity = entities.Dequeue();
+
+                writer.WriteLine($"  {entity.Name}");
+
+                if (entity.IsEnum)
+                    writer.WriteLine($"     {string.Join(" | ", Enum.GetNames(entity))}");
+                else if (entity.IsClass || entity.IsValueType)
+                {
+                    foreach (PropertyInfo property in entity.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                    {
+                        var propertyType = property.PropertyType;
+
+                        while (propertyType.IsGenericType)
+                            propertyType = propertyType.GetGenericArguments()[0];
+
+                        writer.WriteLine($"    .{property.Name}: {property.PropertyType}");
+
+                        if (propertyType.Namespace == entity.Namespace && uniques.Add(propertyType))
+                            entities.Enqueue(propertyType);
+                    }
+                }
+            }
         }
     }
 }
