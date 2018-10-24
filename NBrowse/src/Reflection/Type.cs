@@ -9,6 +9,7 @@ namespace NBrowse.Reflection
     public struct Type : IEquatable<Type>
     {
         public IEnumerable<Attribute> Attributes => _definition != null ? _definition.CustomAttributes.Select(attribute => new Attribute(attribute)) : Array.Empty<Attribute>();
+        public Type? Base => _definition != null && _definition.BaseType != null ? new Type(_definition.BaseType) as Type? : null;
         public IEnumerable<Field> Fields => _definition != null ? _definition.Fields.Select(field => new Field(field)) : Array.Empty<Field>();
         public string Identifier => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
         public Inheritance Inheritance => _definition != null && _definition.IsAbstract ? Inheritance.Abstract : (_definition != null && _definition.IsSealed ? Inheritance.Final : Inheritance.Virtual);

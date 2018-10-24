@@ -58,8 +58,7 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_Type_GenericInterface()
         {
-            var candidateName = $"{nameof(RepositoryTest)}+{nameof(GenericInterface<Stream>)}`1";
-            var candidateType = await FindTypeByName(candidateName);
+            var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(GenericInterface<Stream>)}`1");
 
             var parameters = candidateType.Parameters.ToArray();
 
@@ -80,12 +79,10 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_Type_PrivateClassWithFields()
         {
-            var candidateName = $"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}";
-            var candidateType = await FindTypeByName(candidateName);
+            var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}");
             var expectedType = typeof(PrivateClassWithFields);
 
             Assert.AreEqual(Inheritance.Virtual, candidateType.Inheritance);
-            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -99,17 +96,17 @@ namespace NBrowse.Test
             Assert.AreEqual("A", candidateFields[0].Name);
             Assert.AreEqual("String", candidateFields[0].Type.Name);
             Assert.AreEqual(Visibility.Public, candidateFields[0].Visibility);
-            Assert.AreEqual(Binding.Dynamic, candidateFields[1].Binding);
+            Assert.AreEqual(Binding.Dynamic, candidateFields[0].Binding);
 
             Assert.AreEqual("B", candidateFields[1].Name);
             Assert.AreEqual("Int32", candidateFields[1].Type.Name);
             Assert.AreEqual(Visibility.Protected, candidateFields[1].Visibility);
-            Assert.AreEqual(Binding.Static, candidateFields[2].Binding);
+            Assert.AreEqual(Binding.Dynamic, candidateFields[1].Binding);
 
             Assert.AreEqual("C", candidateFields[2].Name);
             Assert.AreEqual("Single", candidateFields[2].Type.Name);
             Assert.AreEqual(Visibility.Private, candidateFields[2].Visibility);
-            Assert.AreEqual(Binding.Dynamic, candidateFields[3].Binding);
+            Assert.AreEqual(Binding.Static, candidateFields[2].Binding);
 
             Assert.AreEqual("D", candidateFields[3].Name);
             Assert.AreEqual("Int64", candidateFields[3].Type.Name);
@@ -117,14 +114,38 @@ namespace NBrowse.Test
         }
 
         [Test]
+        public async Task Query_Type_PrivateClassWithInheritance()
+        {
+            var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}");
+            var expectedType = typeof(InheritFromPrivateClass);
+
+            Assert.AreEqual(Inheritance.Virtual, candidateType.Inheritance);
+            Assert.AreEqual(Model.Class, candidateType.Model);
+            Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
+            Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
+            Assert.AreEqual(Visibility.Private, candidateType.Visibility);
+
+            var candidateFields = candidateType.Fields.ToArray();
+
+            Assert.AreEqual(1, candidateFields.Count());
+
+            Assert.AreEqual(Binding.Dynamic, candidateFields[0].Binding);
+            Assert.AreEqual("E", candidateFields[0].Name);
+            Assert.AreEqual("Byte", candidateFields[0].Type.Name);
+            Assert.AreEqual(Visibility.Public, candidateFields[0].Visibility);
+            Assert.AreEqual(Binding.Dynamic, candidateFields[0].Binding);
+
+            Assert.IsNotNull(candidateType.Base);
+            Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}", candidateType.Base.Value.Name);
+        }
+
+        [Test]
         public async Task Query_Type_ProtectedDelegate()
         {
-            var candidateName = $"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}";
-            var candidateType = await FindTypeByName(candidateName);
+            var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}");
             var expectedType = typeof(ProtectedDelegate);
 
             Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
-            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -134,12 +155,10 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_Type_PublicClassWithMethods()
         {
-            var candidateName = $"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}";
-            var candidateType = await FindTypeByName(candidateName);
+            var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}");
             var expectedType = typeof(PublicClassWithMethods);
 
             Assert.AreEqual(Inheritance.Abstract, candidateType.Inheritance);
-            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -195,12 +214,10 @@ namespace NBrowse.Test
         [Test]
         public async Task Query_Type_InternalStructure()
         {
-            var candidateName = $"{nameof(RepositoryTest)}+{nameof(InternalStructure)}";
-            var candidateType = await FindTypeByName(candidateName);
+            var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InternalStructure)}");
             var expectedType = typeof(InternalStructure);
 
             Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
-            Assert.AreEqual(candidateName, candidateType.Name);
             Assert.AreEqual(Model.Structure, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -232,6 +249,7 @@ namespace NBrowse.Test
             var types = await CreateAndQuery<Reflection.Type[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
 
             Assert.AreEqual(1, types.Length, $"exactly one type must match name {name}");
+            Assert.AreEqual(name, types[0].Name, $"inconsistent type name");
 
             return types[0];
         }
@@ -250,6 +268,11 @@ namespace NBrowse.Test
             protected int B;
             private static float C;
             internal long D;
+        }
+
+        private class InheritFromPrivateClass : PrivateClassWithFields
+        {
+            public byte E;
         }
 
         public abstract class PublicClassWithMethods
