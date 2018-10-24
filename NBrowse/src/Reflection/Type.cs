@@ -37,16 +37,16 @@ namespace NBrowse.Reflection
         private readonly TypeDefinition _definition;
         private readonly TypeReference _reference;
 
-        public Type(TypeDefinition type)
+        public Type(TypeDefinition definition)
         {
-            _definition = type;
-            _reference = type;
+            _definition = definition;
+            _reference = definition;
         }
 
-        public Type(TypeReference type)
+        public Type(TypeReference reference)
         {
-            _definition = type.IsDefinition ? type.Resolve() : null;
-            _reference = type;
+            _definition = reference.IsDefinition ? reference.Resolve() : null;
+            _reference = reference;
         }
 
         public bool Equals(Type other)
