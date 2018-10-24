@@ -12,7 +12,7 @@ namespace NBrowse.Reflection
 		public IEnumerable<Attribute> Attributes => _method.CustomAttributes.Select(attribute => new Attribute(attribute));
 		public Binding Binding => _method.IsConstructor ? Binding.Constructor : (_method.IsStatic ? Binding.Static : Binding.Dynamic);
 		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
-		public Inheritance Inheritance => _method.IsAbstract ? Inheritance.Abstract : (_method.IsFinal ? Inheritance.Final : (_method.IsVirtual ? Inheritance.Virtual : Inheritance.None));
+		public Implementation Implementation => _method.IsAbstract ? Implementation.Abstract : (_method.IsFinal ? Implementation.Final : (_method.IsVirtual ? Implementation.Virtual : Implementation.None));
 		public string Name => _method.Name;
 		public IEnumerable<Parameter> Parameters => _method.GenericParameters.Select(parameter => new Parameter(parameter));
 		public Type Parent => new Type(_method.DeclaringType);

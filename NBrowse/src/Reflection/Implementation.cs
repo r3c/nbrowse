@@ -1,6 +1,6 @@
 namespace NBrowse.Reflection
 {
-    public enum Inheritance
+    public enum Implementation
     {
         None,
         Abstract,

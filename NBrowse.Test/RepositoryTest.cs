@@ -118,7 +118,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}");
             var expectedType = typeof(PrivateClassWithFields);
 
-            Assert.AreEqual(Inheritance.Virtual, candidateType.Inheritance);
+            Assert.AreEqual(Implementation.Virtual, candidateType.Implementation);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -155,7 +155,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}");
             var expectedType = typeof(InheritFromPrivateClass);
 
-            Assert.AreEqual(Inheritance.Virtual, candidateType.Inheritance);
+            Assert.AreEqual(Implementation.Virtual, candidateType.Implementation);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -181,7 +181,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}");
             var expectedType = typeof(ProtectedDelegate);
 
-            Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
+            Assert.AreEqual(Implementation.Final, candidateType.Implementation);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -194,7 +194,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}");
             var expectedType = typeof(PublicClassWithMethods);
 
-            Assert.AreEqual(Inheritance.Abstract, candidateType.Inheritance);
+            Assert.AreEqual(Implementation.Abstract, candidateType.Implementation);
             Assert.AreEqual(Model.Class, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
@@ -205,7 +205,7 @@ namespace NBrowse.Test
             Assert.AreEqual(6, candidateMethods.Length);
 
             Assert.AreEqual(Binding.Constructor, candidateMethods[0].Binding);
-            Assert.AreEqual(Inheritance.None, candidateMethods[0].Inheritance);
+            Assert.AreEqual(Implementation.None, candidateMethods[0].Implementation);
             Assert.AreEqual(".ctor", candidateMethods[0].Name);
             Assert.AreEqual("Void", candidateMethods[0].ReturnType.Name);
             Assert.AreEqual(Visibility.Public, candidateMethods[0].Visibility);
@@ -217,31 +217,31 @@ namespace NBrowse.Test
             Assert.AreEqual("Int32", candidateMethodArguments[0].Type.Name);
 
             Assert.AreEqual(Binding.Dynamic, candidateMethods[1].Binding);
-            Assert.AreEqual(Inheritance.Final, candidateMethods[1].Inheritance);
+            Assert.AreEqual(Implementation.Final, candidateMethods[1].Implementation);
             Assert.AreEqual("GetHashCode", candidateMethods[1].Name);
             Assert.AreEqual("Int32", candidateMethods[1].ReturnType.Name);
             Assert.AreEqual(Visibility.Public, candidateMethods[1].Visibility);
 
             Assert.AreEqual(Binding.Dynamic, candidateMethods[2].Binding);
-            Assert.AreEqual(Inheritance.Virtual, candidateMethods[2].Inheritance);
+            Assert.AreEqual(Implementation.Virtual, candidateMethods[2].Implementation);
             Assert.AreEqual("ToString", candidateMethods[2].Name);
             Assert.AreEqual("String", candidateMethods[2].ReturnType.Name);
             Assert.AreEqual(Visibility.Public, candidateMethods[2].Visibility);
 
             Assert.AreEqual(Binding.Dynamic, candidateMethods[3].Binding);
-            Assert.AreEqual(Inheritance.Virtual, candidateMethods[3].Inheritance);
+            Assert.AreEqual(Implementation.Virtual, candidateMethods[3].Implementation);
             Assert.AreEqual("ProtectedVirtualDynamicMethod", candidateMethods[3].Name);
             Assert.AreEqual("TimeSpan", candidateMethods[3].ReturnType.Name);
             Assert.AreEqual(Visibility.Protected, candidateMethods[3].Visibility);
 
             Assert.AreEqual(Binding.Static, candidateMethods[4].Binding);
-            Assert.AreEqual(Inheritance.None, candidateMethods[4].Inheritance);
+            Assert.AreEqual(Implementation.None, candidateMethods[4].Implementation);
             Assert.AreEqual("PrivateStaticMethod", candidateMethods[4].Name);
             Assert.AreEqual("Uri", candidateMethods[4].ReturnType.Name);
             Assert.AreEqual(Visibility.Private, candidateMethods[4].Visibility);
 
             Assert.AreEqual(Binding.Dynamic, candidateMethods[5].Binding);
-            Assert.AreEqual(Inheritance.Abstract, candidateMethods[5].Inheritance);
+            Assert.AreEqual(Implementation.Abstract, candidateMethods[5].Implementation);
             Assert.AreEqual("InternalAbstractMethod", candidateMethods[5].Name);
             Assert.AreEqual("Guid", candidateMethods[5].ReturnType.Name);
             Assert.AreEqual(Visibility.Internal, candidateMethods[5].Visibility);
@@ -253,7 +253,7 @@ namespace NBrowse.Test
             var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InternalStructure)}");
             var expectedType = typeof(InternalStructure);
 
-            Assert.AreEqual(Inheritance.Final, candidateType.Inheritance);
+            Assert.AreEqual(Implementation.Final, candidateType.Implementation);
             Assert.AreEqual(Model.Structure, candidateType.Model);
             Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
             Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);

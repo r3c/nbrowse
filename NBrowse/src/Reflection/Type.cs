@@ -12,7 +12,7 @@ namespace NBrowse.Reflection
         public Type? Base => _definition != null && _definition.BaseType != null ? new Type(_definition.BaseType) as Type? : null;
         public IEnumerable<Field> Fields => _definition != null ? _definition.Fields.Select(field => new Field(field)) : Array.Empty<Field>();
         public string Identifier => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
-        public Inheritance Inheritance => _definition != null && _definition.IsAbstract ? Inheritance.Abstract : (_definition != null && _definition.IsSealed ? Inheritance.Final : Inheritance.Virtual);
+        public Implementation Implementation => _definition != null && _definition.IsAbstract ? Implementation.Abstract : (_definition != null && _definition.IsSealed ? Implementation.Final : Implementation.Virtual);
         public IEnumerable<Method> Methods => _definition != null ? _definition.Methods.Select(method => new Method(method)) : Array.Empty<Method>();
         public Model Model => _definition.IsEnum ? Model.Enumeration : (_definition.IsInterface ? Model.Interface : (_definition.IsValueType ? Model.Structure : Model.Class));
         public string Name => _definition != null && _definition.IsNested ? $"{new Type(_definition.DeclaringType).Name}+{_reference.Name}" : _reference.Name;
