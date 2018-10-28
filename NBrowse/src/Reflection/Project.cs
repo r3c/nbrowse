@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace NBrowse.Reflection
 {
 	public class Project
 	{
+		[JsonIgnore]
 		public IEnumerable<Assembly> Assemblies => _assemblies.Values;
 
 		private readonly IReadOnlyDictionary<string, Assembly> _assemblies;

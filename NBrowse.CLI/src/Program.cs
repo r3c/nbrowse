@@ -23,7 +23,7 @@ namespace NBrowse.CLI
 
 			var options = new OptionSet
 			{
-				{ "f|format=", "change output format (plain)", format => printer = CreatePrinter(format) },
+				{ "f|format=", "change output format (json, plain)", format => printer = CreatePrinter(format) },
 				{ "h|help", "show this message and exit", h => displayHelp = h != null },
 				{ "i|input=", "read assemblies from text file (one path per line)", i => sources = File.ReadAllLines(i) },
 				{ "s|source", "assume query is a text file, not a plain query", s => queryIsFile = s != null }
@@ -69,6 +69,9 @@ namespace NBrowse.CLI
 		{
 			switch (format)
 			{
+				case "json":
+					return new JsonPrinter();
+
 				case "plain":
 					return new PlainPrinter();
 
