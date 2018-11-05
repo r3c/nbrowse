@@ -12,19 +12,28 @@ namespace NBrowse.Reflection
 	{
 		[JsonIgnore]
 		public IEnumerable<Argument> Arguments => _method.Parameters.Select(argument => new Argument(argument));
+
 		[JsonIgnore]
 		public IEnumerable<Attribute> Attributes => _method.CustomAttributes.Select(attribute => new Attribute(attribute));
+
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Binding Binding => _method.IsConstructor ? Binding.Constructor : (_method.IsStatic ? Binding.Static : Binding.Instance);
+
 		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
+
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Implementation Implementation => _method.IsAbstract ? Implementation.Abstract : (_method.IsFinal ? Implementation.Final : (_method.IsVirtual ? Implementation.Virtual : Implementation.None));
+
 		public string Name => _method.Name;
+
 		[JsonIgnore]
 		public IEnumerable<Parameter> Parameters => _method.GenericParameters.Select(parameter => new Parameter(parameter));
+
 		[JsonIgnore]
 		public Type Parent => new Type(_method.DeclaringType);
+
 		public Type ReturnType => new Type(_method.ReturnType);
+
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Visibility Visibility => _method.IsPublic ? Visibility.Public : (_method.IsPrivate ? Visibility.Private : (_method.IsFamily ? Visibility.Protected : Visibility.Internal));
 

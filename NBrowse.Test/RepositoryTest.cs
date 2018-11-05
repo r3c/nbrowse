@@ -122,13 +122,14 @@ namespace NBrowse.Test
 		}
 
 		[Test]
-		public async Task Query_Type_PrivateClassWithFields()
+		public async Task Query_Type_PrivateClassWithFieldsAndNestedType()
 		{
 			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}");
 			var expectedType = typeof(PrivateClassWithFields);
 
 			Assert.AreEqual(Implementation.Virtual, candidateType.Implementation);
 			Assert.AreEqual(Model.Class, candidateType.Model);
+			Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}", candidateType.Name);
 			Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
 			Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
 			Assert.AreEqual(Visibility.Private, candidateType.Visibility);
@@ -156,6 +157,12 @@ namespace NBrowse.Test
 			Assert.AreEqual("D", candidateFields[3].Name);
 			Assert.AreEqual("Int64", candidateFields[3].Type.Name);
 			Assert.AreEqual(Visibility.Internal, candidateFields[3].Visibility);
+
+			var candidateNestedTypes = candidateType.NestedTypes.ToArray();
+
+			Assert.AreEqual(1, candidateNestedTypes.Length);
+
+			Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}+{nameof(PrivateClassWithFields.NestedClass)}", candidateNestedTypes[0].Name);
 		}
 
 		[Test]
@@ -166,6 +173,7 @@ namespace NBrowse.Test
 
 			Assert.AreEqual(Implementation.Virtual, candidateType.Implementation);
 			Assert.AreEqual(Model.Class, candidateType.Model);
+			Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}", candidateType.Name);
 			Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
 			Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
 			Assert.AreEqual(Visibility.Private, candidateType.Visibility);
@@ -309,6 +317,10 @@ namespace NBrowse.Test
 
 		private class PrivateClassWithFields
 		{
+			public class NestedClass
+			{
+			}
+
 			public string A;
 			protected int B;
 			private static float C;

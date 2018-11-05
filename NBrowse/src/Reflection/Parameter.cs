@@ -10,10 +10,15 @@ namespace NBrowse.Reflection
     {
         [JsonIgnore]
         public IEnumerable<Type> Constraints => _parameter.Constraints.Select(constraint => new Type(constraint));
+
         public bool HasDefaultConstructor => _parameter.HasDefaultConstructorConstraint;
+
         public string Identifier => _parameter.FullName;
+
         public bool IsContravariant => _parameter.IsContravariant;
+
         public bool IsCovariant => _parameter.IsCovariant;
+
         public string Name => _parameter.Name;
 
         private readonly GenericParameter _parameter;
