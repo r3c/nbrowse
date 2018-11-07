@@ -31,12 +31,12 @@ namespace NBrowse.Reflection
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Model Model => _definition.IsEnum ? Model.Enumeration : (_definition.IsInterface ? Model.Interface : (_definition.IsValueType ? Model.Structure : Model.Class));
 
-		public string Name => _definition != null && _definition.IsNested ? $"{new Type(_definition.DeclaringType).Name}+{_reference.Name}" : _reference.Name;
+		public string Name => _reference.IsNested ? $"{new Type(_reference.DeclaringType).Name}+{_reference.Name}" : _reference.Name;
 
-		public string Namespace => _definition == null ? string.Empty : (_definition.IsNested ? new Type(_definition.DeclaringType).Namespace : _definition.Namespace);
+		public string Namespace => _reference.IsNested ? new Type(_reference.DeclaringType).Namespace : _reference.Namespace;
 
 		[JsonIgnore]
-		public IEnumerable<Type> NestedTypes => _definition?.NestedTypes.Where(Filter.IsVisible).Select(type => new Type(type)) ?? Array.Empty<Type>();
+		public IEnumerable<Type> NestedTypes => _definition?.NestedTypes.Select(type => new Type(type)) ?? Array.Empty<Type>();
 
 		[JsonIgnore]
 		public IEnumerable<Parameter> Parameters => _definition?.GenericParameters.Select(parameter => new Parameter(parameter)) ?? Array.Empty<Parameter>();
@@ -70,7 +70,7 @@ namespace NBrowse.Reflection
 
 		public Type(TypeReference reference)
 		{
-			_definition = reference.IsDefinition ? reference.Resolve() : null;
+			_definition = reference.IsDefinition || reference.Module.AssemblyResolver != null ? reference.Resolve() : null;
 			_reference = reference;
 		}
 

@@ -21,7 +21,7 @@ namespace NBrowse.Reflection
 		public Version Version => _assembly.Name.Version;
 
 		[JsonIgnore]
-		public IEnumerable<Type> Types => (_module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Where(Filter.IsVisible).Select(type => new Type(type));
+		public IEnumerable<Type> Types => (_module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Select(type => new Type(type));
 
 		private readonly AssemblyDefinition _assembly;
 		private readonly ModuleDefinition _module;

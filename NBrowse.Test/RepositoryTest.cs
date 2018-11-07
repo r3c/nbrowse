@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using NBrowse.Reflection;
 using NUnit.Framework;
@@ -98,6 +100,18 @@ namespace NBrowse.Test
 		public void Query_Project_FindMissingType()
 		{
 			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await CreateAndQuery<Reflection.Type>("project => project.FindType(\"DoesNotExist\")"));
+		}
+
+		[Test]
+		public async Task Query_Type_HasCustomAttribute()
+		{
+			Assert.IsTrue(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>()(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\").Attributes)"));
+		}
+
+		[Test]
+		public async Task Query_Type_IsNotGenerated()
+		{
+			Assert.IsFalse(await CreateAndQuery<bool>($"project => Is.Not(Is.Generated)(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\").Attributes)"));
 		}
 
 		[Test]
@@ -359,6 +373,7 @@ namespace NBrowse.Test
 			internal abstract Guid InternalAbstractMethod();
 		}
 
+		[CompilerGenerated]
 		internal struct InternalStructure { }
 	}
 }
