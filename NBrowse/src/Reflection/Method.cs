@@ -8,7 +8,7 @@ using Newtonsoft.Json.Converters;
 
 namespace NBrowse.Reflection
 {
-	public struct Method
+	public struct Method : IEquatable<Method>
 	{
 		[JsonIgnore]
 		public IEnumerable<Argument> Arguments => _method.Parameters.Select(argument => new Argument(argument));
@@ -22,7 +22,7 @@ namespace NBrowse.Reflection
 		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Implementation Implementation => _method.IsAbstract ? Implementation.Abstract : (_method.IsFinal ? Implementation.Final : (_method.IsVirtual ? Implementation.Virtual : Implementation.None));
+		public Implementation Implementation => _method.IsAbstract ? Implementation.Abstract : (_method.IsFinal ? Implementation.Final : (_method.IsVirtual ? Implementation.Virtual : Implementation.Concrete));
 
 		public string Name => _method.Name;
 
@@ -42,6 +42,20 @@ namespace NBrowse.Reflection
 		public Method(MethodDefinition method)
 		{
 			_method = method;
+		}
+
+		public bool Equals(Method other)
+		{
+			// FIXME: https://cdn-images-1.medium.com/max/1200/1*snTXFElFuQLSFDnvZKJ6IA.png
+			return _method.MetadataToken.RID == other._method.MetadataToken.RID;
+		}
+
+		public bool IsCalling(Method method)
+		{
+			Func<OpCode, bool> isMethodCall = opCode => opCode == OpCodes.Call || opCode == OpCodes.Callvirt;
+			Func<object, bool> isSameReference = operand => operand is MethodReference reference && method._method.MetadataToken.RID == reference.MetadataToken.RID;
+
+			return MatchInstruction(instruction => isMethodCall(instruction.OpCode) && isSameReference(instruction.Operand));
 		}
 
 		public bool IsUsing(Type type)

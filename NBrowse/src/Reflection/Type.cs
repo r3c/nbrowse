@@ -77,7 +77,7 @@ namespace NBrowse.Reflection
 		public bool Equals(Type other)
 		{
 			// FIXME: most probably inaccurate, waiting for https://github.com/jbevain/cecil/pull/394
-			return _reference.FullName == other._reference.FullName;
+			return _reference.MetadataToken.RID == other._reference.MetadataToken.RID;
 		}
 
 		public override string ToString()

@@ -20,6 +20,17 @@ namespace NBrowse.Test
 		}
 
 		[Test]
+		public async Task Query_Method_IsCallingMethod()
+		{
+			var caller = await FindMethodByName("PublicMethodCallingAnotherOne");
+			var callee = await FindMethodByName("ProtectedVirtualDynamicMethod");
+			var other = await FindMethodByName("PrivateStaticMethod");
+
+			Assert.IsTrue(caller.IsCalling(callee));
+			Assert.IsFalse(caller.IsCalling(other));
+		}
+
+		[Test]
 		public async Task Query_Method_GenericDefaultConstructorMethod()
 		{
 			var method = await FindMethodByName("GenericDefaultConstructorMethod");
@@ -233,10 +244,10 @@ namespace NBrowse.Test
 
 			var candidateMethods = candidateType.Methods.ToArray();
 
-			Assert.AreEqual(6, candidateMethods.Length);
+			Assert.AreEqual(7, candidateMethods.Length);
 
 			Assert.AreEqual(Binding.Constructor, candidateMethods[0].Binding);
-			Assert.AreEqual(Implementation.None, candidateMethods[0].Implementation);
+			Assert.AreEqual(Implementation.Concrete, candidateMethods[0].Implementation);
 			Assert.AreEqual(".ctor", candidateMethods[0].Name);
 			Assert.AreEqual("Void", candidateMethods[0].ReturnType.Name);
 			Assert.AreEqual(Visibility.Public, candidateMethods[0].Visibility);
@@ -260,22 +271,28 @@ namespace NBrowse.Test
 			Assert.AreEqual(Visibility.Public, candidateMethods[2].Visibility);
 
 			Assert.AreEqual(Binding.Instance, candidateMethods[3].Binding);
-			Assert.AreEqual(Implementation.Virtual, candidateMethods[3].Implementation);
-			Assert.AreEqual("ProtectedVirtualDynamicMethod", candidateMethods[3].Name);
-			Assert.AreEqual("TimeSpan", candidateMethods[3].ReturnType.Name);
-			Assert.AreEqual(Visibility.Protected, candidateMethods[3].Visibility);
+			Assert.AreEqual(Implementation.Concrete, candidateMethods[3].Implementation);
+			Assert.AreEqual("PublicMethodCallingAnotherOne", candidateMethods[3].Name);
+			Assert.AreEqual("Void", candidateMethods[3].ReturnType.Name);
+			Assert.AreEqual(Visibility.Public, candidateMethods[3].Visibility);
 
-			Assert.AreEqual(Binding.Static, candidateMethods[4].Binding);
-			Assert.AreEqual(Implementation.None, candidateMethods[4].Implementation);
-			Assert.AreEqual("PrivateStaticMethod", candidateMethods[4].Name);
-			Assert.AreEqual("Uri", candidateMethods[4].ReturnType.Name);
-			Assert.AreEqual(Visibility.Private, candidateMethods[4].Visibility);
+			Assert.AreEqual(Binding.Instance, candidateMethods[4].Binding);
+			Assert.AreEqual(Implementation.Virtual, candidateMethods[4].Implementation);
+			Assert.AreEqual("ProtectedVirtualDynamicMethod", candidateMethods[4].Name);
+			Assert.AreEqual("TimeSpan", candidateMethods[4].ReturnType.Name);
+			Assert.AreEqual(Visibility.Protected, candidateMethods[4].Visibility);
 
-			Assert.AreEqual(Binding.Instance, candidateMethods[5].Binding);
-			Assert.AreEqual(Implementation.Abstract, candidateMethods[5].Implementation);
-			Assert.AreEqual("InternalAbstractMethod", candidateMethods[5].Name);
-			Assert.AreEqual("Guid", candidateMethods[5].ReturnType.Name);
-			Assert.AreEqual(Visibility.Internal, candidateMethods[5].Visibility);
+			Assert.AreEqual(Binding.Static, candidateMethods[5].Binding);
+			Assert.AreEqual(Implementation.Concrete, candidateMethods[5].Implementation);
+			Assert.AreEqual("PrivateStaticMethod", candidateMethods[5].Name);
+			Assert.AreEqual("Uri", candidateMethods[5].ReturnType.Name);
+			Assert.AreEqual(Visibility.Private, candidateMethods[5].Visibility);
+
+			Assert.AreEqual(Binding.Instance, candidateMethods[6].Binding);
+			Assert.AreEqual(Implementation.Abstract, candidateMethods[6].Implementation);
+			Assert.AreEqual("InternalAbstractMethod", candidateMethods[6].Name);
+			Assert.AreEqual("Guid", candidateMethods[6].ReturnType.Name);
+			Assert.AreEqual(Visibility.Internal, candidateMethods[6].Visibility);
 		}
 
 		[Test]
@@ -358,6 +375,12 @@ namespace NBrowse.Test
 			public override string ToString()
 			{
 				return default(string);
+			}
+
+			public void PublicMethodCallingAnotherOne()
+			{
+				if (ProtectedVirtualDynamicMethod() == null)
+					throw new Exception();
 			}
 
 			protected virtual TimeSpan ProtectedVirtualDynamicMethod()

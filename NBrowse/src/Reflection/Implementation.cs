@@ -2,7 +2,7 @@ namespace NBrowse.Reflection
 {
     public enum Implementation
     {
-        None,
+        Concrete,
         Abstract,
         Virtual,
         Final
