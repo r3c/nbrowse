@@ -23,13 +23,27 @@ namespace NBrowse.Reflection
 		public string Identifier => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Implementation Implementation => _definition != null && _definition.IsAbstract ? Implementation.Abstract : (_definition != null && _definition.IsSealed ? Implementation.Final : Implementation.Virtual);
+		public Implementation Implementation => _definition == null
+			? Implementation.Unknown
+			: (_definition.IsAbstract
+				? Implementation.Abstract
+				: (_definition.IsSealed
+					? Implementation.Final
+					: Implementation.Virtual));
 
 		[JsonIgnore]
 		public IEnumerable<Method> Methods => _definition?.Methods.Select(method => new Method(method)) ?? Array.Empty<Method>();
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Model Model => _definition.IsEnum ? Model.Enumeration : (_definition.IsInterface ? Model.Interface : (_definition.IsValueType ? Model.Structure : Model.Class));
+		public Model Model => _definition == null
+			? Model.Unknown
+			: (_definition.IsEnum
+				? Model.Enumeration
+				: (_definition.IsInterface
+					? Model.Interface
+					: (_definition.IsValueType
+						? Model.Structure
+						: Model.Class)));
 
 		public string Name => _reference.IsNested ? $"{new Type(_reference.DeclaringType).Name}+{_reference.Name}" : _reference.Name;
 
@@ -45,19 +59,21 @@ namespace NBrowse.Reflection
 		public Assembly Parent => new Assembly(_reference.Module.Assembly);
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Visibility Visibility
-		{
-			get
-			{
-				if (_definition == null)
-					return Visibility.Public;
-
-				if (_definition.IsNested)
-					return _definition.IsNestedPublic ? Visibility.Public : (_definition.IsNestedFamily ? Visibility.Protected : (_definition.IsNestedPrivate ? Visibility.Private : Visibility.Internal));
-
-				return _definition.IsPublic ? Visibility.Public : (_definition.IsNotPublic ? Visibility.Private : Visibility.Internal);
-			}
-		}
+		public Visibility Visibility => _definition == null
+			? Visibility.Unknown
+			: (_definition.IsNested
+				? (_definition.IsNestedPublic
+					? Visibility.Public
+					: (_definition.IsNestedFamily
+						? Visibility.Protected
+						: (_definition.IsNestedPrivate
+							? Visibility.Private
+							: Visibility.Internal)))
+				: (_definition.IsPublic
+					? Visibility.Public
+					: (_definition.IsNotPublic
+						? Visibility.Private
+						: Visibility.Internal)));
 
 		private readonly TypeDefinition _definition;
 		private readonly TypeReference _reference;

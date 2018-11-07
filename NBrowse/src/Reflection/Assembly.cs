@@ -16,7 +16,7 @@ namespace NBrowse.Reflection
 		public string Name => _assembly.Name.Name;
 
 		[JsonIgnore]
-		public IEnumerable<string> References => (_module?.AssemblyReferences ?? Array.Empty<AssemblyNameReference>() as ICollection<AssemblyNameReference>).Select(reference => reference.FullName);
+		public IEnumerable<string> References => (_module?.AssemblyReferences ?? Enumerable.Empty<AssemblyNameReference>()).Select(reference => reference.FullName);
 
 		public Version Version => _assembly.Name.Version;
 

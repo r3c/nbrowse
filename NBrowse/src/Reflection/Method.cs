@@ -11,49 +11,79 @@ namespace NBrowse.Reflection
 	public struct Method : IEquatable<Method>
 	{
 		[JsonIgnore]
-		public IEnumerable<Argument> Arguments => _method.Parameters.Select(argument => new Argument(argument));
+		public IEnumerable<Argument> Arguments => _reference.Parameters.Select(argument => new Argument(argument));
 
 		[JsonIgnore]
-		public IEnumerable<Attribute> Attributes => _method.CustomAttributes.Select(attribute => new Attribute(attribute));
+		public IEnumerable<Attribute> Attributes => _definition?.CustomAttributes.Select(attribute => new Attribute(attribute)) ?? Array.Empty<Attribute>();
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Binding Binding => _method.IsConstructor ? Binding.Constructor : (_method.IsStatic ? Binding.Static : Binding.Instance);
+		public Binding Binding => _definition == null
+			? Binding.Unknown
+			: (_definition.IsConstructor
+				? Binding.Constructor
+				: (_definition.IsStatic
+					? Binding.Static
+					: Binding.Instance));
 
 		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Implementation Implementation => _method.IsAbstract ? Implementation.Abstract : (_method.IsFinal ? Implementation.Final : (_method.IsVirtual ? Implementation.Virtual : Implementation.Concrete));
+		public Implementation Implementation => _definition == null
+			? Implementation.Unknown
+			: (_definition.IsAbstract
+				? Implementation.Abstract
+				: (_definition.IsFinal
+					? Implementation.Final
+					: (_definition.IsVirtual
+						? Implementation.Virtual
+						: Implementation.Concrete)));
 
-		public string Name => _method.Name;
+		public string Name => _reference.Name;
 
 		[JsonIgnore]
-		public IEnumerable<Parameter> Parameters => _method.GenericParameters.Select(parameter => new Parameter(parameter));
+		public IEnumerable<Parameter> Parameters => _reference.GenericParameters.Select(parameter => new Parameter(parameter));
 
 		[JsonIgnore]
-		public Type Parent => new Type(_method.DeclaringType);
+		public Type Parent => new Type(_reference.DeclaringType);
 
-		public Type ReturnType => new Type(_method.ReturnType);
+		public Type ReturnType => new Type(_reference.ReturnType);
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Visibility Visibility => _method.IsPublic ? Visibility.Public : (_method.IsPrivate ? Visibility.Private : (_method.IsFamily ? Visibility.Protected : Visibility.Internal));
+		public Visibility Visibility => _definition == null
+			? Visibility.Unknown
+			: (_definition.IsPublic
+				? Visibility.Public
+				: (_definition.IsPrivate
+					? Visibility.Private
+					: (_definition.IsFamily
+						? Visibility.Protected
+						: Visibility.Internal)));
 
-		private readonly MethodDefinition _method;
+		private readonly MethodDefinition _definition;
+		private readonly MethodReference _reference;
 
-		public Method(MethodDefinition method)
+		public Method(MethodDefinition definition)
 		{
-			_method = method;
+			_definition = definition;
+			_reference = definition;
+		}
+
+		public Method(MethodReference reference)
+		{
+			_definition = reference.IsDefinition || reference.Module.AssemblyResolver != null ? reference.Resolve() : null;
+			_reference = reference;
 		}
 
 		public bool Equals(Method other)
 		{
 			// FIXME: https://cdn-images-1.medium.com/max/1200/1*snTXFElFuQLSFDnvZKJ6IA.png
-			return _method.MetadataToken.RID == other._method.MetadataToken.RID;
+			return _reference.MetadataToken.RID == other._reference.MetadataToken.RID;
 		}
 
 		public bool IsCalling(Method method)
 		{
 			Func<OpCode, bool> isMethodCall = opCode => opCode == OpCodes.Call || opCode == OpCodes.Callvirt;
-			Func<object, bool> isSameReference = operand => operand is MethodReference reference && method._method.MetadataToken.RID == reference.MetadataToken.RID;
+			Func<object, bool> isSameReference = operand => operand is MethodReference reference && method.Equals(new Method(reference));
 
 			return MatchInstruction(instruction => isMethodCall(instruction.OpCode) && isSameReference(instruction.Operand));
 		}
@@ -76,7 +106,7 @@ namespace NBrowse.Reflection
 
 		private bool MatchInstruction(Func<Instruction, bool> predicate)
 		{
-			return _method.Body != null && _method.Body.Instructions.Any(predicate);
+			return _definition != null && _definition.Body != null && _definition.Body.Instructions.Any(predicate);
 		}
 	}
 }

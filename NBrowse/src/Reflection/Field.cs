@@ -21,7 +21,13 @@ namespace NBrowse.Reflection
 		public Type Type => new Type(_field.FieldType);
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Visibility Visibility => _field.IsPublic ? Visibility.Public : (_field.IsPrivate ? Visibility.Private : (_field.IsFamily ? Visibility.Protected : Visibility.Internal));
+		public Visibility Visibility => _field.IsPublic
+			? Visibility.Public
+			: (_field.IsPrivate
+				? Visibility.Private
+				: (_field.IsFamily
+					? Visibility.Protected
+					: Visibility.Internal));
 
 		private readonly FieldDefinition _field;
 
