@@ -7,9 +7,9 @@ namespace NBrowse.Selection
 	public static class Has
 	{
 		// See: https://github.com/jbevain/cecil/wiki/HOWTO
-		public static System.Func<IEnumerable<Attribute>, bool> Attribute<T>() where T : System.Attribute
+		public static bool Attribute<T>(Type type) where T : System.Attribute
 		{
-			return attributes => attributes.Any(attribute => attribute.Identifier == typeof(T).FullName);
+			return type.Attributes.Any(attribute => attribute.Identifier == typeof(T).FullName);
 		}
 	}
 }

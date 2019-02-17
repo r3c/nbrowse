@@ -116,13 +116,13 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Type_HasCustomAttribute()
 		{
-			Assert.IsTrue(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>()(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\").Attributes)"));
+			Assert.IsTrue(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
 		}
 
 		[Test]
 		public async Task Query_Type_IsNotGenerated()
 		{
-			Assert.IsFalse(await CreateAndQuery<bool>($"project => Is.Not(Is.Generated)(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\").Attributes)"));
+			Assert.IsFalse(await CreateAndQuery<bool>($"project => !Is.Generated(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
 		}
 
 		[Test]
