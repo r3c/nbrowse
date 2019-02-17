@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -117,6 +118,14 @@ namespace NBrowse.Test
 		public async Task Query_Type_HasCustomAttribute()
 		{
 			Assert.IsTrue(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
+		}
+
+		[Test]
+		public async Task Query_Type_Interfaces()
+		{
+			var names = await CreateAndQuery<string[]>($"project => project.FindType(\"{nameof(RepositoryTest)}+{nameof(ClassWithInterfaces)}\").Interfaces.Select(i => i.Name).ToArray()");
+
+			CollectionAssert.AreEquivalent(new[] { "ICloneable", "IDisposable" }, names);
 		}
 
 		[Test]
@@ -336,6 +345,19 @@ namespace NBrowse.Test
 			Assert.AreEqual(name, types[0].Name, $"inconsistent type name");
 
 			return types[0];
+		}
+
+		public class ClassWithInterfaces : ICloneable, IDisposable
+		{
+			public object Clone()
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Dispose()
+			{
+				throw new NotImplementedException();
+			}
 		}
 
 		interface GenericInterface<in T> where T : IDisposable

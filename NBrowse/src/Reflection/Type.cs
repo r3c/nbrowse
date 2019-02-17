@@ -32,6 +32,9 @@ namespace NBrowse.Reflection
 					: Implementation.Virtual));
 
 		[JsonIgnore]
+		public IEnumerable<Type> Interfaces => _definition?.Interfaces.Select(i => new Type(i.InterfaceType)) ?? Array.Empty<Type>();
+
+		[JsonIgnore]
 		public IEnumerable<Method> Methods => _definition?.Methods.Select(method => new Method(method)) ?? Array.Empty<Method>();
 
 		[JsonConverter(typeof(StringEnumConverter))]
