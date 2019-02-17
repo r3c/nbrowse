@@ -23,9 +23,9 @@ namespace NBrowse.CLI
 
 			var options = new OptionSet
 			{
-				{ "f|format=", "change output format (json, plain)", format => printer = CreatePrinter(format) },
-				{ "h|help", "show this message and exit", h => displayHelp = h != null },
-				{ "i|input=", "read assemblies from text file (one path per line)", i => sources = File.ReadAllLines(i) },
+				{ "f|format=", "change output format (value: json, plain)", format => printer = CreatePrinter(format) },
+				{ "h|help", "show this message and user manual", h => displayHelp = true },
+				{ "i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i) },
 				{ "s|source", "assume query is a text file, not a plain query", s => queryIsFile = s != null }
 			};
 
@@ -53,7 +53,7 @@ namespace NBrowse.CLI
 			// Display help on request or missing input arguments
 			if (displayHelp || remainder.Count < 1)
 			{
-				ShowHelp(Console.Error, options);
+				ShowHelp(Console.Error, options, displayHelp);
 
 				return;
 			}
@@ -118,50 +118,18 @@ namespace NBrowse.CLI
 			return assemblies;
 		}
 
-		private static void ShowHelp(TextWriter writer, OptionSet options)
+		private static void ShowHelp(TextWriter writer, OptionSet options, bool verbose)
 		{
 			writer.WriteLine(".NET assembly query utility");
 			writer.WriteLine();
 			writer.WriteLine("Usage: NBrowse [options] \"query expression\" AssemblyOrDirectory [AssemblyOrDirectory...]");
-			writer.WriteLine("Example: NBrowse \"project => project.Assemblies.SelectMany(assembly => assembly.Types)\" MyAssembly.dll");
+			writer.WriteLine("Example: NBrowse \"project => project.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
 			writer.WriteLine();
 
 			options.WriteOptionDescriptions(writer);
 
-			writer.WriteLine();
-			writer.WriteLine("Entities available in queries are:");
-			writer.WriteLine();
-
-			var entities = new Queue<System.Type>();
-
-			entities.Enqueue(typeof(Project));
-
-			var uniques = new HashSet<System.Type>(entities);
-
-			while (entities.Count > 0)
-			{
-				var entity = entities.Dequeue();
-
-				writer.WriteLine($"  {entity.Name}");
-
-				if (entity.IsEnum)
-					writer.WriteLine($"     {string.Join(" | ", Enum.GetNames(entity))}");
-				else if (entity.IsClass || entity.IsValueType)
-				{
-					foreach (PropertyInfo property in entity.GetProperties(BindingFlags.Instance | BindingFlags.Public))
-					{
-						var propertyType = property.PropertyType;
-
-						while (propertyType.IsGenericType)
-							propertyType = propertyType.GetGenericArguments()[0];
-
-						writer.WriteLine($"    .{property.Name}: {property.PropertyType}");
-
-						if (propertyType.Namespace == entity.Namespace && uniques.Add(propertyType))
-							entities.Enqueue(propertyType);
-					}
-				}
-			}
+			if (verbose)
+				Help.Write(writer);
 		}
 	}
 }
