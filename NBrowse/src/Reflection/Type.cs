@@ -81,6 +81,16 @@ namespace NBrowse.Reflection
 		private readonly TypeDefinition _definition;
 		private readonly TypeReference _reference;
 
+		public static bool operator ==(Type lhs, Type rhs)
+		{
+			return lhs.Equals(rhs);
+		}
+
+		public static bool operator !=(Type lhs, Type rhs)
+		{
+			return !lhs.Equals(rhs);
+		}
+
 		public Type(TypeDefinition definition)
 		{
 			_definition = definition;
@@ -97,6 +107,16 @@ namespace NBrowse.Reflection
 		{
 			// FIXME: most probably inaccurate, waiting for https://github.com/jbevain/cecil/pull/394
 			return _reference.MetadataToken.RID == other._reference.MetadataToken.RID;
+		}
+
+		public override bool Equals(object o)
+		{
+			return o is Type other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return _reference.GetHashCode();
 		}
 
 		public override string ToString()

@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace NBrowse.Reflection
 {
-	public struct Assembly
+	public struct Assembly : IEquatable<Assembly>
 	{
 		public string FileName => _module?.FileName ?? string.Empty;
 
@@ -26,10 +26,35 @@ namespace NBrowse.Reflection
 		private readonly AssemblyDefinition _assembly;
 		private readonly ModuleDefinition _module;
 
+		public static bool operator ==(Assembly lhs, Assembly rhs)
+		{
+			return lhs.Equals(rhs);
+		}
+
+		public static bool operator !=(Assembly lhs, Assembly rhs)
+		{
+			return !lhs.Equals(rhs);
+		}
+
 		public Assembly(AssemblyDefinition assembly)
 		{
 			_assembly = assembly;
 			_module = assembly.Modules.FirstOrDefault(module => module.IsMain);
+		}
+
+		public bool Equals(Assembly other)
+		{
+			return _assembly.MetadataToken.RID == other._assembly.MetadataToken.RID;
+		}
+
+		public override bool Equals(object o)
+		{
+			return o is Assembly other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return _assembly.GetHashCode();
 		}
 
 		public override string ToString()

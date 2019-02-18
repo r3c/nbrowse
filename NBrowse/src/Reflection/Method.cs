@@ -62,6 +62,16 @@ namespace NBrowse.Reflection
 		private readonly MethodDefinition _definition;
 		private readonly MethodReference _reference;
 
+		public static bool operator ==(Method lhs, Method rhs)
+		{
+			return lhs.Equals(rhs);
+		}
+
+		public static bool operator !=(Method lhs, Method rhs)
+		{
+			return !lhs.Equals(rhs);
+		}
+
 		public Method(MethodDefinition definition)
 		{
 			_definition = definition;
@@ -78,6 +88,16 @@ namespace NBrowse.Reflection
 		{
 			// FIXME: https://cdn-images-1.medium.com/max/1200/1*snTXFElFuQLSFDnvZKJ6IA.png
 			return _reference.MetadataToken.RID == other._reference.MetadataToken.RID;
+		}
+
+		public override bool Equals(object o)
+		{
+			return o is Method other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return _reference.GetHashCode();
 		}
 
 		public bool IsCalling(Method method)

@@ -6,7 +6,7 @@ using Newtonsoft.Json.Converters;
 
 namespace NBrowse.Reflection
 {
-	public struct Field
+	public struct Field : IEquatable<Field>
 	{
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Binding Binding => _field.IsStatic ? Binding.Static : Binding.Instance;
@@ -31,9 +31,34 @@ namespace NBrowse.Reflection
 
 		private readonly FieldDefinition _field;
 
+		public static bool operator ==(Field lhs, Field rhs)
+		{
+			return lhs.Equals(rhs);
+		}
+
+		public static bool operator !=(Field lhs, Field rhs)
+		{
+			return !lhs.Equals(rhs);
+		}
+
 		public Field(FieldDefinition field)
 		{
 			_field = field;
+		}
+
+		public bool Equals(Field other)
+		{
+			return _field.MetadataToken.RID == other._field.MetadataToken.RID;
+		}
+
+		public override bool Equals(object o)
+		{
+			return o is Field other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return _field.GetHashCode();
 		}
 
 		public override string ToString()
