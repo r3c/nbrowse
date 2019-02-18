@@ -12,12 +12,12 @@ compiled assemblies. It exposes loaded assemblies through a standard set of
 traversable project/assembly/class/interface/method entities, and allows you
 to run C# statements to query anything you want to retreive from them.
 
-For example, this command line will find every class that implements interface
-`IServer` from given assemblies:
+As an example this command line will print every type that implements interface
+`IPrinter` from `NBrowse.dll` assembly itself:
 
-    ./nbrowse.cli 'p => p.Assemblies \
-        .SelectMany(a => a.Types) \
-        .Where(t => t.Interfaces.Any(i => i.Name == "IServer"))' sample.dll
+    dotnet NBrowse.CLI.dll 'p => p.Assemblies
+        .SelectMany(a => a.Types)
+        .Where(t => t.Interfaces.Any(i => i.Name == "IPrinter"))' NBrowse.dll
 
 Usage
 -----
