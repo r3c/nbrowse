@@ -42,4 +42,4 @@ for details.
 Author
 ------
 
-[Rémi Caput](http://remi.caput.fr/) (github.com+cottle [at] mirari [dot] fr)
+[Rémi Caput](http://remi.caput.fr/) (github.com+nbrowse [at] mirari [dot] fr)
