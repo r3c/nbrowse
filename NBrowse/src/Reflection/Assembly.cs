@@ -44,7 +44,8 @@ namespace NBrowse.Reflection
 
 		public bool Equals(Assembly other)
 		{
-			return _assembly.MetadataToken.RID == other._assembly.MetadataToken.RID;
+			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
+			return Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)

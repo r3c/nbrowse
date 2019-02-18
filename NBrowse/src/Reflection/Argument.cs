@@ -33,7 +33,8 @@ namespace NBrowse.Reflection
 
 		public bool Equals(Argument other)
 		{
-			return _argument.MetadataToken.RID == other._argument.MetadataToken.RID;
+			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
+			return Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)
