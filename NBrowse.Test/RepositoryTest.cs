@@ -21,6 +21,18 @@ namespace NBrowse.Test
 		}
 
 		[Test]
+		public async Task Query_Has_TypeCustomAttribute()
+		{
+			Assert.IsTrue(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
+		}
+
+		[Test]
+		public async Task Query_Is_TypeGenerated()
+		{
+			Assert.IsTrue(await CreateAndQuery<bool>($"project => Is.Generated(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
+		}
+
+		[Test]
 		public async Task Query_Method_IsCallingMethod()
 		{
 			var caller = await FindMethodByName("PublicMethodCallingAnotherOne");
@@ -115,13 +127,7 @@ namespace NBrowse.Test
 		}
 
 		[Test]
-		public async Task Query_Type_HasCustomAttribute()
-		{
-			Assert.IsTrue(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
-		}
-
-		[Test]
-		public async Task Query_Type_Interfaces()
+		public async Task Query_Type_ClassWithInterfaces()
 		{
 			var names = await CreateAndQuery<string[]>($"project => project.FindType(\"{nameof(RepositoryTest)}+{nameof(ClassWithInterfaces)}\").Interfaces.Select(i => i.Name).ToArray()");
 
@@ -129,15 +135,9 @@ namespace NBrowse.Test
 		}
 
 		[Test]
-		public async Task Query_Type_IsNotGenerated()
+		public async Task Query_Type_InterfaceWithGenericParameter()
 		{
-			Assert.IsFalse(await CreateAndQuery<bool>($"project => !Is.Generated(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
-		}
-
-		[Test]
-		public async Task Query_Type_GenericInterface()
-		{
-			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(GenericInterface<Stream>)}`1");
+			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InterfaceWithGenericParameter<Stream>)}`1");
 
 			var parameters = candidateType.Parameters.ToArray();
 
@@ -360,7 +360,7 @@ namespace NBrowse.Test
 			}
 		}
 
-		interface GenericInterface<in T> where T : IDisposable
+		interface InterfaceWithGenericParameter<in T> where T : IDisposable
 		{
 			U GenericDefaultConstructorMethod<U>() where U : new();
 			U GenericValueTypeMethod<U>() where U : struct;
@@ -374,15 +374,15 @@ namespace NBrowse.Test
 			{
 			}
 
-			public string A;
-			protected int B;
-			private static float C;
-			internal long D;
+			public string A = "a";
+			protected int B = 1;
+			private static float C = 2;
+			internal long D = (long)C;
 		}
 
 		private class InheritFromPrivateClass : PrivateClassWithFields
 		{
-			public byte E;
+			public byte E = 4;
 		}
 
 		public abstract class PublicClassWithMethods
