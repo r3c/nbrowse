@@ -29,39 +29,84 @@ namespace NBrowse.Reflection
 			return assembly;
 		}
 
-		public Type FindType(string search)
+		public Method FindMethod(string search)
 		{
-			Type? byIdentifier = null;
-			Type? byName = null;
-			bool foundIdentifier = false;
-			bool foundName = false;
+			var byIdentifier = new Method?();
+			var byIdentifierFound = false;
+			var byName = new Method?();
+			var byNameFound = false;
 
-			foreach (var assembly in _assemblies.Values)
+			foreach (var method in _assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
 			{
-				foreach (var type in assembly.Types)
+				if (method.Identifier == search)
 				{
-					if (type.Identifier == search)
-					{
-						if (foundIdentifier)
-							byIdentifier = null;
-						else
-							byIdentifier = type;
+					if (byIdentifierFound)
+						byIdentifier = null;
+					else
+						byIdentifier = method;
 
-						foundIdentifier = true;
-					}
-					else if (type.Name == search)
-					{
-						if (foundName)
-							byName = null;
-						else
-							byName = type;
+					byIdentifierFound = true;
+				}
+				else if (method.Name == search)
+				{
+					if (byNameFound)
+						byName = null;
+					else
+						byName = method;
 
-						foundName = true;
-					}
+					byNameFound = true;
 				}
 			}
 
-			if (foundIdentifier)
+			if (byIdentifierFound)
+			{
+				if (byIdentifier.HasValue)
+					return byIdentifier.Value;
+
+				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one method match identifier '{search}'");
+			}
+
+			if (byNameFound)
+			{
+				if (byName.HasValue)
+					return byName.Value;
+
+				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one method match name '{search}'");
+			}
+
+			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching method found");
+		}
+
+		public Type FindType(string search)
+		{
+			var byIdentifier = new Type?();
+			var byIdentifierFound = false;
+			var byName = new Type?();
+			var byNameFound = false;
+
+			foreach (var type in _assemblies.Values.SelectMany(a => a.Types))
+			{
+				if (type.Identifier == search)
+				{
+					if (byIdentifierFound)
+						byIdentifier = null;
+					else
+						byIdentifier = type;
+
+					byIdentifierFound = true;
+				}
+				else if (type.Name == search)
+				{
+					if (byNameFound)
+						byName = null;
+					else
+						byName = type;
+
+					byNameFound = true;
+				}
+			}
+
+			if (byIdentifierFound)
 			{
 				if (byIdentifier.HasValue)
 					return byIdentifier.Value;
@@ -69,7 +114,7 @@ namespace NBrowse.Reflection
 				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type match identifier '{search}'");
 			}
 
-			if (foundName)
+			if (byNameFound)
 			{
 				if (byName.HasValue)
 					return byName.Value;

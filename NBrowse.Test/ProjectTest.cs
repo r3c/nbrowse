@@ -5,76 +5,120 @@ using NUnit.Framework;
 
 namespace NBrowse.Test
 {
-    public class ProjectTest
-    {
-        [Test]
-        public void FindAssembly_ByName_Missing()
-        {
-            var project = CreateProject();
+	public class ProjectTest
+	{
+		[Test]
+		public void FindAssembly_ByName_Missing()
+		{
+			var project = CreateProject();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => project.FindAssembly("Missing"));
-        }
+			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindAssembly("Missing"));
+		}
 
-        [Test]
-        public void FindAssembly_ByName_Unique()
-        {
-            var project = CreateProject();
-            var assembly = project.FindAssembly("NBrowse.Test");
+		[Test]
+		public void FindAssembly_ByName_Unique()
+		{
+			var project = CreateProject();
+			var assembly = project.FindAssembly("NBrowse.Test");
 
-            Assert.That(assembly.Name, Is.EqualTo("NBrowse.Test"));
-        }
+			Assert.That(assembly.Name, Is.EqualTo("NBrowse.Test"));
+		}
 
-        [Test]
-        public void FindType_ByIdentifier_Unique()
-        {
-            var project = CreateProject();
-            var type = project.FindType("NBrowse.Test.Namespace1.Conflict");
+		[Test]
+		public void FindMethod_ByIdentifier_Unique()
+		{
+			var project = CreateProject();
+			var method = project.FindMethod("NBrowse.Test.Namespace2.Conflict.UniqueMethod()");
 
-            Assert.That(type.Name, Is.EqualTo("Conflict"));
-        }
+			Assert.That(method.Name, Is.EqualTo("UniqueMethod"));
+		}
 
-        [Test]
-        public void FindType_ByName_Conflict()
-        {
-            var project = CreateProject();
+		[Test]
+		public void FindMethod_ByName_Conflict()
+		{
+			var project = CreateProject();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => project.FindType("Conflict"));
-        }
+			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindMethod("Conflict()"));
+		}
 
-        [Test]
-        public void FindType_ByName_Missing()
-        {
-            var project = CreateProject();
+		[Test]
+		public void FindMethod_ByName_Missing()
+		{
+			var project = CreateProject();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => project.FindType("Missing"));
-        }
+			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindMethod("Missing()"));
+		}
 
-        [Test]
-        public void FindType_ByName_Unique()
-        {
-            var project = CreateProject();
-            var type = project.FindType("Unique");
+		[Test]
+		public void FindMethod_ByName_Unique()
+		{
+			var project = CreateProject();
+			var method = project.FindMethod("UniqueMethod");
 
-            Assert.That(type.Name, Is.EqualTo("Unique"));
-        }
+			Assert.That(method.Name, Is.EqualTo("UniqueMethod"));
+		}
 
-        private static Project CreateProject()
-        {
-            return new Project(new []
-            {
-                new Assembly(AssemblyDefinition.ReadAssembly(typeof(ProjectTest).Assembly.Location))
-            });
-        }
-    }
+		[Test]
+		public void FindType_ByIdentifier_Unique()
+		{
+			var project = CreateProject();
+			var type = project.FindType("NBrowse.Test.Namespace1.Conflict");
+
+			Assert.That(type.Name, Is.EqualTo("Conflict"));
+		}
+
+		[Test]
+		public void FindType_ByName_Conflict()
+		{
+			var project = CreateProject();
+
+			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindType("Conflict"));
+		}
+
+		[Test]
+		public void FindType_ByName_Missing()
+		{
+			var project = CreateProject();
+
+			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindType("Missing"));
+		}
+
+		[Test]
+		public void FindType_ByName_Unique()
+		{
+			var project = CreateProject();
+			var type = project.FindType("Unique");
+
+			Assert.That(type.Name, Is.EqualTo("Unique"));
+		}
+
+		private static Project CreateProject()
+		{
+			return new Project(new[]
+			{
+				new Assembly(AssemblyDefinition.ReadAssembly(typeof(ProjectTest).Assembly.Location))
+			});
+		}
+	}
 }
 
 namespace NBrowse.Test.Namespace1
 {
-    public class Conflict {}
-    public class Unique {}
+	public abstract class Conflict
+	{
+		public abstract void ConflictMethod();
+	}
+
+	public abstract class Unique
+	{
+		public abstract void ConflictMethod();
+	}
 }
 
 namespace NBrowse.Test.Namespace2
 {
-    public class Conflict {}
+	public abstract class Conflict
+	{
+		public abstract void UniqueMethod();
+	}
 }
