@@ -21,7 +21,7 @@ namespace NBrowse.Test
             var project = CreateProject();
             var assembly = project.FindAssembly("NBrowse.Test");
 
-            Assert.AreEqual("NBrowse.Test", assembly.Name);
+            Assert.That(assembly.Name, Is.EqualTo("NBrowse.Test"));
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace NBrowse.Test
             var project = CreateProject();
             var type = project.FindType("NBrowse.Test.Namespace1.Conflict");
 
-            Assert.AreEqual("Conflict", type.Name);
+            Assert.That(type.Name, Is.EqualTo("Conflict"));
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace NBrowse.Test
             var project = CreateProject();
             var type = project.FindType("Unique");
 
-            Assert.AreEqual("Unique", type.Name);
+            Assert.That(type.Name, Is.EqualTo("Unique"));
         }
 
         private static Project CreateProject()

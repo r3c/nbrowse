@@ -17,19 +17,19 @@ namespace NBrowse.Test
 		[TestCase("project => \"Hello, World!\"", "Hello, World!")]
 		public async Task Query_Constant_ReturnLiteral<T>(string expression, T expected)
 		{
-			Assert.AreEqual(expected, await CreateAndQuery<T>(expression));
+			Assert.That(await CreateAndQuery<T>(expression), Is.EqualTo(expected));
 		}
 
 		[Test]
 		public async Task Query_Has_TypeCustomAttribute()
 		{
-			Assert.IsTrue(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
+			Assert.That(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"), Is.True);
 		}
 
 		[Test]
 		public async Task Query_Is_TypeGenerated()
 		{
-			Assert.IsTrue(await CreateAndQuery<bool>($"project => Is.Generated(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"));
+			Assert.That(await CreateAndQuery<bool>($"project => Is.Generated(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"), Is.True);
 		}
 
 		[Test]
@@ -40,9 +40,9 @@ namespace NBrowse.Test
 			var indirectCall = await FindMethodByName("PrivateStaticMethodCalled");
 			var noCall = await FindMethodByName("PrivateStaticMethodNotCalled");
 
-			Assert.IsTrue(caller.IsUsing(directCallee));
-			Assert.IsTrue(caller.IsUsing(indirectCall));
-			Assert.IsFalse(caller.IsUsing(noCall));
+			Assert.That(caller.IsUsing(directCallee), Is.True);
+			Assert.That(caller.IsUsing(indirectCall), Is.True);
+			Assert.That(caller.IsUsing(noCall), Is.False);
 		}
 
 		[Test]
@@ -51,16 +51,16 @@ namespace NBrowse.Test
 			var method = await FindMethodByName("GenericDefaultConstructorMethod");
 			var parameters = method.Parameters.ToArray();
 
-			Assert.AreEqual(1, parameters.Length);
+			Assert.That(parameters.Length, Is.EqualTo(1));
 
-			Assert.AreEqual(true, parameters[0].HasDefaultConstructor);
-			Assert.AreEqual(false, parameters[0].IsContravariant);
-			Assert.AreEqual(false, parameters[0].IsCovariant);
-			Assert.AreEqual("U", parameters[0].Name);
+			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
+			Assert.That(parameters[0].IsContravariant, Is.EqualTo(false));
+			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
+			Assert.That(parameters[0].Name, Is.EqualTo("U"));
 
 			var constraints = parameters[0].Constraints.ToArray();
 
-			Assert.AreEqual(0, constraints.Length);
+			Assert.That(constraints.Length, Is.EqualTo(0));
 		}
 
 		[Test]
@@ -69,18 +69,18 @@ namespace NBrowse.Test
 			var method = await FindMethodByName("GenericValueTypeMethod");
 			var parameters = method.Parameters.ToArray();
 
-			Assert.AreEqual(1, parameters.Length);
+			Assert.That(parameters.Length, Is.EqualTo(1));
 
-			Assert.AreEqual(true, parameters[0].HasDefaultConstructor);
-			Assert.AreEqual(false, parameters[0].IsContravariant);
-			Assert.AreEqual(false, parameters[0].IsCovariant);
-			Assert.AreEqual("U", parameters[0].Name);
+			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
+			Assert.That(parameters[0].IsContravariant, Is.EqualTo(false));
+			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
+			Assert.That(parameters[0].Name, Is.EqualTo("U"));
 
 			var constraints = parameters[0].Constraints.ToArray();
 
-			Assert.AreEqual(1, constraints.Length);
+			Assert.That(constraints.Length, Is.EqualTo(1));
 
-			Assert.AreEqual("ValueType", constraints[0].Name);
+			Assert.That(constraints[0].Name, Is.EqualTo("ValueType"));
 		}
 
 		[Test]
@@ -88,8 +88,8 @@ namespace NBrowse.Test
 		{
 			var assemblies = await CreateAndQuery<Reflection.Assembly[]>($"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(RepositoryTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");
 
-			Assert.AreEqual(1, assemblies.Length);
-			Assert.AreEqual(typeof(RepositoryTest).Assembly.GetName().Name, assemblies[0].Name);
+			Assert.That(assemblies.Length, Is.EqualTo(1));
+			Assert.That(assemblies[0].Name, Is.EqualTo(typeof(RepositoryTest).Assembly.GetName().Name));
 		}
 
 		[Test]
@@ -111,7 +111,7 @@ namespace NBrowse.Test
 		{
 			var type = await CreateAndQuery<Reflection.Type>($"project => project.FindType(\"{typeof(RepositoryTest).FullName}\")");
 
-			Assert.AreEqual(typeof(RepositoryTest).FullName, type.Identifier);
+			Assert.That(type.Identifier, Is.EqualTo(typeof(RepositoryTest).FullName));
 		}
 
 		[Test]
@@ -119,7 +119,7 @@ namespace NBrowse.Test
 		{
 			var type = await CreateAndQuery<Reflection.Type>("project => project.FindType(\"RepositoryTest\")");
 
-			Assert.AreEqual(typeof(RepositoryTest).FullName, type.Identifier);
+			Assert.That(type.Identifier, Is.EqualTo(typeof(RepositoryTest).FullName));
 		}
 
 		[Test]
@@ -143,18 +143,18 @@ namespace NBrowse.Test
 
 			var parameters = candidateType.Parameters.ToArray();
 
-			Assert.AreEqual(1, parameters.Length);
+			Assert.That(parameters.Length, Is.EqualTo(1));
 
-			Assert.AreEqual(false, parameters[0].HasDefaultConstructor);
-			Assert.AreEqual(true, parameters[0].IsContravariant);
-			Assert.AreEqual(false, parameters[0].IsCovariant);
-			Assert.AreEqual("T", parameters[0].Name);
+			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(false));
+			Assert.That(parameters[0].IsContravariant, Is.EqualTo(true));
+			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
+			Assert.That(parameters[0].Name, Is.EqualTo("T"));
 
 			var constraints = parameters[0].Constraints.ToArray();
 
-			Assert.AreEqual(1, constraints.Length);
+			Assert.That(constraints.Length, Is.EqualTo(1));
 
-			Assert.AreEqual("IDisposable", constraints[0].Name);
+			Assert.That(constraints[0].Name, Is.EqualTo("IDisposable"));
 		}
 
 		[Test]
@@ -163,42 +163,42 @@ namespace NBrowse.Test
 			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}");
 			var expectedType = typeof(PrivateClassWithFields);
 
-			Assert.AreEqual(Implementation.Virtual, candidateType.Implementation);
-			Assert.AreEqual(Model.Class, candidateType.Model);
-			Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}", candidateType.Name);
-			Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
-			Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
-			Assert.AreEqual(Visibility.Private, candidateType.Visibility);
+			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Virtual));
+			Assert.That(candidateType.Model, Is.EqualTo(Model.Class));
+			Assert.That(candidateType.Name, Is.EqualTo($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}"));
+			Assert.That(candidateType.Parent.Name, Is.EqualTo(expectedType.Assembly.GetName().Name));
+			Assert.That(candidateType.Namespace, Is.EqualTo(expectedType.Namespace));
+			Assert.That(candidateType.Visibility, Is.EqualTo(Visibility.Private));
 
 			var candidateFields = candidateType.Fields.ToArray();
 
-			Assert.AreEqual(4, candidateFields.Length);
+			Assert.That(candidateFields.Length, Is.EqualTo(4));
 
-			Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
-			Assert.AreEqual("A", candidateFields[0].Name);
-			Assert.AreEqual("String", candidateFields[0].Type.Name);
-			Assert.AreEqual(Visibility.Public, candidateFields[0].Visibility);
-			Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
+			Assert.That(candidateFields[0].Binding, Is.EqualTo(Binding.Instance));
+			Assert.That(candidateFields[0].Name, Is.EqualTo("A"));
+			Assert.That(candidateFields[0].Type.Name, Is.EqualTo("String"));
+			Assert.That(candidateFields[0].Visibility, Is.EqualTo(Visibility.Public));
+			Assert.That(candidateFields[0].Binding, Is.EqualTo(Binding.Instance));
 
-			Assert.AreEqual("B", candidateFields[1].Name);
-			Assert.AreEqual("Int32", candidateFields[1].Type.Name);
-			Assert.AreEqual(Visibility.Protected, candidateFields[1].Visibility);
-			Assert.AreEqual(Binding.Instance, candidateFields[1].Binding);
+			Assert.That(candidateFields[1].Name, Is.EqualTo("B"));
+			Assert.That(candidateFields[1].Type.Name, Is.EqualTo("Int32"));
+			Assert.That(candidateFields[1].Visibility, Is.EqualTo(Visibility.Protected));
+			Assert.That(candidateFields[1].Binding, Is.EqualTo(Binding.Instance));
 
-			Assert.AreEqual("C", candidateFields[2].Name);
-			Assert.AreEqual("Single", candidateFields[2].Type.Name);
-			Assert.AreEqual(Visibility.Private, candidateFields[2].Visibility);
-			Assert.AreEqual(Binding.Static, candidateFields[2].Binding);
+			Assert.That(candidateFields[2].Name, Is.EqualTo("C"));
+			Assert.That(candidateFields[2].Type.Name, Is.EqualTo("Single"));
+			Assert.That(candidateFields[2].Visibility, Is.EqualTo(Visibility.Private));
+			Assert.That(candidateFields[2].Binding, Is.EqualTo(Binding.Static));
 
-			Assert.AreEqual("D", candidateFields[3].Name);
-			Assert.AreEqual("Int64", candidateFields[3].Type.Name);
-			Assert.AreEqual(Visibility.Internal, candidateFields[3].Visibility);
+			Assert.That(candidateFields[3].Name, Is.EqualTo("D"));
+			Assert.That(candidateFields[3].Type.Name, Is.EqualTo("Int64"));
+			Assert.That(candidateFields[3].Visibility, Is.EqualTo(Visibility.Internal));
 
 			var candidateNestedTypes = candidateType.NestedTypes.ToArray();
 
-			Assert.AreEqual(1, candidateNestedTypes.Length);
+			Assert.That(candidateNestedTypes.Length, Is.EqualTo(1));
 
-			Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}+{nameof(PrivateClassWithFields.NestedClass)}", candidateNestedTypes[0].Name);
+			Assert.That(candidateNestedTypes[0].Name, Is.EqualTo($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}+{nameof(PrivateClassWithFields.NestedClass)}"));
 		}
 
 		[Test]
@@ -207,25 +207,25 @@ namespace NBrowse.Test
 			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}");
 			var expectedType = typeof(InheritFromPrivateClass);
 
-			Assert.AreEqual(Implementation.Virtual, candidateType.Implementation);
-			Assert.AreEqual(Model.Class, candidateType.Model);
-			Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}", candidateType.Name);
-			Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
-			Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
-			Assert.AreEqual(Visibility.Private, candidateType.Visibility);
+			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Virtual));
+			Assert.That(candidateType.Model, Is.EqualTo(Model.Class));
+			Assert.That(candidateType.Name, Is.EqualTo($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}"));
+			Assert.That(candidateType.Parent.Name, Is.EqualTo(expectedType.Assembly.GetName().Name));
+			Assert.That(candidateType.Namespace, Is.EqualTo(expectedType.Namespace));
+			Assert.That(candidateType.Visibility, Is.EqualTo(Visibility.Private));
 
 			var candidateFields = candidateType.Fields.ToArray();
 
-			Assert.AreEqual(1, candidateFields.Count());
+			Assert.That(candidateFields.Count(), Is.EqualTo(1));
 
-			Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
-			Assert.AreEqual("E", candidateFields[0].Name);
-			Assert.AreEqual("Byte", candidateFields[0].Type.Name);
-			Assert.AreEqual(Visibility.Public, candidateFields[0].Visibility);
-			Assert.AreEqual(Binding.Instance, candidateFields[0].Binding);
+			Assert.That(candidateFields[0].Binding, Is.EqualTo(Binding.Instance));
+			Assert.That(candidateFields[0].Name, Is.EqualTo("E"));
+			Assert.That(candidateFields[0].Type.Name, Is.EqualTo("Byte"));
+			Assert.That(candidateFields[0].Visibility, Is.EqualTo(Visibility.Public));
+			Assert.That(candidateFields[0].Binding, Is.EqualTo(Binding.Instance));
 
-			Assert.IsNotNull(candidateType.Base);
-			Assert.AreEqual($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}", candidateType.Base.Value.Name);
+			Assert.That(candidateType.Base, Is.Not.Null);
+			Assert.That(candidateType.Base.Value.Name, Is.EqualTo($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}"));
 		}
 
 		[Test]
@@ -234,11 +234,11 @@ namespace NBrowse.Test
 			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}");
 			var expectedType = typeof(ProtectedDelegate);
 
-			Assert.AreEqual(Implementation.Final, candidateType.Implementation);
-			Assert.AreEqual(Model.Class, candidateType.Model);
-			Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
-			Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
-			Assert.AreEqual(Visibility.Protected, candidateType.Visibility);
+			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Final));
+			Assert.That(candidateType.Model, Is.EqualTo(Model.Class));
+			Assert.That(candidateType.Parent.Name, Is.EqualTo(expectedType.Assembly.GetName().Name));
+			Assert.That(candidateType.Namespace, Is.EqualTo(expectedType.Namespace));
+			Assert.That(candidateType.Visibility, Is.EqualTo(Visibility.Protected));
 		}
 
 		[Test]
@@ -247,69 +247,69 @@ namespace NBrowse.Test
 			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}");
 			var expectedType = typeof(PublicClassWithMethods);
 
-			Assert.AreEqual(Implementation.Abstract, candidateType.Implementation);
-			Assert.AreEqual(Model.Class, candidateType.Model);
-			Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
-			Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
-			Assert.AreEqual(Visibility.Public, candidateType.Visibility);
+			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Abstract));
+			Assert.That(candidateType.Model, Is.EqualTo(Model.Class));
+			Assert.That(candidateType.Parent.Name, Is.EqualTo(expectedType.Assembly.GetName().Name));
+			Assert.That(candidateType.Namespace, Is.EqualTo(expectedType.Namespace));
+			Assert.That(candidateType.Visibility, Is.EqualTo(Visibility.Public));
 
 			var candidateMethods = candidateType.Methods.ToArray();
 
-			Assert.AreEqual(8, candidateMethods.Length);
+			Assert.That(candidateMethods.Length, Is.EqualTo(8));
 
-			Assert.AreEqual(Binding.Constructor, candidateMethods[0].Binding);
-			Assert.AreEqual(Implementation.Concrete, candidateMethods[0].Implementation);
-			Assert.AreEqual(".ctor", candidateMethods[0].Name);
-			Assert.AreEqual("Void", candidateMethods[0].ReturnType.Name);
-			Assert.AreEqual(Visibility.Public, candidateMethods[0].Visibility);
+			Assert.That(candidateMethods[0].Binding, Is.EqualTo(Binding.Constructor));
+			Assert.That(candidateMethods[0].Implementation, Is.EqualTo(Implementation.Concrete));
+			Assert.That(candidateMethods[0].Name, Is.EqualTo(".ctor"));
+			Assert.That(candidateMethods[0].ReturnType.Name, Is.EqualTo("Void"));
+			Assert.That(candidateMethods[0].Visibility, Is.EqualTo(Visibility.Public));
 
 			var candidateMethodArguments = candidateMethods[0].Arguments.ToArray();
 
-			Assert.AreEqual(1, candidateMethodArguments.Length);
-			Assert.AreEqual("index", candidateMethodArguments[0].Name);
-			Assert.AreEqual("Int32", candidateMethodArguments[0].Type.Name);
+			Assert.That(candidateMethodArguments.Length, Is.EqualTo(1));
+			Assert.That(candidateMethodArguments[0].Name, Is.EqualTo("index"));
+			Assert.That(candidateMethodArguments[0].Type.Name, Is.EqualTo("Int32"));
 
-			Assert.AreEqual(Binding.Instance, candidateMethods[1].Binding);
-			Assert.AreEqual(Implementation.Final, candidateMethods[1].Implementation);
-			Assert.AreEqual("GetHashCode", candidateMethods[1].Name);
-			Assert.AreEqual("Int32", candidateMethods[1].ReturnType.Name);
-			Assert.AreEqual(Visibility.Public, candidateMethods[1].Visibility);
+			Assert.That(candidateMethods[1].Binding, Is.EqualTo(Binding.Instance));
+			Assert.That(candidateMethods[1].Implementation, Is.EqualTo(Implementation.Final));
+			Assert.That(candidateMethods[1].Name, Is.EqualTo("GetHashCode"));
+			Assert.That(candidateMethods[1].ReturnType.Name, Is.EqualTo("Int32"));
+			Assert.That(candidateMethods[1].Visibility, Is.EqualTo(Visibility.Public));
 
-			Assert.AreEqual(Binding.Instance, candidateMethods[2].Binding);
-			Assert.AreEqual(Implementation.Virtual, candidateMethods[2].Implementation);
-			Assert.AreEqual("ToString", candidateMethods[2].Name);
-			Assert.AreEqual("String", candidateMethods[2].ReturnType.Name);
-			Assert.AreEqual(Visibility.Public, candidateMethods[2].Visibility);
+			Assert.That(candidateMethods[2].Binding, Is.EqualTo(Binding.Instance));
+			Assert.That(candidateMethods[2].Implementation, Is.EqualTo(Implementation.Virtual));
+			Assert.That(candidateMethods[2].Name, Is.EqualTo("ToString"));
+			Assert.That(candidateMethods[2].ReturnType.Name, Is.EqualTo("String"));
+			Assert.That(candidateMethods[2].Visibility, Is.EqualTo(Visibility.Public));
 
-			Assert.AreEqual(Binding.Instance, candidateMethods[3].Binding);
-			Assert.AreEqual(Implementation.Concrete, candidateMethods[3].Implementation);
-			Assert.AreEqual("PublicMethodWithCallToOthers", candidateMethods[3].Name);
-			Assert.AreEqual("Void", candidateMethods[3].ReturnType.Name);
-			Assert.AreEqual(Visibility.Public, candidateMethods[3].Visibility);
+			Assert.That(candidateMethods[3].Binding, Is.EqualTo(Binding.Instance));
+			Assert.That(candidateMethods[3].Implementation, Is.EqualTo(Implementation.Concrete));
+			Assert.That(candidateMethods[3].Name, Is.EqualTo("PublicMethodWithCallToOthers"));
+			Assert.That(candidateMethods[3].ReturnType.Name, Is.EqualTo("Void"));
+			Assert.That(candidateMethods[3].Visibility, Is.EqualTo(Visibility.Public));
 
-			Assert.AreEqual(Binding.Instance, candidateMethods[4].Binding);
-			Assert.AreEqual(Implementation.Virtual, candidateMethods[4].Implementation);
-			Assert.AreEqual("ProtectedVirtualDynamicMethod", candidateMethods[4].Name);
-			Assert.AreEqual("TimeSpan", candidateMethods[4].ReturnType.Name);
-			Assert.AreEqual(Visibility.Protected, candidateMethods[4].Visibility);
+			Assert.That(candidateMethods[4].Binding, Is.EqualTo(Binding.Instance));
+			Assert.That(candidateMethods[4].Implementation, Is.EqualTo(Implementation.Virtual));
+			Assert.That(candidateMethods[4].Name, Is.EqualTo("ProtectedVirtualDynamicMethod"));
+			Assert.That(candidateMethods[4].ReturnType.Name, Is.EqualTo("TimeSpan"));
+			Assert.That(candidateMethods[4].Visibility, Is.EqualTo(Visibility.Protected));
 
-			Assert.AreEqual(Binding.Static, candidateMethods[5].Binding);
-			Assert.AreEqual(Implementation.Concrete, candidateMethods[5].Implementation);
-			Assert.AreEqual("PrivateStaticMethodCalled", candidateMethods[5].Name);
-			Assert.AreEqual("DateTime", candidateMethods[5].ReturnType.Name);
-			Assert.AreEqual(Visibility.Private, candidateMethods[5].Visibility);
+			Assert.That(candidateMethods[5].Binding, Is.EqualTo(Binding.Static));
+			Assert.That(candidateMethods[5].Implementation, Is.EqualTo(Implementation.Concrete));
+			Assert.That(candidateMethods[5].Name, Is.EqualTo("PrivateStaticMethodCalled"));
+			Assert.That(candidateMethods[5].ReturnType.Name, Is.EqualTo("DateTime"));
+			Assert.That(candidateMethods[5].Visibility, Is.EqualTo(Visibility.Private));
 
-			Assert.AreEqual(Binding.Static, candidateMethods[6].Binding);
-			Assert.AreEqual(Implementation.Concrete, candidateMethods[6].Implementation);
-			Assert.AreEqual("PrivateStaticMethodNotCalled", candidateMethods[6].Name);
-			Assert.AreEqual("Uri", candidateMethods[6].ReturnType.Name);
-			Assert.AreEqual(Visibility.Private, candidateMethods[6].Visibility);
+			Assert.That(candidateMethods[6].Binding, Is.EqualTo(Binding.Static));
+			Assert.That(candidateMethods[6].Implementation, Is.EqualTo(Implementation.Concrete));
+			Assert.That(candidateMethods[6].Name, Is.EqualTo("PrivateStaticMethodNotCalled"));
+			Assert.That(candidateMethods[6].ReturnType.Name, Is.EqualTo("Uri"));
+			Assert.That(candidateMethods[6].Visibility, Is.EqualTo(Visibility.Private));
 
-			Assert.AreEqual(Binding.Instance, candidateMethods[7].Binding);
-			Assert.AreEqual(Implementation.Abstract, candidateMethods[7].Implementation);
-			Assert.AreEqual("InternalAbstractMethod", candidateMethods[7].Name);
-			Assert.AreEqual("Guid", candidateMethods[7].ReturnType.Name);
-			Assert.AreEqual(Visibility.Internal, candidateMethods[7].Visibility);
+			Assert.That(candidateMethods[7].Binding, Is.EqualTo(Binding.Instance));
+			Assert.That(candidateMethods[7].Implementation, Is.EqualTo(Implementation.Abstract));
+			Assert.That(candidateMethods[7].Name, Is.EqualTo("InternalAbstractMethod"));
+			Assert.That(candidateMethods[7].ReturnType.Name, Is.EqualTo("Guid"));
+			Assert.That(candidateMethods[7].Visibility, Is.EqualTo(Visibility.Internal));
 		}
 
 		[Test]
@@ -318,11 +318,11 @@ namespace NBrowse.Test
 			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InternalStructure)}");
 			var expectedType = typeof(InternalStructure);
 
-			Assert.AreEqual(Implementation.Final, candidateType.Implementation);
-			Assert.AreEqual(Model.Structure, candidateType.Model);
-			Assert.AreEqual(expectedType.Assembly.GetName().Name, candidateType.Parent.Name);
-			Assert.AreEqual(expectedType.Namespace, candidateType.Namespace);
-			Assert.AreEqual(Visibility.Internal, candidateType.Visibility);
+			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Final));
+			Assert.That(candidateType.Model, Is.EqualTo(Model.Structure));
+			Assert.That(candidateType.Parent.Name, Is.EqualTo(expectedType.Assembly.GetName().Name));
+			Assert.That(candidateType.Namespace, Is.EqualTo(expectedType.Namespace));
+			Assert.That(candidateType.Visibility, Is.EqualTo(Visibility.Internal));
 		}
 
 		private static async Task<T> CreateAndQuery<T>(string expression)
@@ -340,7 +340,7 @@ namespace NBrowse.Test
 		{
 			var methods = await CreateAndQuery<Method[]>($"project => project.Assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods).Where(m => m.Name == \"{name}\").ToArray()");
 
-			Assert.AreEqual(1, methods.Length, $"exactly one method must match name {name}");
+			Assert.That(methods.Length, Is.EqualTo(1), $"exactly one method must match name {name}");
 
 			return methods[0];
 		}
@@ -349,8 +349,8 @@ namespace NBrowse.Test
 		{
 			var types = await CreateAndQuery<Reflection.Type[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
 
-			Assert.AreEqual(1, types.Length, $"exactly one type must match name {name}");
-			Assert.AreEqual(name, types[0].Name, $"inconsistent type name");
+			Assert.That(types.Length, Is.EqualTo(1), $"exactly one type must match name {name}");
+			Assert.That(types[0].Name, Is.EqualTo(name), "inconsistent type name");
 
 			return types[0];
 		}
