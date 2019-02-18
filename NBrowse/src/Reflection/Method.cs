@@ -100,12 +100,9 @@ namespace NBrowse.Reflection
 			return _reference.GetHashCode();
 		}
 
-		public bool IsCalling(Method method)
+		public bool IsUsing(Method method)
 		{
-			Func<OpCode, bool> isMethodCall = opCode => opCode == OpCodes.Call || opCode == OpCodes.Callvirt;
-			Func<object, bool> isSameReference = operand => operand is MethodReference reference && method.Equals(new Method(reference));
-
-			return MatchInstruction(instruction => isMethodCall(instruction.OpCode) && isSameReference(instruction.Operand));
+			return MatchInstruction(instruction => instruction.Operand is MethodReference reference && method == new Method(reference));
 		}
 
 		public bool IsUsing(Type type)

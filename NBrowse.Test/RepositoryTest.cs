@@ -33,14 +33,16 @@ namespace NBrowse.Test
 		}
 
 		[Test]
-		public async Task Query_Method_IsCallingMethod()
+		public async Task Query_Method_IsUsingMethod()
 		{
-			var caller = await FindMethodByName("PublicMethodCallingAnotherOne");
-			var callee = await FindMethodByName("ProtectedVirtualDynamicMethod");
-			var other = await FindMethodByName("PrivateStaticMethod");
+			var caller = await FindMethodByName("PublicMethodWithCallToOthers");
+			var directCallee = await FindMethodByName("ProtectedVirtualDynamicMethod");
+			var indirectCall = await FindMethodByName("PrivateStaticMethodCalled");
+			var noCall = await FindMethodByName("PrivateStaticMethodNotCalled");
 
-			Assert.IsTrue(caller.IsCalling(callee));
-			Assert.IsFalse(caller.IsCalling(other));
+			Assert.IsTrue(caller.IsUsing(directCallee));
+			Assert.IsTrue(caller.IsUsing(indirectCall));
+			Assert.IsFalse(caller.IsUsing(noCall));
 		}
 
 		[Test]
@@ -253,7 +255,7 @@ namespace NBrowse.Test
 
 			var candidateMethods = candidateType.Methods.ToArray();
 
-			Assert.AreEqual(7, candidateMethods.Length);
+			Assert.AreEqual(8, candidateMethods.Length);
 
 			Assert.AreEqual(Binding.Constructor, candidateMethods[0].Binding);
 			Assert.AreEqual(Implementation.Concrete, candidateMethods[0].Implementation);
@@ -281,7 +283,7 @@ namespace NBrowse.Test
 
 			Assert.AreEqual(Binding.Instance, candidateMethods[3].Binding);
 			Assert.AreEqual(Implementation.Concrete, candidateMethods[3].Implementation);
-			Assert.AreEqual("PublicMethodCallingAnotherOne", candidateMethods[3].Name);
+			Assert.AreEqual("PublicMethodWithCallToOthers", candidateMethods[3].Name);
 			Assert.AreEqual("Void", candidateMethods[3].ReturnType.Name);
 			Assert.AreEqual(Visibility.Public, candidateMethods[3].Visibility);
 
@@ -293,15 +295,21 @@ namespace NBrowse.Test
 
 			Assert.AreEqual(Binding.Static, candidateMethods[5].Binding);
 			Assert.AreEqual(Implementation.Concrete, candidateMethods[5].Implementation);
-			Assert.AreEqual("PrivateStaticMethod", candidateMethods[5].Name);
-			Assert.AreEqual("Uri", candidateMethods[5].ReturnType.Name);
+			Assert.AreEqual("PrivateStaticMethodCalled", candidateMethods[5].Name);
+			Assert.AreEqual("DateTime", candidateMethods[5].ReturnType.Name);
 			Assert.AreEqual(Visibility.Private, candidateMethods[5].Visibility);
 
-			Assert.AreEqual(Binding.Instance, candidateMethods[6].Binding);
-			Assert.AreEqual(Implementation.Abstract, candidateMethods[6].Implementation);
-			Assert.AreEqual("InternalAbstractMethod", candidateMethods[6].Name);
-			Assert.AreEqual("Guid", candidateMethods[6].ReturnType.Name);
-			Assert.AreEqual(Visibility.Internal, candidateMethods[6].Visibility);
+			Assert.AreEqual(Binding.Static, candidateMethods[6].Binding);
+			Assert.AreEqual(Implementation.Concrete, candidateMethods[6].Implementation);
+			Assert.AreEqual("PrivateStaticMethodNotCalled", candidateMethods[6].Name);
+			Assert.AreEqual("Uri", candidateMethods[6].ReturnType.Name);
+			Assert.AreEqual(Visibility.Private, candidateMethods[6].Visibility);
+
+			Assert.AreEqual(Binding.Instance, candidateMethods[7].Binding);
+			Assert.AreEqual(Implementation.Abstract, candidateMethods[7].Implementation);
+			Assert.AreEqual("InternalAbstractMethod", candidateMethods[7].Name);
+			Assert.AreEqual("Guid", candidateMethods[7].ReturnType.Name);
+			Assert.AreEqual(Visibility.Internal, candidateMethods[7].Visibility);
 		}
 
 		[Test]
@@ -399,9 +407,14 @@ namespace NBrowse.Test
 				return default(string);
 			}
 
-			public void PublicMethodCallingAnotherOne()
+			public void PublicMethodWithCallToOthers()
 			{
 				if (ProtectedVirtualDynamicMethod() == null)
+					throw new Exception();
+
+				Func<DateTime> func = PrivateStaticMethodCalled;
+
+				if (func == null)
 					throw new Exception();
 			}
 
@@ -410,7 +423,12 @@ namespace NBrowse.Test
 				return default(TimeSpan);
 			}
 
-			private static Uri PrivateStaticMethod()
+			private static DateTime PrivateStaticMethodCalled()
+			{
+				return default(DateTime);
+			}
+
+			private static Uri PrivateStaticMethodNotCalled()
 			{
 				return default(Uri);
 			}
