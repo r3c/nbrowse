@@ -99,7 +99,23 @@ namespace NBrowse.Reflection
 
 		public Type(TypeReference reference)
 		{
-			_definition = reference.IsDefinition || reference.Module.AssemblyResolver != null ? reference.Resolve() : null;
+			TypeDefinition definition;
+
+			try
+			{
+				definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
+					? reference.Resolve()
+					: null;
+			}
+			// FIXME: Mono.Cecil throws an exception when trying to resolve a
+			// non-loaded assembly and I don't know how I can safely avoid that
+			// without catching the exception.
+			catch (AssemblyResolutionException)
+			{
+				definition = null;
+			}
+
+			_definition = definition;
 			_reference = reference;
 		}
 
