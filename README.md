@@ -2,7 +2,7 @@ NBrowse: .NET assembly query utility
 ====================================
 
 [![Build Status](https://travis-ci.org/r3c/nbrowse.svg?branch=master)](https://travis-ci.org/r3c/nbrowse)
-[![license](https://img.shields.io/badge/license-mit-blue.svg)](https://opensource.org/licenses/MIT)
+[![license](https://img.shields.io/github/license/r3c/nbrowse.svg)](https://opensource.org/licenses/MIT)
 
 Overview
 --------
