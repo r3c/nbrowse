@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Mono.Cecil;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -9,27 +8,27 @@ namespace NBrowse.Reflection
 	public struct Field : IEquatable<Field>
 	{
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Binding Binding => _field.IsStatic ? Binding.Static : Binding.Instance;
+		public Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
 
-		public string Identifier => $"{Parent.Identifier}.{Name}";
+		public string Identifier => $"{this.Parent.Identifier}.{this.Name}";
 
-		public string Name => _field.Name;
+		public string Name => this.field.Name;
 
 		[JsonIgnore]
-		public Type Parent => new Type(_field.DeclaringType);
+		public Type Parent => new Type(this.field.DeclaringType);
 
-		public Type Type => new Type(_field.FieldType);
+		public Type Type => new Type(this.field.FieldType);
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Visibility Visibility => _field.IsPublic
+		public Visibility Visibility => this.field.IsPublic
 			? Visibility.Public
-			: (_field.IsPrivate
+			: (this.field.IsPrivate
 				? Visibility.Private
-				: (_field.IsFamily
+				: (this.field.IsFamily
 					? Visibility.Protected
 					: Visibility.Internal));
 
-		private readonly FieldDefinition _field;
+		private readonly FieldDefinition field;
 
 		public static bool operator ==(Field lhs, Field rhs)
 		{
@@ -43,28 +42,28 @@ namespace NBrowse.Reflection
 
 		public Field(FieldDefinition field)
 		{
-			_field = field;
+			this.field = field;
 		}
 
 		public bool Equals(Field other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return Identifier == other.Identifier;
+			return this.Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)
 		{
-			return o is Field other && Equals(other);
+			return o is Field other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
 		{
-			return _field.GetHashCode();
+			return this.field.GetHashCode();
 		}
 
 		public override string ToString()
 		{
-			return $"{{Field={Identifier}}}";
+			return $"{{Field={this.Identifier}}}";
 		}
 	}
 }

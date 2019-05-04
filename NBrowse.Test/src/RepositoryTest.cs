@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -17,28 +15,28 @@ namespace NBrowse.Test
 		[TestCase("project => \"Hello, World!\"", "Hello, World!")]
 		public async Task Query_Constant_ReturnLiteral<T>(string expression, T expected)
 		{
-			Assert.That(await CreateAndQuery<T>(expression), Is.EqualTo(expected));
+			Assert.That(await RepositoryTest.CreateAndQuery<T>(expression), Is.EqualTo(expected));
 		}
 
 		[Test]
 		public async Task Query_Has_TypeCustomAttribute()
 		{
-			Assert.That(await CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"), Is.True);
+			Assert.That(await RepositoryTest.CreateAndQuery<bool>($"project => Has.Attribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"), Is.True);
 		}
 
 		[Test]
 		public async Task Query_Is_TypeGenerated()
 		{
-			Assert.That(await CreateAndQuery<bool>($"project => Is.Generated(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"), Is.True);
+			Assert.That(await RepositoryTest.CreateAndQuery<bool>($"project => Is.Generated(project.FindType(\"{nameof(RepositoryTest)}+{nameof(InternalStructure)}\"))"), Is.True);
 		}
 
 		[Test]
 		public async Task Query_Method_IsUsingMethod()
 		{
-			var caller = await FindMethodByName("PublicMethodWithCallToOthers");
-			var directCallee = await FindMethodByName("ProtectedVirtualDynamicMethod");
-			var indirectCall = await FindMethodByName("PrivateStaticMethodCalled");
-			var noCall = await FindMethodByName("PrivateStaticMethodNotCalled");
+			var caller = await RepositoryTest.FindMethodByName("PublicMethodWithCallToOthers");
+			var directCallee = await RepositoryTest.FindMethodByName("ProtectedVirtualDynamicMethod");
+			var indirectCall = await RepositoryTest.FindMethodByName("PrivateStaticMethodCalled");
+			var noCall = await RepositoryTest.FindMethodByName("PrivateStaticMethodNotCalled");
 
 			Assert.That(caller.IsUsing(directCallee), Is.True);
 			Assert.That(caller.IsUsing(indirectCall), Is.True);
@@ -48,7 +46,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Method_GenericDefaultConstructorMethod()
 		{
-			var method = await FindMethodByName("GenericDefaultConstructorMethod");
+			var method = await RepositoryTest.FindMethodByName("GenericDefaultConstructorMethod");
 			var parameters = method.Parameters.ToArray();
 
 			Assert.That(parameters.Length, Is.EqualTo(1));
@@ -56,7 +54,7 @@ namespace NBrowse.Test
 			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
 			Assert.That(parameters[0].IsContravariant, Is.EqualTo(false));
 			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
-			Assert.That(parameters[0].Name, Is.EqualTo("U"));
+			Assert.That(parameters[0].Name, Is.EqualTo("TU"));
 
 			var constraints = parameters[0].Constraints.ToArray();
 
@@ -66,7 +64,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Method_GenericValueTypeMethod()
 		{
-			var method = await FindMethodByName("GenericValueTypeMethod");
+			var method = await RepositoryTest.FindMethodByName("GenericValueTypeMethod");
 			var parameters = method.Parameters.ToArray();
 
 			Assert.That(parameters.Length, Is.EqualTo(1));
@@ -74,7 +72,7 @@ namespace NBrowse.Test
 			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
 			Assert.That(parameters[0].IsContravariant, Is.EqualTo(false));
 			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
-			Assert.That(parameters[0].Name, Is.EqualTo("U"));
+			Assert.That(parameters[0].Name, Is.EqualTo("TU"));
 
 			var constraints = parameters[0].Constraints.ToArray();
 
@@ -86,7 +84,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Project_FilterAssemblies()
 		{
-			var assemblies = await CreateAndQuery<Reflection.Assembly[]>($"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(RepositoryTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");
+			var assemblies = await RepositoryTest.CreateAndQuery<Assembly[]>($"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(RepositoryTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");
 
 			Assert.That(assemblies.Length, Is.EqualTo(1));
 			Assert.That(assemblies[0].Name, Is.EqualTo(typeof(RepositoryTest).Assembly.GetName().Name));
@@ -95,7 +93,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Project_FindExistingAssembly()
 		{
-			var assembly = await CreateAndQuery<Reflection.Assembly>($"project => project.FindAssembly(\"{typeof(RepositoryTest).Assembly.GetName().Name}\")");
+			var assembly = await RepositoryTest.CreateAndQuery<Assembly>($"project => project.FindAssembly(\"{typeof(RepositoryTest).Assembly.GetName().Name}\")");
 
 			StringAssert.EndsWith("NBrowse.Test.dll", assembly.FileName);
 		}
@@ -103,13 +101,13 @@ namespace NBrowse.Test
 		[Test]
 		public void Query_Project_FindMissingAssembly()
 		{
-			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await CreateAndQuery<Reflection.Assembly>("project => project.FindAssembly(\"DoesNotExist\")"));
+			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await RepositoryTest.CreateAndQuery<Assembly>("project => project.FindAssembly(\"DoesNotExist\")"));
 		}
 
 		[Test]
 		public async Task Query_Project_FindExistingTypeByIdentifier()
 		{
-			var type = await CreateAndQuery<Reflection.Type>($"project => project.FindType(\"{typeof(RepositoryTest).FullName}\")");
+			var type = await RepositoryTest.CreateAndQuery<Reflection.Type>($"project => project.FindType(\"{typeof(RepositoryTest).FullName}\")");
 
 			Assert.That(type.Identifier, Is.EqualTo(typeof(RepositoryTest).FullName));
 		}
@@ -117,7 +115,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Project_FindExistingTypeByName()
 		{
-			var type = await CreateAndQuery<Reflection.Type>("project => project.FindType(\"RepositoryTest\")");
+			var type = await RepositoryTest.CreateAndQuery<Reflection.Type>("project => project.FindType(\"RepositoryTest\")");
 
 			Assert.That(type.Identifier, Is.EqualTo(typeof(RepositoryTest).FullName));
 		}
@@ -125,13 +123,13 @@ namespace NBrowse.Test
 		[Test]
 		public void Query_Project_FindMissingType()
 		{
-			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await CreateAndQuery<Reflection.Type>("project => project.FindType(\"DoesNotExist\")"));
+			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await RepositoryTest.CreateAndQuery<Reflection.Type>("project => project.FindType(\"DoesNotExist\")"));
 		}
 
 		[Test]
 		public async Task Query_Type_ClassWithInterfaces()
 		{
-			var names = await CreateAndQuery<string[]>($"project => project.FindType(\"{nameof(RepositoryTest)}+{nameof(ClassWithInterfaces)}\").Interfaces.Select(i => i.Name).ToArray()");
+			var names = await RepositoryTest.CreateAndQuery<string[]>($"project => project.FindType(\"{nameof(RepositoryTest)}+{nameof(ClassWithInterfaces)}\").Interfaces.Select(i => i.Name).ToArray()");
 
 			CollectionAssert.AreEquivalent(new[] { "ICloneable", "IDisposable" }, names);
 		}
@@ -139,7 +137,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Type_InterfaceWithGenericParameter()
 		{
-			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InterfaceWithGenericParameter<Stream>)}`1");
+			var candidateType = await RepositoryTest.FindTypeByName($"{nameof(RepositoryTest)}+{nameof(INterfaceWithGenericParameter<Stream>)}`1");
 
 			var parameters = candidateType.Parameters.ToArray();
 
@@ -160,7 +158,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Type_PrivateClassWithFieldsAndNestedType()
 		{
-			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}");
+			var candidateType = await RepositoryTest.FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}");
 			var expectedType = typeof(PrivateClassWithFields);
 
 			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Virtual));
@@ -185,7 +183,7 @@ namespace NBrowse.Test
 			Assert.That(candidateFields[1].Visibility, Is.EqualTo(Visibility.Protected));
 			Assert.That(candidateFields[1].Binding, Is.EqualTo(Binding.Instance));
 
-			Assert.That(candidateFields[2].Name, Is.EqualTo("C"));
+			Assert.That(candidateFields[2].Name, Is.EqualTo("c"));
 			Assert.That(candidateFields[2].Type.Name, Is.EqualTo("Single"));
 			Assert.That(candidateFields[2].Visibility, Is.EqualTo(Visibility.Private));
 			Assert.That(candidateFields[2].Binding, Is.EqualTo(Binding.Static));
@@ -204,7 +202,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Type_PrivateClassWithInheritance()
 		{
-			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}");
+			var candidateType = await RepositoryTest.FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InheritFromPrivateClass)}");
 			var expectedType = typeof(InheritFromPrivateClass);
 
 			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Virtual));
@@ -231,7 +229,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Type_ProtectedDelegate()
 		{
-			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}");
+			var candidateType = await RepositoryTest.FindTypeByName($"{nameof(RepositoryTest)}+{nameof(ProtectedDelegate)}");
 			var expectedType = typeof(ProtectedDelegate);
 
 			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Final));
@@ -244,7 +242,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Type_PublicClassWithMethods()
 		{
-			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}");
+			var candidateType = await RepositoryTest.FindTypeByName($"{nameof(RepositoryTest)}+{nameof(PublicClassWithMethods)}");
 			var expectedType = typeof(PublicClassWithMethods);
 
 			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Abstract));
@@ -315,7 +313,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Type_InternalStructure()
 		{
-			var candidateType = await FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InternalStructure)}");
+			var candidateType = await RepositoryTest.FindTypeByName($"{nameof(RepositoryTest)}+{nameof(InternalStructure)}");
 			var expectedType = typeof(InternalStructure);
 
 			Assert.That(candidateType.Implementation, Is.EqualTo(Implementation.Final));
@@ -338,7 +336,7 @@ namespace NBrowse.Test
 
 		private static async Task<Method> FindMethodByName(string name)
 		{
-			var methods = await CreateAndQuery<Method[]>($"project => project.Assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods).Where(m => m.Name == \"{name}\").ToArray()");
+			var methods = await RepositoryTest.CreateAndQuery<Method[]>($"project => project.Assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods).Where(m => m.Name == \"{name}\").ToArray()");
 
 			Assert.That(methods.Length, Is.EqualTo(1), $"exactly one method must match name {name}");
 
@@ -347,7 +345,7 @@ namespace NBrowse.Test
 
 		private static async Task<Reflection.Type> FindTypeByName(string name)
 		{
-			var types = await CreateAndQuery<Reflection.Type[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
+			var types = await RepositoryTest.CreateAndQuery<Reflection.Type[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
 
 			Assert.That(types.Length, Is.EqualTo(1), $"exactly one type must match name {name}");
 			Assert.That(types[0].Name, Is.EqualTo(name), "inconsistent type name");
@@ -368,10 +366,10 @@ namespace NBrowse.Test
 			}
 		}
 
-		interface InterfaceWithGenericParameter<in T> where T : IDisposable
+		private interface INterfaceWithGenericParameter<in T> where T : IDisposable
 		{
-			U GenericDefaultConstructorMethod<U>() where U : new();
-			U GenericValueTypeMethod<U>() where U : struct;
+			TU GenericDefaultConstructorMethod<TU>() where TU : new();
+			TU GenericValueTypeMethod<TU>() where TU : struct;
 		}
 
 		protected delegate int ProtectedDelegate();
@@ -384,8 +382,8 @@ namespace NBrowse.Test
 
 			public string A = "a";
 			protected int B = 1;
-			private static float C = 2;
-			internal long D = (long)C;
+			private static float c = 2;
+			internal long D = (long)PrivateClassWithFields.c;
 		}
 
 		private class InheritFromPrivateClass : PrivateClassWithFields
@@ -409,10 +407,10 @@ namespace NBrowse.Test
 
 			public void PublicMethodWithCallToOthers()
 			{
-				if (ProtectedVirtualDynamicMethod() == null)
+				if (this.ProtectedVirtualDynamicMethod() == null)
 					throw new Exception();
 
-				Func<DateTime> func = PrivateStaticMethodCalled;
+				Func<DateTime> func = PublicClassWithMethods.PrivateStaticMethodCalled;
 
 				if (func == null)
 					throw new Exception();

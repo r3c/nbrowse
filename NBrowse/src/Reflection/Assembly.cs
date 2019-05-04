@@ -2,29 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using NBrowse.Selection;
 using Newtonsoft.Json;
 
 namespace NBrowse.Reflection
 {
 	public struct Assembly : IEquatable<Assembly>
 	{
-		public string FileName => _module?.FileName ?? string.Empty;
+		public string FileName => this.module?.FileName ?? string.Empty;
 
-		public string Identifier => _assembly.FullName;
+		public string Identifier => this.assembly.FullName;
 
-		public string Name => _assembly.Name.Name;
-
-		[JsonIgnore]
-		public IEnumerable<string> References => (_module?.AssemblyReferences ?? Enumerable.Empty<AssemblyNameReference>()).Select(reference => reference.FullName);
-
-		public Version Version => _assembly.Name.Version;
+		public string Name => this.assembly.Name.Name;
 
 		[JsonIgnore]
-		public IEnumerable<Type> Types => (_module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Select(type => new Type(type));
+		public IEnumerable<string> References => (this.module?.AssemblyReferences ?? Enumerable.Empty<AssemblyNameReference>()).Select(reference => reference.FullName);
 
-		private readonly AssemblyDefinition _assembly;
-		private readonly ModuleDefinition _module;
+		public Version Version => this.assembly.Name.Version;
+
+		[JsonIgnore]
+		public IEnumerable<Type> Types => (this.module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Select(type => new Type(type));
+
+		private readonly AssemblyDefinition assembly;
+		private readonly ModuleDefinition module;
 
 		public static bool operator ==(Assembly lhs, Assembly rhs)
 		{
@@ -38,29 +37,29 @@ namespace NBrowse.Reflection
 
 		public Assembly(AssemblyDefinition assembly)
 		{
-			_assembly = assembly;
-			_module = assembly.Modules.FirstOrDefault(module => module.IsMain);
+			this.assembly = assembly;
+			this.module = assembly.Modules.FirstOrDefault(module => module.IsMain);
 		}
 
 		public bool Equals(Assembly other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return Identifier == other.Identifier;
+			return this.Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)
 		{
-			return o is Assembly other && Equals(other);
+			return o is Assembly other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
 		{
-			return _assembly.GetHashCode();
+			return this.assembly.GetHashCode();
 		}
 
 		public override string ToString()
 		{
-			return $"{{Assembly={Identifier}}}";
+			return $"{{Assembly={this.Identifier}}}";
 		}
 	}
 }

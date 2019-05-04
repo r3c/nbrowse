@@ -10,7 +10,7 @@ namespace NBrowse.Formatting.Printers
 		{
 			if (result is IEnumerable enumerable)
 			{
-				foreach (string item in enumerable.Cast<object>().Select(r => r.ToString()))
+				foreach (var item in enumerable.Cast<object>().Select(r => r.ToString()))
 					writer.WriteLine(item);
 			}
 			else

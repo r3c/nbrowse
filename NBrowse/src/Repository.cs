@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
@@ -14,34 +11,34 @@ namespace NBrowse
 {
 	public class Repository : IDisposable
 	{
-		private readonly IReadOnlyList<AssemblyDefinition> _definitions;
-		private readonly ScriptOptions _options;
-		private readonly Project _project;
+		private readonly IReadOnlyList<AssemblyDefinition> definitions;
+		private readonly ScriptOptions options;
+		private readonly Project project;
 
 		public Repository(IEnumerable<string> sources)
 		{
-			var definitions = sources.Select(path => AssemblyDefinition.ReadAssembly(path)).ToArray();
+			var definitions = sources.Select(AssemblyDefinition.ReadAssembly).ToArray();
 			var imports = new[] { "NBrowse.Selection", "System", "System.Collections.Generic", "System.Linq" };
 			var references = new[] { typeof(Repository).Assembly };
 
-			_definitions = definitions;
-			_options = ScriptOptions.Default
+			this.definitions = definitions;
+			this.options = ScriptOptions.Default
 				.WithImports(imports)
 				.WithReferences(references);
-			_project = new Project(definitions.Select(assembly => new Reflection.Assembly(assembly)));
+			this.project = new Project(definitions.Select(assembly => new Assembly(assembly)));
 		}
 
 		public void Dispose()
 		{
-			foreach (var definition in _definitions)
+			foreach (var definition in this.definitions)
 				definition.Dispose();
 		}
 
 		public async Task<object> Query(string expression)
 		{
-			Func<Project, object> selector = await CSharpScript.EvaluateAsync<Func<Project, object>>(expression, _options);
+			var selector = await CSharpScript.EvaluateAsync<Func<Project, object>>(expression, this.options);
 
-			return selector(_project);
+			return selector(this.project);
 		}
 	}
 }

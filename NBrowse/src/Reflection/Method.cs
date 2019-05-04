@@ -11,56 +11,56 @@ namespace NBrowse.Reflection
 	public struct Method : IEquatable<Method>
 	{
 		[JsonIgnore]
-		public IEnumerable<Argument> Arguments => _reference.Parameters.Select(argument => new Argument(argument));
+		public IEnumerable<Argument> Arguments => this.reference.Parameters.Select(argument => new Argument(argument));
 
 		[JsonIgnore]
-		public IEnumerable<Attribute> Attributes => _definition?.CustomAttributes.Select(attribute => new Attribute(attribute)) ?? Array.Empty<Attribute>();
+		public IEnumerable<Attribute> Attributes => this.definition?.CustomAttributes.Select(attribute => new Attribute(attribute)) ?? Array.Empty<Attribute>();
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Binding Binding => _definition == null
+		public Binding Binding => this.definition == null
 			? Binding.Unknown
-			: (_definition.IsConstructor
+			: (this.definition.IsConstructor
 				? Binding.Constructor
-				: (_definition.IsStatic
+				: (this.definition.IsStatic
 					? Binding.Static
 					: Binding.Instance));
 
-		public string Identifier => $"{Parent.Identifier}.{Name}({string.Join(", ", Arguments.Select(argument => argument.Identifier))})";
+		public string Identifier => $"{this.Parent.Identifier}.{this.Name}({string.Join(", ", this.Arguments.Select(argument => argument.Identifier))})";
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Implementation Implementation => _definition == null
+		public Implementation Implementation => this.definition == null
 			? Implementation.Unknown
-			: (_definition.IsAbstract
+			: (this.definition.IsAbstract
 				? Implementation.Abstract
-				: (_definition.IsFinal
+				: (this.definition.IsFinal
 					? Implementation.Final
-					: (_definition.IsVirtual
+					: (this.definition.IsVirtual
 						? Implementation.Virtual
 						: Implementation.Concrete)));
 
-		public string Name => _reference.Name;
+		public string Name => this.reference.Name;
 
 		[JsonIgnore]
-		public IEnumerable<Parameter> Parameters => _reference.GenericParameters.Select(parameter => new Parameter(parameter));
+		public IEnumerable<Parameter> Parameters => this.reference.GenericParameters.Select(parameter => new Parameter(parameter));
 
 		[JsonIgnore]
-		public Type Parent => new Type(_reference.DeclaringType);
+		public Type Parent => new Type(this.reference.DeclaringType);
 
-		public Type ReturnType => new Type(_reference.ReturnType);
+		public Type ReturnType => new Type(this.reference.ReturnType);
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Visibility Visibility => _definition == null
+		public Visibility Visibility => this.definition == null
 			? Visibility.Unknown
-			: (_definition.IsPublic
+			: (this.definition.IsPublic
 				? Visibility.Public
-				: (_definition.IsPrivate
+				: (this.definition.IsPrivate
 					? Visibility.Private
-					: (_definition.IsFamily
+					: (this.definition.IsFamily
 						? Visibility.Protected
 						: Visibility.Internal)));
 
-		private readonly MethodDefinition _definition;
-		private readonly MethodReference _reference;
+		private readonly MethodDefinition definition;
+		private readonly MethodReference reference;
 
 		public static bool operator ==(Method lhs, Method rhs)
 		{
@@ -74,56 +74,56 @@ namespace NBrowse.Reflection
 
 		public Method(MethodDefinition definition)
 		{
-			_definition = definition;
-			_reference = definition;
+			this.definition = definition;
+			this.reference = definition;
 		}
 
 		public Method(MethodReference reference)
 		{
-			_definition = reference.IsDefinition || reference.Module.AssemblyResolver != null ? reference.Resolve() : null;
-			_reference = reference;
+			this.definition = reference.IsDefinition || reference.Module.AssemblyResolver != null ? reference.Resolve() : null;
+			this.reference = reference;
 		}
 
 		public bool Equals(Method other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return Identifier == other.Identifier;
+			return this.Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)
 		{
-			return o is Method other && Equals(other);
+			return o is Method other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
 		{
-			return _reference.GetHashCode();
+			return this.reference.GetHashCode();
 		}
 
 		public bool IsUsing(Method method)
 		{
-			return MatchInstruction(instruction => instruction.Operand is MethodReference reference && method == new Method(reference));
+			return this.MatchInstruction(instruction => instruction.Operand is MethodReference reference && method == new Method(reference));
 		}
 
 		public bool IsUsing(Type type)
 		{
-			var usedInArguments = Arguments.Any(argument => type.Equals(argument.Type));
-			var usedInAttributes = Attributes.Any(attribute => type.Equals(attribute.Type));
-			var usedInBody = MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new Type(operand)));
-			var usedInParameters = Parameters.Any(parameter => parameter.Constraints.Any(constraint => type.Equals(constraint)));
-			var usedInReturn = type.Equals(ReturnType);
+			var usedInArguments = this.Arguments.Any(argument => type.Equals(argument.Type));
+			var usedInAttributes = this.Attributes.Any(attribute => type.Equals(attribute.Type));
+			var usedInBody = this.MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new Type(operand)));
+			var usedInParameters = this.Parameters.Any(parameter => parameter.Constraints.Any(constraint => type.Equals(constraint)));
+			var usedInReturn = type.Equals(this.ReturnType);
 
 			return usedInArguments || usedInAttributes || usedInBody || usedInParameters || usedInReturn;
 		}
 
 		public override string ToString()
 		{
-			return $"{{Method={Identifier}}}";
+			return $"{{Method={this.Identifier}}}";
 		}
 
 		private bool MatchInstruction(Func<Instruction, bool> predicate)
 		{
-			return _definition != null && _definition.Body != null && _definition.Body.Instructions.Any(predicate);
+			return this.definition != null && this.definition.Body != null && this.definition.Body.Instructions.Any(predicate);
 		}
 	}
 }

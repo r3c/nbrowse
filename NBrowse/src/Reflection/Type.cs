@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Mono.Cecil;
-using NBrowse.Selection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -12,74 +10,74 @@ namespace NBrowse.Reflection
 	public struct Type : IEquatable<Type>
 	{
 		[JsonIgnore]
-		public IEnumerable<Attribute> Attributes => _definition?.CustomAttributes.Select(attribute => new Attribute(attribute)) ?? Array.Empty<Attribute>();
+		public IEnumerable<Attribute> Attributes => this.definition?.CustomAttributes.Select(attribute => new Attribute(attribute)) ?? Array.Empty<Attribute>();
 
 		[JsonIgnore]
-		public Type? Base => _definition != null && _definition.BaseType != null ? new Type(_definition.BaseType) as Type? : null;
+		public Type? Base => this.definition != null && this.definition.BaseType != null ? new Type(this.definition.BaseType) as Type? : null;
 
 		[JsonIgnore]
-		public IEnumerable<Field> Fields => _definition?.Fields.Select(field => new Field(field)) ?? Array.Empty<Field>();
+		public IEnumerable<Field> Fields => this.definition?.Fields.Select(field => new Field(field)) ?? Array.Empty<Field>();
 
-		public string Identifier => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
+		public string Identifier => $"{this.Namespace}{(string.IsNullOrEmpty(this.Namespace) ? "" : ".")}{this.Name}";
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Implementation Implementation => _definition == null
+		public Implementation Implementation => this.definition == null
 			? Implementation.Unknown
-			: (_definition.IsAbstract
+			: (this.definition.IsAbstract
 				? Implementation.Abstract
-				: (_definition.IsSealed
+				: (this.definition.IsSealed
 					? Implementation.Final
 					: Implementation.Virtual));
 
 		[JsonIgnore]
-		public IEnumerable<Type> Interfaces => _definition?.Interfaces.Select(i => new Type(i.InterfaceType)) ?? Array.Empty<Type>();
+		public IEnumerable<Type> Interfaces => this.definition?.Interfaces.Select(i => new Type(i.InterfaceType)) ?? Array.Empty<Type>();
 
 		[JsonIgnore]
-		public IEnumerable<Method> Methods => _definition?.Methods.Select(method => new Method(method)) ?? Array.Empty<Method>();
+		public IEnumerable<Method> Methods => this.definition?.Methods.Select(method => new Method(method)) ?? Array.Empty<Method>();
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Model Model => _definition == null
+		public Model Model => this.definition == null
 			? Model.Unknown
-			: (_definition.IsEnum
+			: (this.definition.IsEnum
 				? Model.Enumeration
-				: (_definition.IsInterface
+				: (this.definition.IsInterface
 					? Model.Interface
-					: (_definition.IsValueType
+					: (this.definition.IsValueType
 						? Model.Structure
 						: Model.Class)));
 
-		public string Name => _reference.IsNested ? $"{new Type(_reference.DeclaringType).Name}+{_reference.Name}" : _reference.Name;
+		public string Name => this.reference.IsNested ? $"{new Type(this.reference.DeclaringType).Name}+{this.reference.Name}" : this.reference.Name;
 
-		public string Namespace => _reference.IsNested ? new Type(_reference.DeclaringType).Namespace : _reference.Namespace;
-
-		[JsonIgnore]
-		public IEnumerable<Type> NestedTypes => _definition?.NestedTypes.Select(type => new Type(type)) ?? Array.Empty<Type>();
+		public string Namespace => this.reference.IsNested ? new Type(this.reference.DeclaringType).Namespace : this.reference.Namespace;
 
 		[JsonIgnore]
-		public IEnumerable<Parameter> Parameters => _definition?.GenericParameters.Select(parameter => new Parameter(parameter)) ?? Array.Empty<Parameter>();
+		public IEnumerable<Type> NestedTypes => this.definition?.NestedTypes.Select(type => new Type(type)) ?? Array.Empty<Type>();
 
 		[JsonIgnore]
-		public Assembly Parent => new Assembly(_reference.Module.Assembly);
+		public IEnumerable<Parameter> Parameters => this.definition?.GenericParameters.Select(parameter => new Parameter(parameter)) ?? Array.Empty<Parameter>();
+
+		[JsonIgnore]
+		public Assembly Parent => new Assembly(this.reference.Module.Assembly);
 
 		[JsonConverter(typeof(StringEnumConverter))]
-		public Visibility Visibility => _definition == null
+		public Visibility Visibility => this.definition == null
 			? Visibility.Unknown
-			: (_definition.IsNested
-				? (_definition.IsNestedPublic
+			: (this.definition.IsNested
+				? (this.definition.IsNestedPublic
 					? Visibility.Public
-					: (_definition.IsNestedFamily
+					: (this.definition.IsNestedFamily
 						? Visibility.Protected
-						: (_definition.IsNestedPrivate
+						: (this.definition.IsNestedPrivate
 							? Visibility.Private
 							: Visibility.Internal)))
-				: (_definition.IsPublic
+				: (this.definition.IsPublic
 					? Visibility.Public
-					: (_definition.IsNotPublic
+					: (this.definition.IsNotPublic
 						? Visibility.Private
 						: Visibility.Internal)));
 
-		private readonly TypeDefinition _definition;
-		private readonly TypeReference _reference;
+		private readonly TypeDefinition definition;
+		private readonly TypeReference reference;
 
 		public static bool operator ==(Type lhs, Type rhs)
 		{
@@ -93,8 +91,8 @@ namespace NBrowse.Reflection
 
 		public Type(TypeDefinition definition)
 		{
-			_definition = definition;
-			_reference = definition;
+			this.definition = definition;
+			this.reference = definition;
 		}
 
 		public Type(TypeReference reference)
@@ -115,29 +113,29 @@ namespace NBrowse.Reflection
 				definition = null;
 			}
 
-			_definition = definition;
-			_reference = reference;
+			this.definition = definition;
+			this.reference = reference;
 		}
 
 		public bool Equals(Type other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return Identifier == other.Identifier;
+			return this.Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)
 		{
-			return o is Type other && Equals(other);
+			return o is Type other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
 		{
-			return _reference.GetHashCode();
+			return this.reference.GetHashCode();
 		}
 
 		public override string ToString()
 		{
-			return $"{{Type={Identifier}}}";
+			return $"{{Type={this.Identifier}}}";
 		}
 	}
 }

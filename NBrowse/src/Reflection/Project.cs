@@ -8,22 +8,22 @@ namespace NBrowse.Reflection
 	public class Project
 	{
 		[JsonIgnore]
-		public IEnumerable<Assembly> Assemblies => _assemblies.Values;
+		public IEnumerable<Assembly> Assemblies => this.assemblies.Values;
 
-		private readonly IReadOnlyDictionary<string, Assembly> _assemblies;
+		private readonly IReadOnlyDictionary<string, Assembly> assemblies;
 
 		public IEnumerable<Assembly> FilterAssemblies(IEnumerable<string> fullNames)
 		{
 			foreach (var fullName in fullNames)
 			{
-				if (_assemblies.TryGetValue(fullName, out Assembly assembly))
+				if (this.assemblies.TryGetValue(fullName, out var assembly))
 					yield return assembly;
 			}
 		}
 
 		public Assembly FindAssembly(string fullName)
 		{
-			if (!_assemblies.TryGetValue(fullName, out Assembly assembly))
+			if (!this.assemblies.TryGetValue(fullName, out var assembly))
 				throw new ArgumentOutOfRangeException(nameof(fullName), fullName, "no matching assembly found");
 
 			return assembly;
@@ -36,7 +36,7 @@ namespace NBrowse.Reflection
 			var byName = new Method?();
 			var byNameFound = false;
 
-			foreach (var method in _assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
+			foreach (var method in this.assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
 			{
 				if (method.Identifier == search)
 				{
@@ -84,7 +84,7 @@ namespace NBrowse.Reflection
 			var byName = new Type?();
 			var byNameFound = false;
 
-			foreach (var type in _assemblies.Values.SelectMany(a => a.Types))
+			foreach (var type in this.assemblies.Values.SelectMany(a => a.Types))
 			{
 				if (type.Identifier == search)
 				{
@@ -132,7 +132,7 @@ namespace NBrowse.Reflection
 			foreach (var assembly in assemblies)
 				byIdentifier[assembly.Name] = assembly;
 
-			_assemblies = byIdentifier;
+			this.assemblies = byIdentifier;
 		}
 	}
 }

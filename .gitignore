@@ -1,4 +1,6 @@
+/.idea/
 /.vscode/
 /nbrowse-*.zip
 bin/
 obj/
+*.user

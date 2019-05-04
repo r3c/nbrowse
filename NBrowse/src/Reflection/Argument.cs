@@ -1,20 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Mono.Cecil;
 
 namespace NBrowse.Reflection
 {
 	public struct Argument : IEquatable<Argument>
 	{
-		public string Identifier => $"{Type.Identifier} {Name}";
+		public string Identifier => $"{this.Type.Identifier} {this.Name}";
 
-		public string Name => _argument.Name;
+		public string Name => this.argument.Name;
 
-		public Type Type => new Type(_argument.ParameterType);
+		public Type Type => new Type(this.argument.ParameterType);
 
-		private readonly ParameterDefinition _argument;
+		private readonly ParameterDefinition argument;
 
 		public static bool operator ==(Argument lhs, Argument rhs)
 		{
@@ -28,28 +25,28 @@ namespace NBrowse.Reflection
 
 		public Argument(ParameterDefinition argument)
 		{
-			_argument = argument;
+			this.argument = argument;
 		}
 
 		public bool Equals(Argument other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return Identifier == other.Identifier;
+			return this.Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)
 		{
-			return o is Argument other && Equals(other);
+			return o is Argument other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
 		{
-			return _argument.GetHashCode();
+			return this.argument.GetHashCode();
 		}
 
 		public override string ToString()
 		{
-			return $"{{Argument={Name}}}";
+			return $"{{Argument={this.Name}}}";
 		}
 	}
 }

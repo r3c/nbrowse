@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -9,28 +8,28 @@ namespace NBrowse.Reflection
     public struct Parameter
     {
         [JsonIgnore]
-        public IEnumerable<Type> Constraints => _parameter.Constraints.Select(constraint => new Type(constraint));
+        public IEnumerable<Type> Constraints => this.parameter.Constraints.Select(constraint => new Type(constraint));
 
-        public bool HasDefaultConstructor => _parameter.HasDefaultConstructorConstraint;
+        public bool HasDefaultConstructor => this.parameter.HasDefaultConstructorConstraint;
 
-        public string Identifier => _parameter.FullName;
+        public string Identifier => this.parameter.FullName;
 
-        public bool IsContravariant => _parameter.IsContravariant;
+        public bool IsContravariant => this.parameter.IsContravariant;
 
-        public bool IsCovariant => _parameter.IsCovariant;
+        public bool IsCovariant => this.parameter.IsCovariant;
 
-        public string Name => _parameter.Name;
+        public string Name => this.parameter.Name;
 
-        private readonly GenericParameter _parameter;
+        private readonly GenericParameter parameter;
 
         public Parameter(GenericParameter parameter)
         {
-            _parameter = parameter;
+            this.parameter = parameter;
         }
 
         public override string ToString()
         {
-            return $"{{Parameter={Identifier}}}";
+            return $"{{Parameter={this.Identifier}}}";
         }
     }
 }

@@ -2,19 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Scripting;
 using Mono.Options;
 using NBrowse.Formatting;
 using NBrowse.Formatting.Printers;
-using NBrowse.Reflection;
 
 namespace NBrowse.CLI
 {
-	class Program
+	internal static class Program
 	{
-		static void Main(string[] args)
+		private static void Main(string[] args)
 		{
 			var displayHelp = false;
 			var printer = new PlainPrinter() as IPrinter;
@@ -23,7 +21,7 @@ namespace NBrowse.CLI
 
 			var options = new OptionSet
 			{
-				{ "f|format=", "change output format (value: json, plain)", format => printer = CreatePrinter(format) },
+				{ "f|format=", "change output format (value: json, plain)", format => printer = Program.CreatePrinter(format) },
 				{ "h|help", "show this message and user manual", h => displayHelp = true },
 				{ "i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i) },
 				{ "s|source", "assume query is a text file, not a plain query", s => queryIsFile = s != null }
@@ -53,16 +51,16 @@ namespace NBrowse.CLI
 			// Display help on request or missing input arguments
 			if (displayHelp || remainder.Count < 1)
 			{
-				ShowHelp(Console.Error, options, displayHelp);
+				Program.ShowHelp(Console.Error, options, displayHelp);
 
 				return;
 			}
 
 			// Read assemblies and query from input arguments, then execute query on target assemblies
-			var assemblies = ReadAssemblies(sources, remainder.Skip(1));
+			var assemblies = Program.ReadAssemblies(sources, remainder.Skip(1));
 			var query = queryIsFile ? File.ReadAllText(remainder[0]) : remainder[0];
 
-			ExecuteQuery(assemblies, query, printer).Wait();
+			Program.ExecuteQuery(assemblies, query, printer).Wait();
 		}
 
 		private static IPrinter CreatePrinter(string format)
@@ -102,7 +100,7 @@ namespace NBrowse.CLI
 		{
 			var assemblies = new List<string>();
 
-			foreach (string source in sources.Concat(arguments))
+			foreach (var source in sources.Concat(arguments))
 			{
 				if (Directory.Exists(source))
 					assemblies.AddRange(Directory.EnumerateFiles(source, "*.dll"));
