@@ -35,14 +35,14 @@ namespace NBrowse.CLI
 			}
 			catch (ArgumentOutOfRangeException exception)
 			{
-				Console.Error.WriteLine($"invalid argument: {exception.Message}");
+				Console.Error.WriteLine($"error: invalid argument, {exception.Message}");
 				Environment.Exit(1);
 
 				return;
 			}
 			catch (OptionException exception)
 			{
-				Console.Error.WriteLine($"error when parsing command line arguments: {exception.Message}");
+				Console.Error.WriteLine($"error: invalid option, {exception.Message}");
 				Environment.Exit(1);
 
 				return;
@@ -57,8 +57,11 @@ namespace NBrowse.CLI
 			}
 
 			// Read assemblies and query from input arguments, then execute query on target assemblies
-			var assemblies = Program.ReadAssemblies(sources, remainder.Skip(1));
+			var assemblies = Program.ReadAssemblies(sources.Concat(remainder.Skip(1)).ToArray());
 			var query = queryIsFile ? File.ReadAllText(remainder[0]) : remainder[0];
+
+			if (assemblies.Count == 0)
+				Console.Error.WriteLine($"warning: empty assemblies list passed as argument");
 
 			Program.ExecuteQuery(assemblies, query, printer).Wait();
 		}
@@ -90,25 +93,28 @@ namespace NBrowse.CLI
 				}
 				catch (CompilationErrorException exception)
 				{
-					Console.Error.WriteLine($"could not compile query: {exception.Message}");
+					Console.Error.WriteLine($"error: could not compile query, {exception.Message}");
 					Environment.Exit(3);
 				}
 			}
 		}
 
-		private static IEnumerable<string> ReadAssemblies(IEnumerable<string> sources, IEnumerable<string> arguments)
+		private static IReadOnlyList<string> ReadAssemblies(IEnumerable<string> sources)
 		{
 			var assemblies = new List<string>();
 
-			foreach (var source in sources.Concat(arguments))
+			foreach (var source in sources)
 			{
 				if (Directory.Exists(source))
+				{
+					assemblies.AddRange(Program.ReadAssemblies(Directory.EnumerateDirectories(source)));
 					assemblies.AddRange(Directory.EnumerateFiles(source, "*.dll"));
+				}
 				else if (File.Exists(source))
 					assemblies.Add(source);
 				else
 				{
-					Console.Error.WriteLine($"could not find input assembly nor directory '{source}'");
+					Console.Error.WriteLine($"error: '{source}' is not an assembly nor a directory");
 					Environment.Exit(2);
 				}
 			}
