@@ -133,6 +133,25 @@ namespace NBrowse.Reflection
 			return this.reference.GetHashCode();
 		}
 
+		public bool IsUsing(Method method)
+		{
+			return this.Methods.Any(candidate => candidate.IsUsing(method));
+		}
+
+		public bool IsUsing(Type type)
+		{
+			var usedInAttributes = this.Attributes.Any(attribute => type.Equals(attribute.Type));
+			var usedInBase = this.Base.HasValue && type.Equals(this.Base.Value);
+			var usedInFields = this.Fields.Any(field => type.Equals(field.Type));
+			var usedInInterfaces = this.Interfaces.Any(type.Equals);
+			var usedInMethods = this.Methods.Any(method => method.IsUsing(type));
+			var usedInNestedTypes = this.NestedTypes.Any(type.Equals);
+			var usedInParameters = this.Parameters.Any(parameter => parameter.Constraints.Any(type.Equals));
+
+			return usedInAttributes || usedInBase || usedInFields || usedInInterfaces || usedInMethods ||
+			       usedInNestedTypes || usedInParameters;
+		}
+
 		public override string ToString()
 		{
 			return $"{{Type={this.Identifier}}}";
