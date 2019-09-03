@@ -3,12 +3,13 @@ using System.Linq;
 using Mono.Cecil;
 using Newtonsoft.Json;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection.Mono
 {
-    public struct Parameter
+    internal class CecilParameter : IParameter
     {
         [JsonIgnore]
-        public IEnumerable<Type> Constraints => this.parameter.Constraints.Select(constraint => new Type(constraint));
+        public IEnumerable<IType> Constraints =>
+            this.parameter.Constraints.Select(constraint => new CecilType(constraint) as IType);
 
         public bool HasDefaultConstructor => this.parameter.HasDefaultConstructorConstraint;
 
@@ -22,7 +23,7 @@ namespace NBrowse.Reflection
 
         private readonly GenericParameter parameter;
 
-        public Parameter(GenericParameter parameter)
+        public CecilParameter(GenericParameter parameter)
         {
             this.parameter = parameter;
         }

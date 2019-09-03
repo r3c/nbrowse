@@ -1,18 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mono.Cecil;
+using NBrowse.Reflection.Mono;
 using Newtonsoft.Json;
 
 namespace NBrowse.Reflection
 {
-	public class Project
+	public class Project : IDisposable
 	{
 		[JsonIgnore]
-		public IEnumerable<Assembly> Assemblies => this.assemblies.Values;
+		public IEnumerable<IAssembly> Assemblies => this.assemblies.Values;
 
-		private readonly IReadOnlyDictionary<string, Assembly> assemblies;
+		private readonly IReadOnlyDictionary<string, IAssembly> assemblies;
 
-		public IEnumerable<Assembly> FilterAssemblies(IEnumerable<string> fullNames)
+		private readonly IReadOnlyList<AssemblyDefinition> resources;
+
+		public void Dispose()
+		{
+			foreach (var resource in this.resources)
+				resource.Dispose();
+		}
+
+		public IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> fullNames)
 		{
 			foreach (var fullName in fullNames)
 			{
@@ -21,7 +31,7 @@ namespace NBrowse.Reflection
 			}
 		}
 
-		public Assembly FindAssembly(string fullName)
+		public IAssembly FindAssembly(string fullName)
 		{
 			if (!this.assemblies.TryGetValue(fullName, out var assembly))
 				throw new ArgumentOutOfRangeException(nameof(fullName), fullName, "no matching assembly found");
@@ -29,47 +39,39 @@ namespace NBrowse.Reflection
 			return assembly;
 		}
 
-		public Method FindMethod(string search)
+		public IMethod FindMethod(string search)
 		{
-			var byIdentifier = new Method?();
+			var byIdentifier = (IMethod) null;
 			var byIdentifierFound = false;
-			var byName = new Method?();
+			var byName = (IMethod) null;
 			var byNameFound = false;
 
 			foreach (var method in this.assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
 			{
 				if (method.Identifier == search)
 				{
-					if (byIdentifierFound)
-						byIdentifier = null;
-					else
-						byIdentifier = method;
-
+					byIdentifier = byIdentifierFound ? null : method;
 					byIdentifierFound = true;
 				}
 				else if (method.Name == search)
 				{
-					if (byNameFound)
-						byName = null;
-					else
-						byName = method;
-
+					byName = byNameFound ? null : method;
 					byNameFound = true;
 				}
 			}
 
 			if (byIdentifierFound)
 			{
-				if (byIdentifier.HasValue)
-					return byIdentifier.Value;
+				if (byIdentifier != null)
+					return byIdentifier;
 
 				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one method match identifier '{search}'");
 			}
 
 			if (byNameFound)
 			{
-				if (byName.HasValue)
-					return byName.Value;
+				if (byName != null)
+					return byName;
 
 				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one method match name '{search}'");
 			}
@@ -77,47 +79,39 @@ namespace NBrowse.Reflection
 			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching method found");
 		}
 
-		public Type FindType(string search)
+		public IType FindType(string search)
 		{
-			var byIdentifier = new Type?();
+			var byIdentifier = (IType) null;
 			var byIdentifierFound = false;
-			var byName = new Type?();
+			var byName = (IType) null;
 			var byNameFound = false;
 
 			foreach (var type in this.assemblies.Values.SelectMany(a => a.Types))
 			{
 				if (type.Identifier == search)
 				{
-					if (byIdentifierFound)
-						byIdentifier = null;
-					else
-						byIdentifier = type;
-
+					byIdentifier = byIdentifierFound ? null : type;
 					byIdentifierFound = true;
 				}
 				else if (type.Name == search)
 				{
-					if (byNameFound)
-						byName = null;
-					else
-						byName = type;
-
+					byName = byNameFound ? null : type;
 					byNameFound = true;
 				}
 			}
 
 			if (byIdentifierFound)
 			{
-				if (byIdentifier.HasValue)
-					return byIdentifier.Value;
+				if (byIdentifier != null)
+					return byIdentifier;
 
 				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type match identifier '{search}'");
 			}
 
 			if (byNameFound)
 			{
-				if (byName.HasValue)
-					return byName.Value;
+				if (byName != null)
+					return byName;
 
 				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type match name '{search}'");
 			}
@@ -125,14 +119,16 @@ namespace NBrowse.Reflection
 			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching type found");
 		}
 
-		public Project(IEnumerable<Assembly> assemblies)
+		public Project(IEnumerable<string> sources)
 		{
-			var byIdentifier = new Dictionary<string, Assembly>();
+			var resources = sources.Select(AssemblyDefinition.ReadAssembly).ToArray();
+			var byIdentifier = new Dictionary<string, IAssembly>();
 
-			foreach (var assembly in assemblies)
+			foreach (var assembly in resources.Select(resource => new CecilAssembly(resource)))
 				byIdentifier[assembly.Name] = assembly;
 
 			this.assemblies = byIdentifier;
+			this.resources = resources;
 		}
 	}
 }

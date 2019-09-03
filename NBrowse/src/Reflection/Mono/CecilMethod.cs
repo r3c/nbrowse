@@ -6,15 +6,18 @@ using Mono.Cecil.Cil;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection.Mono
 {
-	public struct Method : IEquatable<Method>
+	internal class CecilMethod : IMethod
 	{
 		[JsonIgnore]
-		public IEnumerable<Argument> Arguments => this.reference.Parameters.Select(argument => new Argument(argument));
+		public IEnumerable<IArgument> Arguments =>
+			this.reference.Parameters.Select(argument => new CecilArgument(argument));
 
 		[JsonIgnore]
-		public IEnumerable<Attribute> Attributes => this.definition?.CustomAttributes.Select(attribute => new Attribute(attribute)) ?? Array.Empty<Attribute>();
+		public IEnumerable<IAttribute> Attributes =>
+			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute)) ??
+			Array.Empty<CecilAttribute>();
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Binding Binding => this.definition == null
@@ -41,12 +44,13 @@ namespace NBrowse.Reflection
 		public string Name => this.reference.Name;
 
 		[JsonIgnore]
-		public IEnumerable<Parameter> Parameters => this.reference.GenericParameters.Select(parameter => new Parameter(parameter));
+		public IEnumerable<IParameter> Parameters =>
+			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter));
 
 		[JsonIgnore]
-		public Type Parent => new Type(this.reference.DeclaringType);
+		public IType Parent => new CecilType(this.reference.DeclaringType);
 
-		public Type ReturnType => new Type(this.reference.ReturnType);
+		public IType ReturnType => new CecilType(this.reference.ReturnType);
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Visibility Visibility => this.definition == null
@@ -62,37 +66,27 @@ namespace NBrowse.Reflection
 		private readonly MethodDefinition definition;
 		private readonly MethodReference reference;
 
-		public static bool operator ==(Method lhs, Method rhs)
-		{
-			return lhs.Equals(rhs);
-		}
-
-		public static bool operator !=(Method lhs, Method rhs)
-		{
-			return !lhs.Equals(rhs);
-		}
-
-		public Method(MethodDefinition definition)
+		public CecilMethod(MethodDefinition definition)
 		{
 			this.definition = definition;
 			this.reference = definition;
 		}
 
-		public Method(MethodReference reference)
+		public CecilMethod(MethodReference reference)
 		{
 			this.definition = reference.IsDefinition || reference.Module.AssemblyResolver != null ? reference.Resolve() : null;
 			this.reference = reference;
 		}
 
-		public bool Equals(Method other)
+		public bool Equals(IMethod other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return this.Identifier == other.Identifier;
+			return other != null && this.Identifier == other.Identifier;
 		}
 
-		public override bool Equals(object o)
+		public override bool Equals(object obj)
 		{
-			return o is Method other && this.Equals(other);
+			return obj is CecilMethod other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
@@ -100,17 +94,18 @@ namespace NBrowse.Reflection
 			return this.reference.GetHashCode();
 		}
 
-		public bool IsUsing(Method method)
+		public bool IsUsing(IMethod method)
 		{
-			return this.MatchInstruction(instruction => instruction.Operand is MethodReference reference && method == new Method(reference));
+			return this.MatchInstruction(instruction =>
+				instruction.Operand is MethodReference reference && method.Equals(new CecilMethod(reference)));
 		}
 
-		public bool IsUsing(Type type)
+		public bool IsUsing(IType type)
 		{
 			var usedInArguments = this.Arguments.Any(argument => type.Equals(argument.Type));
 			var usedInAttributes = this.Attributes.Any(attribute => type.Equals(attribute.Type));
-			var usedInBody = this.MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new Type(operand)));
-			var usedInParameters = this.Parameters.Any(parameter => parameter.Constraints.Any(constraint => type.Equals(constraint)));
+			var usedInBody = this.MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new CecilType(operand)));
+			var usedInParameters = this.Parameters.Any(parameter => parameter.Constraints.Any(type.Equals));
 			var usedInReturn = type.Equals(this.ReturnType);
 
 			return usedInArguments || usedInAttributes || usedInBody || usedInParameters || usedInReturn;

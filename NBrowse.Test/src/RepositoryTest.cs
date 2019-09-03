@@ -84,7 +84,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Project_FilterAssemblies()
 		{
-			var assemblies = await RepositoryTest.CreateAndQuery<Assembly[]>($"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(RepositoryTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");
+			var assemblies = await RepositoryTest.CreateAndQuery<IAssembly[]>($"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(RepositoryTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");
 
 			Assert.That(assemblies.Length, Is.EqualTo(1));
 			Assert.That(assemblies[0].Name, Is.EqualTo(typeof(RepositoryTest).Assembly.GetName().Name));
@@ -93,7 +93,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Project_FindExistingAssembly()
 		{
-			var assembly = await RepositoryTest.CreateAndQuery<Assembly>($"project => project.FindAssembly(\"{typeof(RepositoryTest).Assembly.GetName().Name}\")");
+			var assembly = await RepositoryTest.CreateAndQuery<IAssembly>($"project => project.FindAssembly(\"{typeof(RepositoryTest).Assembly.GetName().Name}\")");
 
 			StringAssert.EndsWith("NBrowse.Test.dll", assembly.FileName);
 		}
@@ -101,13 +101,13 @@ namespace NBrowse.Test
 		[Test]
 		public void Query_Project_FindMissingAssembly()
 		{
-			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await RepositoryTest.CreateAndQuery<Assembly>("project => project.FindAssembly(\"DoesNotExist\")"));
+			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await RepositoryTest.CreateAndQuery<IAssembly>("project => project.FindAssembly(\"DoesNotExist\")"));
 		}
 
 		[Test]
 		public async Task Query_Project_FindExistingTypeByIdentifier()
 		{
-			var type = await RepositoryTest.CreateAndQuery<Reflection.Type>($"project => project.FindType(\"{typeof(RepositoryTest).FullName}\")");
+			var type = await RepositoryTest.CreateAndQuery<IType>($"project => project.FindType(\"{typeof(RepositoryTest).FullName}\")");
 
 			Assert.That(type.Identifier, Is.EqualTo(typeof(RepositoryTest).FullName));
 		}
@@ -115,7 +115,7 @@ namespace NBrowse.Test
 		[Test]
 		public async Task Query_Project_FindExistingTypeByName()
 		{
-			var type = await RepositoryTest.CreateAndQuery<Reflection.Type>("project => project.FindType(\"RepositoryTest\")");
+			var type = await RepositoryTest.CreateAndQuery<IType>("project => project.FindType(\"RepositoryTest\")");
 
 			Assert.That(type.Identifier, Is.EqualTo(typeof(RepositoryTest).FullName));
 		}
@@ -123,7 +123,7 @@ namespace NBrowse.Test
 		[Test]
 		public void Query_Project_FindMissingType()
 		{
-			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await RepositoryTest.CreateAndQuery<Reflection.Type>("project => project.FindType(\"DoesNotExist\")"));
+			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await RepositoryTest.CreateAndQuery<IType>("project => project.FindType(\"DoesNotExist\")"));
 		}
 
 		[Test]
@@ -222,8 +222,8 @@ namespace NBrowse.Test
 			Assert.That(candidateFields[0].Visibility, Is.EqualTo(Visibility.Public));
 			Assert.That(candidateFields[0].Binding, Is.EqualTo(Binding.Instance));
 
-			Assert.That(candidateType.Base, Is.Not.Null);
-			Assert.That(candidateType.Base.Value.Name, Is.EqualTo($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}"));
+			Assert.That(candidateType.BaseOrNull, Is.Not.Null);
+			Assert.That(candidateType.BaseOrNull.Name, Is.EqualTo($"{nameof(RepositoryTest)}+{nameof(PrivateClassWithFields)}"));
 		}
 
 		[Test]
@@ -334,18 +334,18 @@ namespace NBrowse.Test
 			throw new InvalidOperationException("invalid return type");
 		}
 
-		private static async Task<Method> FindMethodByName(string name)
+		private static async Task<IMethod> FindMethodByName(string name)
 		{
-			var methods = await RepositoryTest.CreateAndQuery<Method[]>($"project => project.Assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods).Where(m => m.Name == \"{name}\").ToArray()");
+			var methods = await RepositoryTest.CreateAndQuery<IMethod[]>($"project => project.Assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods).Where(m => m.Name == \"{name}\").ToArray()");
 
 			Assert.That(methods.Length, Is.EqualTo(1), $"exactly one method must match name {name}");
 
 			return methods[0];
 		}
 
-		private static async Task<Reflection.Type> FindTypeByName(string name)
+		private static async Task<IType> FindTypeByName(string name)
 		{
-			var types = await RepositoryTest.CreateAndQuery<Reflection.Type[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
+			var types = await RepositoryTest.CreateAndQuery<IType[]>($"project => project.Assemblies.SelectMany(a => a.Types).Where(t => t.Name == \"{name}\").ToArray()");
 
 			Assert.That(types.Length, Is.EqualTo(1), $"exactly one type must match name {name}");
 			Assert.That(types[0].Name, Is.EqualTo(name), "inconsistent type name");

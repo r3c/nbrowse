@@ -1,34 +1,23 @@
-using System;
 using Mono.Cecil;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection.Mono
 {
-	public struct Argument : IEquatable<Argument>
+	internal class CecilArgument : IArgument
 	{
 		public string Identifier => $"{this.Type.Identifier} {this.Name}";
 
 		public string Name => this.argument.Name;
 
-		public Type Type => new Type(this.argument.ParameterType);
+		public IType Type => new CecilType(this.argument.ParameterType);
 
 		private readonly ParameterDefinition argument;
 
-		public static bool operator ==(Argument lhs, Argument rhs)
-		{
-			return lhs.Equals(rhs);
-		}
-
-		public static bool operator !=(Argument lhs, Argument rhs)
-		{
-			return !lhs.Equals(rhs);
-		}
-
-		public Argument(ParameterDefinition argument)
+		public CecilArgument(ParameterDefinition argument)
 		{
 			this.argument = argument;
 		}
 
-		public bool Equals(Argument other)
+		public bool Equals(IArgument other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
 			return this.Identifier == other.Identifier;
@@ -36,7 +25,7 @@ namespace NBrowse.Reflection
 
 		public override bool Equals(object o)
 		{
-			return o is Argument other && this.Equals(other);
+			return o is CecilArgument other && this.Equals(other);
 		}
 
 		public override int GetHashCode()

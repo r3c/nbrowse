@@ -4,9 +4,9 @@ using System.Linq;
 using Mono.Cecil;
 using Newtonsoft.Json;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection.Mono
 {
-	public struct Assembly : IEquatable<Assembly>
+	internal class CecilAssembly : IAssembly
 	{
 		public string FileName => this.module?.FileName ?? string.Empty;
 
@@ -20,36 +20,27 @@ namespace NBrowse.Reflection
 		public Version Version => this.assembly.Name.Version;
 
 		[JsonIgnore]
-		public IEnumerable<Type> Types => (this.module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Select(type => new Type(type));
+		public IEnumerable<IType> Types =>
+			(this.module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Select(type => new CecilType(type));
 
 		private readonly AssemblyDefinition assembly;
 		private readonly ModuleDefinition module;
 
-		public static bool operator ==(Assembly lhs, Assembly rhs)
-		{
-			return lhs.Equals(rhs);
-		}
-
-		public static bool operator !=(Assembly lhs, Assembly rhs)
-		{
-			return !lhs.Equals(rhs);
-		}
-
-		public Assembly(AssemblyDefinition assembly)
+		public CecilAssembly(AssemblyDefinition assembly)
 		{
 			this.assembly = assembly;
 			this.module = assembly.Modules.FirstOrDefault(module => module.IsMain);
 		}
 
-		public bool Equals(Assembly other)
+		public bool Equals(IAssembly other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return this.Identifier == other.Identifier;
+			return other != null && this.Identifier == other.Identifier;
 		}
 
-		public override bool Equals(object o)
+		public override bool Equals(object obj)
 		{
-			return o is Assembly other && this.Equals(other);
+			return obj is CecilAssembly other && this.Equals(other);
 		}
 
 		public override int GetHashCode()

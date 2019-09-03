@@ -1,5 +1,4 @@
 using System;
-using Mono.Cecil;
 using NBrowse.Reflection;
 using NUnit.Framework;
 
@@ -94,10 +93,7 @@ namespace NBrowse.Test
 
 		private static Project CreateProject()
 		{
-			return new Project(new[]
-			{
-				new Assembly(AssemblyDefinition.ReadAssembly(typeof(ProjectTest).Assembly.Location))
-			});
+			return new Project(new[] {typeof(ProjectTest).Assembly.Location});
 		}
 	}
 }

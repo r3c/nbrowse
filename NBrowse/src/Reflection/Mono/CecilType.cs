@@ -5,18 +5,23 @@ using Mono.Cecil;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection.Mono
 {
-	public struct Type : IEquatable<Type>
+	internal class CecilType : IType
 	{
 		[JsonIgnore]
-		public IEnumerable<Attribute> Attributes => this.definition?.CustomAttributes.Select(attribute => new Attribute(attribute)) ?? Array.Empty<Attribute>();
+		public IEnumerable<IAttribute> Attributes =>
+			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute)) ??
+			Array.Empty<CecilAttribute>();
 
 		[JsonIgnore]
-		public Type? Base => this.definition != null && this.definition.BaseType != null ? new Type(this.definition.BaseType) as Type? : null;
+		public IType BaseOrNull => this.definition != null && this.definition.BaseType != null
+			? new CecilType(this.definition.BaseType)
+			: default(IType);
 
 		[JsonIgnore]
-		public IEnumerable<Field> Fields => this.definition?.Fields.Select(field => new Field(field)) ?? Array.Empty<Field>();
+		public IEnumerable<IField> Fields =>
+			this.definition?.Fields.Select(field => new CecilField(field)) ?? Array.Empty<CecilField>();
 
 		public string Identifier => $"{this.Namespace}{(string.IsNullOrEmpty(this.Namespace) ? "" : ".")}{this.Name}";
 
@@ -30,10 +35,12 @@ namespace NBrowse.Reflection
 					: Implementation.Virtual));
 
 		[JsonIgnore]
-		public IEnumerable<Type> Interfaces => this.definition?.Interfaces.Select(i => new Type(i.InterfaceType)) ?? Array.Empty<Type>();
+		public IEnumerable<IType> Interfaces =>
+			this.definition?.Interfaces.Select(i => new CecilType(i.InterfaceType)) ?? Array.Empty<CecilType>();
 
 		[JsonIgnore]
-		public IEnumerable<Method> Methods => this.definition?.Methods.Select(method => new Method(method)) ?? Array.Empty<Method>();
+		public IEnumerable<IMethod> Methods =>
+			this.definition?.Methods.Select(method => new CecilMethod(method)) ?? Array.Empty<CecilMethod>();
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Model Model => this.definition == null
@@ -46,18 +53,21 @@ namespace NBrowse.Reflection
 						? Model.Structure
 						: Model.Class)));
 
-		public string Name => this.reference.IsNested ? $"{new Type(this.reference.DeclaringType).Name}+{this.reference.Name}" : this.reference.Name;
+		public string Name => this.reference.IsNested ? $"{new CecilType(this.reference.DeclaringType).Name}+{this.reference.Name}" : this.reference.Name;
 
-		public string Namespace => this.reference.IsNested ? new Type(this.reference.DeclaringType).Namespace : this.reference.Namespace;
-
-		[JsonIgnore]
-		public IEnumerable<Type> NestedTypes => this.definition?.NestedTypes.Select(type => new Type(type)) ?? Array.Empty<Type>();
+		public string Namespace => this.reference.IsNested ? new CecilType(this.reference.DeclaringType).Namespace : this.reference.Namespace;
 
 		[JsonIgnore]
-		public IEnumerable<Parameter> Parameters => this.definition?.GenericParameters.Select(parameter => new Parameter(parameter)) ?? Array.Empty<Parameter>();
+		public IEnumerable<IType> NestedTypes =>
+			this.definition?.NestedTypes.Select(type => new CecilType(type)) ?? Array.Empty<CecilType>();
 
 		[JsonIgnore]
-		public Assembly Parent => new Assembly(this.reference.Module.Assembly);
+		public IEnumerable<IParameter> Parameters =>
+			this.definition?.GenericParameters.Select(parameter => new CecilParameter(parameter)) ??
+			Array.Empty<CecilParameter>();
+
+		[JsonIgnore]
+		public IAssembly Parent => new CecilAssembly(this.reference.Module.Assembly);
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Visibility Visibility => this.definition == null
@@ -79,23 +89,13 @@ namespace NBrowse.Reflection
 		private readonly TypeDefinition definition;
 		private readonly TypeReference reference;
 
-		public static bool operator ==(Type lhs, Type rhs)
-		{
-			return lhs.Equals(rhs);
-		}
-
-		public static bool operator !=(Type lhs, Type rhs)
-		{
-			return !lhs.Equals(rhs);
-		}
-
-		public Type(TypeDefinition definition)
+		public CecilType(TypeDefinition definition)
 		{
 			this.definition = definition;
 			this.reference = definition;
 		}
 
-		public Type(TypeReference reference)
+		public CecilType(TypeReference reference)
 		{
 			TypeDefinition definition;
 
@@ -117,15 +117,15 @@ namespace NBrowse.Reflection
 			this.reference = reference;
 		}
 
-		public bool Equals(Type other)
+		public bool Equals(IType other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return this.Identifier == other.Identifier;
+			return other != null && this.Identifier == other.Identifier;
 		}
 
-		public override bool Equals(object o)
+		public override bool Equals(object obj)
 		{
-			return o is Type other && this.Equals(other);
+			return obj is CecilType other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
@@ -133,15 +133,15 @@ namespace NBrowse.Reflection
 			return this.reference.GetHashCode();
 		}
 
-		public bool IsUsing(Method method)
+		public bool IsUsing(IMethod method)
 		{
 			return this.Methods.Any(candidate => candidate.IsUsing(method));
 		}
 
-		public bool IsUsing(Type type)
+		public bool IsUsing(IType type)
 		{
 			var usedInAttributes = this.Attributes.Any(attribute => type.Equals(attribute.Type));
-			var usedInBase = this.Base.HasValue && type.Equals(this.Base.Value);
+			var usedInBase = this.BaseOrNull != null && type.Equals(this.BaseOrNull);
 			var usedInFields = this.Fields.Any(field => type.Equals(field.Type));
 			var usedInInterfaces = this.Interfaces.Any(type.Equals);
 			var usedInMethods = this.Methods.Any(method => method.IsUsing(type));

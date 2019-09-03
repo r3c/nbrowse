@@ -1,11 +1,10 @@
-using System;
 using Mono.Cecil;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection.Mono
 {
-	public struct Field : IEquatable<Field>
+	internal class CecilField : IField
 	{
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
@@ -15,9 +14,9 @@ namespace NBrowse.Reflection
 		public string Name => this.field.Name;
 
 		[JsonIgnore]
-		public Type Parent => new Type(this.field.DeclaringType);
+		public IType Parent => new CecilType(this.field.DeclaringType);
 
-		public Type Type => new Type(this.field.FieldType);
+		public IType Type => new CecilType(this.field.FieldType);
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Visibility Visibility => this.field.IsPublic
@@ -30,30 +29,20 @@ namespace NBrowse.Reflection
 
 		private readonly FieldDefinition field;
 
-		public static bool operator ==(Field lhs, Field rhs)
-		{
-			return lhs.Equals(rhs);
-		}
-
-		public static bool operator !=(Field lhs, Field rhs)
-		{
-			return !lhs.Equals(rhs);
-		}
-
-		public Field(FieldDefinition field)
+		public CecilField(FieldDefinition field)
 		{
 			this.field = field;
 		}
 
-		public bool Equals(Field other)
+		public bool Equals(IField other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return this.Identifier == other.Identifier;
+			return other != null && this.Identifier == other.Identifier;
 		}
 
-		public override bool Equals(object o)
+		public override bool Equals(object obj)
 		{
-			return o is Field other && this.Equals(other);
+			return obj is CecilField other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
