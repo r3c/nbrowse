@@ -4,13 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using NBrowse.Reflection;
+using NBrowse.Reflection.Mono;
 
 namespace NBrowse
 {
 	public class Repository : IDisposable
 	{
 		private readonly ScriptOptions options;
-		private readonly Project project;
+		private readonly CecilProject project;
 
 		public Repository(IEnumerable<string> sources)
 		{
@@ -20,7 +21,7 @@ namespace NBrowse
 			this.options = ScriptOptions.Default
 				.WithImports(imports)
 				.WithReferences(references);
-			this.project = new Project(sources);
+			this.project = new CecilProject(sources);
 		}
 
 		public void Dispose()
@@ -30,7 +31,7 @@ namespace NBrowse
 
 		public async Task<object> Query(string expression)
 		{
-			var selector = await CSharpScript.EvaluateAsync<Func<Project, object>>(expression, this.options);
+			var selector = await CSharpScript.EvaluateAsync<Func<IProject, object>>(expression, this.options);
 
 			return selector(this.project);
 		}

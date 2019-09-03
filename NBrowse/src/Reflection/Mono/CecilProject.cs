@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using NBrowse.Reflection.Mono;
 using Newtonsoft.Json;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection.Mono
 {
-	public class Project : IDisposable
+	internal class CecilProject : IDisposable, IProject
 	{
 		[JsonIgnore]
 		public IEnumerable<IAssembly> Assemblies => this.assemblies.Values;
@@ -119,7 +118,7 @@ namespace NBrowse.Reflection
 			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching type found");
 		}
 
-		public Project(IEnumerable<string> sources)
+		public CecilProject(IEnumerable<string> sources)
 		{
 			var resources = sources.Select(AssemblyDefinition.ReadAssembly).ToArray();
 			var byIdentifier = new Dictionary<string, IAssembly>();

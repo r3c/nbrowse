@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using NBrowse.Reflection;
 
 namespace NBrowse.CLI
 {
@@ -17,7 +17,7 @@ namespace NBrowse.CLI
 
 			var entities = new Queue<Type>();
 
-			entities.Enqueue(typeof(Reflection.Project));
+			entities.Enqueue(typeof(IProject));
 
 			var uniques = new HashSet<Type>(entities);
 

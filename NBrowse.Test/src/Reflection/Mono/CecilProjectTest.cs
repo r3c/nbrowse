@@ -1,15 +1,16 @@
 using System;
 using NBrowse.Reflection;
+using NBrowse.Reflection.Mono;
 using NUnit.Framework;
 
 namespace NBrowse.Test
 {
-	public class ProjectTest
+	public class CecilProjectTest
 	{
 		[Test]
 		public void FindAssembly_ByName_Missing()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 
 			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindAssembly("Missing"));
 		}
@@ -17,7 +18,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindAssembly_ByName_Unique()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 			var assembly = project.FindAssembly("NBrowse.Test");
 
 			Assert.That(assembly.Name, Is.EqualTo("NBrowse.Test"));
@@ -26,7 +27,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindMethod_ByIdentifier_Unique()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 			var method = project.FindMethod("NBrowse.Test.Namespace2.Conflict.UniqueMethod()");
 
 			Assert.That(method.Name, Is.EqualTo("UniqueMethod"));
@@ -35,7 +36,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindMethod_ByName_Conflict()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 
 			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindMethod("Conflict()"));
 		}
@@ -43,7 +44,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindMethod_ByName_Missing()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 
 			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindMethod("Missing()"));
 		}
@@ -51,7 +52,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindMethod_ByName_Unique()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 			var method = project.FindMethod("UniqueMethod");
 
 			Assert.That(method.Name, Is.EqualTo("UniqueMethod"));
@@ -60,7 +61,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindType_ByIdentifier_Unique()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 			var type = project.FindType("NBrowse.Test.Namespace1.Conflict");
 
 			Assert.That(type.Name, Is.EqualTo("Conflict"));
@@ -69,7 +70,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindType_ByName_Conflict()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 
 			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindType("Conflict"));
 		}
@@ -77,7 +78,7 @@ namespace NBrowse.Test
 		[Test]
 		public void FindType_ByName_Missing()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 
 			Assert.Throws<ArgumentOutOfRangeException>(() => project.FindType("Missing"));
 		}
@@ -85,15 +86,15 @@ namespace NBrowse.Test
 		[Test]
 		public void FindType_ByName_Unique()
 		{
-			var project = ProjectTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 			var type = project.FindType("Unique");
 
 			Assert.That(type.Name, Is.EqualTo("Unique"));
 		}
 
-		private static Project CreateProject()
+		private static IProject CreateProject()
 		{
-			return new Project(new[] {typeof(ProjectTest).Assembly.Location});
+			return new CecilProject(new[] {typeof(CecilProjectTest).Assembly.Location});
 		}
 	}
 }
