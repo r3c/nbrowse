@@ -11,10 +11,22 @@ namespace NBrowse.Test.Reflection.Mono
 		[TestCase("CecilParameterConstraints", 0, "")]
 		[TestCase("CecilParameterConstraints", 1, "IDisposable")]
 		[TestCase("CecilParameterConstraints", 2, "IDisposable, ValueType")]
-		public void Constraints(string name, int index, string expected)
+		public void ConstraintsFromMethod(string name, int index, string expected)
 		{
 			var constraints = string.Join(", ",
-				CecilParameterTest.GetParametersFromMethod(name, index).Constraints.Select(c => c.Name));
+				CecilParameterTest.GetParameterFromMethod(name, index).Constraints.Select(c => c.Name));
+
+			Assert.That(constraints, Is.EqualTo(expected));
+		}
+
+		[Test]
+		[TestCase("CecilParameterTest+ICecilParameterConstraints", 0, "")]
+		[TestCase("CecilParameterTest+ICecilParameterConstraints", 1, "IDisposable")]
+		[TestCase("CecilParameterTest+ICecilParameterConstraints", 2, "IDisposable, ValueType")]
+		public void ConstraintsFromType(string name, int index, string expected)
+		{
+			var constraints = string.Join(", ",
+				CecilParameterTest.GetParameterFromType(name, index).Constraints.Select(c => c.Name));
 
 			Assert.That(constraints, Is.EqualTo(expected));
 		}
@@ -22,17 +34,33 @@ namespace NBrowse.Test.Reflection.Mono
 		[Test]
 		[TestCase("CecilParameterHasDefaultConstructor", 0, false)]
 		[TestCase("CecilParameterHasDefaultConstructor", 1, true)]
-		public void HasDefaultConstructor(string name, int index, bool expected)
+		public void HasDefaultConstructorFromMethod(string name, int index, bool expected)
 		{
-			Assert.That(CecilParameterTest.GetParametersFromMethod(name, index).HasDefaultConstructor, Is.EqualTo(expected));
+			Assert.That(CecilParameterTest.GetParameterFromMethod(name, index).HasDefaultConstructor, Is.EqualTo(expected));
+		}
+
+		[Test]
+		[TestCase("CecilParameterTest+ICecilParameterHasDefaultConstructor", 0, false)]
+		[TestCase("CecilParameterTest+ICecilParameterHasDefaultConstructor", 1, true)]
+		public void HasDefaultConstructorFromType(string name, int index, bool expected)
+		{
+			Assert.That(CecilParameterTest.GetParameterFromType(name, index).HasDefaultConstructor, Is.EqualTo(expected));
 		}
 
 		[Test]
 		[TestCase("CecilParameterName", 0, "T1")]
 		[TestCase("CecilParameterName", 1, "T2")]
-		public void Name(string name, int index, string expected)
+		public void NameFromMethod(string name, int index, string expected)
 		{
-			Assert.That(CecilParameterTest.GetParametersFromMethod(name, index).Name, Is.EqualTo(expected));
+			Assert.That(CecilParameterTest.GetParameterFromMethod(name, index).Name, Is.EqualTo(expected));
+		}
+
+		[Test]
+		[TestCase("CecilParameterTest+ICecilParameterName", 0, "T1")]
+		[TestCase("CecilParameterTest+ICecilParameterName", 1, "T2")]
+		public void NameFromType(string name, int index, string expected)
+		{
+			Assert.That(CecilParameterTest.GetParameterFromType(name, index).Name, Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -41,17 +69,30 @@ namespace NBrowse.Test.Reflection.Mono
 		[TestCase("CecilParameterTest+ICecilParameterVariance", 2, NBrowse.Variance.Invariant)]
 		public void Variance(string name, int index, Variance expected)
 		{
-			Assert.That(CecilParameterTest.GetParametersFromType(name, index).Variance, Is.EqualTo(expected));
+			Assert.That(CecilParameterTest.GetParameterFromType(name, index).Variance, Is.EqualTo(expected));
 		}
 
-		private static IParameter GetParametersFromMethod(string name, int index)
+		private static IParameter GetParameterFromMethod(string name, int index)
 		{
 			return CecilProjectTest.CreateProject().FindMethod(name).Parameters.ToArray()[index];
 		}
 
-		private static IParameter GetParametersFromType(string name, int index)
+		private static IParameter GetParameterFromType(string name, int index)
 		{
 			return CecilProjectTest.CreateProject().FindType(name).Parameters.ToArray()[index];
+		}
+
+		private interface ICecilParameterConstraints<T1, T2, T3>
+			where T2 : IDisposable where T3 : struct, IDisposable
+		{
+		}
+
+		private interface ICecilParameterHasDefaultConstructor<T1, T2> where T2 : new()
+		{
+		}
+
+		private interface ICecilParameterName<T1, T2>
+		{
 		}
 
 		private interface ICecilParameterVariance<in T1, out T2, T3>
