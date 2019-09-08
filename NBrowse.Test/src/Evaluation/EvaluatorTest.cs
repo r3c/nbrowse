@@ -32,42 +32,6 @@ namespace NBrowse.Test.Evaluation
 		}
 
 		[Test]
-		public async Task Query_Method_GenericDefaultConstructorMethod()
-		{
-			var method = await EvaluatorTest.FindMethodByName("GenericDefaultConstructorMethod");
-			var parameters = method.Parameters.ToArray();
-
-			Assert.That(parameters.Length, Is.EqualTo(1));
-
-			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
-			Assert.That(parameters[0].Name, Is.EqualTo("TU"));
-			Assert.That(parameters[0].Variance, Is.EqualTo(Variance.Invariant));
-
-			var constraints = parameters[0].Constraints.ToArray();
-
-			Assert.That(constraints.Length, Is.EqualTo(0));
-		}
-
-		[Test]
-		public async Task Query_Method_GenericValueTypeMethod()
-		{
-			var method = await EvaluatorTest.FindMethodByName("GenericValueTypeMethod");
-			var parameters = method.Parameters.ToArray();
-
-			Assert.That(parameters.Length, Is.EqualTo(1));
-
-			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
-			Assert.That(parameters[0].Name, Is.EqualTo("TU"));
-			Assert.That(parameters[0].Variance, Is.EqualTo(Variance.Invariant));
-
-			var constraints = parameters[0].Constraints.ToArray();
-
-			Assert.That(constraints.Length, Is.EqualTo(1));
-
-			Assert.That(constraints[0].Name, Is.EqualTo("ValueType"));
-		}
-
-		[Test]
 		public async Task Query_Project_FilterAssemblies()
 		{
 			var assemblies = await EvaluatorTest.CreateAndQuery<IAssembly[]>($"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(EvaluatorTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");

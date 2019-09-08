@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Newtonsoft.Json;
 
@@ -44,6 +45,8 @@ namespace NBrowse.Reflection.Mono
 			var byIdentifierFound = false;
 			var byName = (IMethod) null;
 			var byNameFound = false;
+			var byParent = (IMethod) null;
+			var byParentFound = false;
 
 			foreach (var method in this.assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
 			{
@@ -57,6 +60,11 @@ namespace NBrowse.Reflection.Mono
 					byName = byNameFound ? null : method;
 					byNameFound = true;
 				}
+				else if ($"{method.Parent.Name}.{method.Name}" == search)
+				{
+					byParent = byParentFound ? null : method;
+					byParentFound = true;
+				}
 			}
 
 			if (byIdentifierFound)
@@ -65,6 +73,14 @@ namespace NBrowse.Reflection.Mono
 					return byIdentifier;
 
 				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one method match identifier '{search}'");
+			}
+
+			if (byParentFound)
+			{
+				if (byParent != null)
+					return byParent;
+
+				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one method match parent+name '{search}'");
 			}
 
 			if (byNameFound)
@@ -80,6 +96,8 @@ namespace NBrowse.Reflection.Mono
 
 		public IType FindType(string search)
 		{
+			var byGeneric = (IType) null;
+			var byGenericFound = false;
 			var byIdentifier = (IType) null;
 			var byIdentifierFound = false;
 			var byName = (IType) null;
@@ -97,6 +115,11 @@ namespace NBrowse.Reflection.Mono
 					byName = byNameFound ? null : type;
 					byNameFound = true;
 				}
+				else if (Regex.Replace(type.Name, "`[0-9]+$", string.Empty) == search)
+				{
+					byGeneric = byGenericFound ? null : type;
+					byGenericFound = true;
+				}
 			}
 
 			if (byIdentifierFound)
@@ -113,6 +136,14 @@ namespace NBrowse.Reflection.Mono
 					return byName;
 
 				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type match name '{search}'");
+			}
+
+			if (byGenericFound)
+			{
+				if (byGeneric != null)
+					return byGeneric;
+
+				throw new ArgumentOutOfRangeException(nameof(search), search, $"more than one type match generic name '{search}'");
 			}
 
 			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching type found");
