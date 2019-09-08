@@ -16,16 +16,16 @@ namespace NBrowse.CLI
 		private static void Main(string[] args)
 		{
 			var displayHelp = false;
+			var firstIsQuery = false;
 			var printer = new PlainPrinter() as IPrinter;
-			var queryIsFile = false;
 			var sources = Array.Empty<string>();
 
 			var options = new OptionSet
 			{
+				{ "c|command", "assume first argument is a query, not a file path", s => firstIsQuery = s != null },
 				{ "f|format=", "change output format (value: json, plain)", format => printer = Program.CreatePrinter(format) },
 				{ "h|help", "show this message and user manual", h => displayHelp = true },
-				{ "i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i) },
-				{ "s|source", "assume query is a text file, not a plain query", s => queryIsFile = s != null }
+				{ "i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i) }
 			};
 
 			List<string> remainder;
@@ -59,7 +59,7 @@ namespace NBrowse.CLI
 
 			// Read assemblies and query from input arguments, then execute query on target assemblies
 			var assemblies = Program.ReadAssemblies(sources.Concat(remainder.Skip(1)).ToArray());
-			var query = queryIsFile ? File.ReadAllText(remainder[0]) : remainder[0];
+			var query = firstIsQuery ? remainder[0] : File.ReadAllText(remainder[0]);
 
 			if (assemblies.Count == 0)
 				Console.Error.WriteLine($"warning: empty assemblies list passed as argument");
@@ -124,8 +124,8 @@ namespace NBrowse.CLI
 		{
 			writer.WriteLine(".NET assembly query utility");
 			writer.WriteLine();
-			writer.WriteLine("Usage: NBrowse [options] \"query expression\" AssemblyOrDirectory [AssemblyOrDirectory...]");
-			writer.WriteLine("Example: NBrowse \"project => project.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
+			writer.WriteLine("Usage: NBrowse [options] PathOrQuery AssemblyOrDirectory [AssemblyOrDirectory...]");
+			writer.WriteLine("Example: NBrowse -c \"project => project.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
 			writer.WriteLine();
 
 			options.WriteOptionDescriptions(writer);
