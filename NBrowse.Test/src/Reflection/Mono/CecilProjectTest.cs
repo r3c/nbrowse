@@ -3,7 +3,7 @@ using NBrowse.Reflection;
 using NBrowse.Reflection.Mono;
 using NUnit.Framework;
 
-namespace NBrowse.Test
+namespace NBrowse.Test.Reflection.Mono
 {
 	public class CecilProjectTest
 	{

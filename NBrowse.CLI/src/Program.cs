@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Scripting;
 using Mono.Options;
+using NBrowse.Evaluation;
 using NBrowse.Formatting;
 using NBrowse.Formatting.Printers;
 
@@ -83,19 +84,16 @@ namespace NBrowse.CLI
 
 		private static async Task ExecuteQuery(IEnumerable<string> assemblies, string query, IPrinter printer)
 		{
-			using (var repository = new Repository(assemblies))
+			try
 			{
-				try
-				{
-					var result = await repository.Query(query);
+				var result = await Evaluator.LoadAndEvaluate(assemblies, query);
 
-					printer.Print(Console.Out, result);
-				}
-				catch (CompilationErrorException exception)
-				{
-					Console.Error.WriteLine($"error: could not compile query, {exception.Message}");
-					Environment.Exit(3);
-				}
+				printer.Print(Console.Out, result);
+			}
+			catch (CompilationErrorException exception)
+			{
+				Console.Error.WriteLine($"error: could not compile query, {exception.Message}");
+				Environment.Exit(3);
 			}
 		}
 
