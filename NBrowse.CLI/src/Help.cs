@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NBrowse.Reflection;
 
 namespace NBrowse.CLI
@@ -29,14 +31,15 @@ namespace NBrowse.CLI
 
 				if (entity.IsEnum)
 					writer.WriteLine($"     {string.Join(" | ", Enum.GetNames(entity))}");
-				else if (entity.IsClass || entity.IsValueType)
+				else if (entity.IsInterface)
 				{
 					foreach (var property in entity.GetProperties(BindingFlags.Instance | BindingFlags.Public))
 					{
+						var propertyDescription = property.GetCustomAttribute<DescriptionAttribute>();
 						var propertyType = property.PropertyType;
-						var targetType = Help.GetTargetType(property.PropertyType);
+						var targetType = Help.GetFirstNonGenericType(property.PropertyType);
 
-						writer.WriteLine($"    .{property.Name}: {Help.GetTypeName(propertyType)}");
+						writer.WriteLine($"    .{property.Name}: {Help.GetTypeName(propertyType)} // {propertyDescription?.Description ?? "no description"}");
 
 						if (targetType.Namespace == entity.Namespace && uniques.Add(targetType))
 							entities.Enqueue(targetType);
@@ -47,13 +50,18 @@ namespace NBrowse.CLI
 						if (method.IsSpecialName)
 							continue;
 
-						writer.WriteLine($"    .{method.Name}({string.Join(", ", method.GetParameters().Select(p => $"{Help.GetTypeName(p.ParameterType)} {p.Name}"))}): {Help.GetTypeName(method.ReturnType)}");
+						var methodDescription = method.GetCustomAttribute<DescriptionAttribute>();
+						var methodParameters = method.GetParameters()
+							.Select(p => $"{Help.GetTypeName(p.ParameterType)} {p.Name}");
+
+						writer.WriteLine(
+							$"    .{method.Name}({string.Join(", ", methodParameters)}): {Help.GetTypeName(method.ReturnType)} // {methodDescription?.Description ?? "no description"}");
 					}
 				}
 			}
 		}
 
-		private static Type GetTargetType(Type type)
+		private static Type GetFirstNonGenericType(Type type)
 		{
 			while (type.IsGenericType)
 				type = type.GetGenericArguments()[0];
@@ -63,15 +71,13 @@ namespace NBrowse.CLI
 
 		private static string GetTypeName(Type type)
 		{
-			var typeName = type.Name;
+			if (!type.IsGenericType)
+				return type.Name;
 
-			while (type.IsGenericType)
-			{
-				type = type.GetGenericArguments()[0];
-				typeName = $"{typeName}<{type.Name}>";
-			}
+			var typeName = Regex.Replace(type.Name, "`[0-9]+$", string.Empty);
+			var argumentNames = string.Join(", ", type.GetGenericArguments().Select(Help.GetTypeName));
 
-			return typeName;
+			return $"{typeName}<{argumentNames}>";
 		}
 	}
 }
