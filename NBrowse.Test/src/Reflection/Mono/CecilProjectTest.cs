@@ -92,7 +92,7 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(type.Name, Is.EqualTo("Unique"));
 		}
 
-		private static IProject CreateProject()
+		public static IProject CreateProject()
 		{
 			return new CecilProject(new[] {typeof(CecilProjectTest).Assembly.Location});
 		}

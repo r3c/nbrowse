@@ -4,6 +4,8 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilArgument : IArgument
 	{
+		public bool HasDefaultValue => this.argument.HasDefault;
+
 		public string Identifier => $"{this.Type.Identifier} {this.Name}";
 
 		public string Name => this.argument.Name;

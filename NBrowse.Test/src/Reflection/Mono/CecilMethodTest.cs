@@ -1,5 +1,4 @@
 using System;
-using NBrowse.Reflection.Mono;
 using NUnit.Framework;
 
 namespace NBrowse.Test.Reflection.Mono
@@ -9,7 +8,7 @@ namespace NBrowse.Test.Reflection.Mono
 		[Test]
 		public void IsUsing()
 		{
-			var project = CecilMethodTest.CreateProject();
+			var project = CecilProjectTest.CreateProject();
 
 			var caller = project.FindMethod("CecilMethodCaller");
 			var useAsArgument = project.FindMethod("CecilMethodCalleeArgument");
@@ -21,12 +20,7 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(caller.IsUsing(noUse), Is.False);
 		}
 
-		private static CecilProject CreateProject()
-		{
-			return new CecilProject(new[] {typeof(CecilMethodTest).Assembly.Location});
-		}
-
-		public abstract class TestClass
+		public class TestClass
 		{
 			public void CecilMethodCaller()
 			{
