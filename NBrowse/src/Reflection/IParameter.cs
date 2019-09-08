@@ -7,9 +7,8 @@ namespace NBrowse.Reflection
 		IEnumerable<IType> Constraints { get; }
 		bool HasDefaultConstructor { get; }
 		string Identifier { get; }
-		bool IsContravariant { get; }
-		bool IsCovariant { get; }
 		string Name { get; }
+		Variance Variance { get; }
 		string ToString();
 	}
 }

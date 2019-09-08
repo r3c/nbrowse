@@ -40,9 +40,8 @@ namespace NBrowse.Test.Evaluation
 			Assert.That(parameters.Length, Is.EqualTo(1));
 
 			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
-			Assert.That(parameters[0].IsContravariant, Is.EqualTo(false));
-			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
 			Assert.That(parameters[0].Name, Is.EqualTo("TU"));
+			Assert.That(parameters[0].Variance, Is.EqualTo(Variance.Invariant));
 
 			var constraints = parameters[0].Constraints.ToArray();
 
@@ -58,9 +57,8 @@ namespace NBrowse.Test.Evaluation
 			Assert.That(parameters.Length, Is.EqualTo(1));
 
 			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(true));
-			Assert.That(parameters[0].IsContravariant, Is.EqualTo(false));
-			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
 			Assert.That(parameters[0].Name, Is.EqualTo("TU"));
+			Assert.That(parameters[0].Variance, Is.EqualTo(Variance.Invariant));
 
 			var constraints = parameters[0].Constraints.ToArray();
 
@@ -132,9 +130,8 @@ namespace NBrowse.Test.Evaluation
 			Assert.That(parameters.Length, Is.EqualTo(1));
 
 			Assert.That(parameters[0].HasDefaultConstructor, Is.EqualTo(false));
-			Assert.That(parameters[0].IsContravariant, Is.EqualTo(true));
-			Assert.That(parameters[0].IsCovariant, Is.EqualTo(false));
 			Assert.That(parameters[0].Name, Is.EqualTo("T"));
+			Assert.That(parameters[0].Variance, Is.EqualTo(Variance.Contravariant));
 
 			var constraints = parameters[0].Constraints.ToArray();
 

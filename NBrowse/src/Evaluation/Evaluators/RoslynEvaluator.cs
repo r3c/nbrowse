@@ -17,8 +17,12 @@ namespace NBrowse.Evaluation.Evaluators
 
 		public RoslynEvaluator(IProject project)
 		{
-			var imports = new[] { typeof(Has).Namespace, "System", "System.Collections.Generic", "System.Linq" };
-			var references = new[] { this.GetType().Assembly };
+			var imports = new[]
+			{
+				typeof(Binding).Namespace, typeof(Has).Namespace, "System", "System.Collections.Generic", "System.Linq"
+			};
+
+			var references = new[] {this.GetType().Assembly};
 
 			this.options = ScriptOptions.Default
 				.WithImports(imports)

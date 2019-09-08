@@ -1,4 +1,4 @@
-namespace NBrowse.Reflection
+namespace NBrowse
 {
     public enum Binding
     {

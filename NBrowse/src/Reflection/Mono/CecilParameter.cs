@@ -15,11 +15,11 @@ namespace NBrowse.Reflection.Mono
 
         public string Identifier => this.parameter.FullName;
 
-        public bool IsContravariant => this.parameter.IsContravariant;
-
-        public bool IsCovariant => this.parameter.IsCovariant;
-
         public string Name => this.parameter.Name;
+
+        public Variance Variance => this.parameter.IsContravariant
+            ? Variance.Contravariant
+            : (this.parameter.IsCovariant ? Variance.Covariant : Variance.Invariant);
 
         private readonly GenericParameter parameter;
 
