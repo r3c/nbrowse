@@ -8,15 +8,23 @@ Overview
 --------
 
 NBrowse is a command-line utility to browse and execute search queries in .NET
-compiled assemblies. It exposes loaded assemblies through a standard set of
-traversable project/assembly/class/interface/method entities, and allows you
-to run C# statements to query anything you want to retreive from them.
+compiled assemblies (both .NET Framework and .NET Standard). It exposes loaded
+assemblies through a standard set of traversable entities (e.g. "assembly",
+"project", "type", "method" and so on) and allows you to run C# statements to
+query anything you want to retreive from them.
 
-As an example this command line will print every type that implements interface
-`IPrinter` from `NBrowse.dll` assembly itself:
+You can think of it as a stripped down [NDepend](https://www.ndepend.com/)
+equivalent with no graphical interface.
 
-    dotnet NBrowse.CLI.dll 'p => p.Assemblies
+This example will search in assembly `NBrowse.dll` for every type that
+implements interface `IPrinter` and print them to standard output:
+
+    $ dotnet NBrowse.CLI.dll -c '
+        /* Take all loaded assemblies */
+        p => p.Assemblies
+        /* Select declared types from each of them */
         .SelectMany(a => a.Types)
+        /* Filter on types having an interface named "IPrinter" */
         .Where(t => t.Interfaces.Any(i => i.Name == "IPrinter"))' NBrowse.dll
 
 Usage
@@ -31,7 +39,7 @@ SDK.
 Once you have a NBrowse.CLI executable file, run it with `-h` command line
 argument to display help.
 
-    ./nbrowse.cli -h
+    $ dotnet NBrowse.CLI -h
 
 Licence
 -------
