@@ -3,6 +3,8 @@ using System.Linq;
 using NBrowse.Reflection;
 using NUnit.Framework;
 
+// ReSharper disable UnusedMember.Global
+
 namespace NBrowse.Test.Reflection.Mono
 {
 	public class CecilMethodTest
@@ -10,10 +12,10 @@ namespace NBrowse.Test.Reflection.Mono
 		[Test]
 		[TestCase("CecilMethodArguments0", "")]
 		[TestCase("CecilMethodArguments1", "a")]
-		[TestCase("CecilMethodArguments2", "a, b")]
+		[TestCase("CecilMethodArguments2", "a,b")]
 		public void Arguments(string name, string expected)
 		{
-			var arguments = string.Join(", ", CecilMethodTest.GetMethod(name).Arguments.Select(a => a.Name));
+			var arguments = string.Join(",", CecilMethodTest.GetMethod(name).Arguments.Select(a => a.Name));
 
 			Assert.That(arguments, Is.EqualTo(expected));
 		}
@@ -21,10 +23,10 @@ namespace NBrowse.Test.Reflection.Mono
 		[Test]
 		[TestCase("CecilMethodAttributes0", "")]
 		[TestCase("CecilMethodAttributes1", "ObsoleteAttribute")]
-		[TestCase("CecilMethodAttributes2", "MTAThreadAttribute, STAThreadAttribute")]
+		[TestCase("CecilMethodAttributes2", "MTAThreadAttribute,STAThreadAttribute")]
 		public void Attributes(string name, string expected)
 		{
-			var attributes = string.Join(", ", CecilMethodTest.GetMethod(name).Attributes.Select(a => a.Type.Name));
+			var attributes = string.Join(",", CecilMethodTest.GetMethod(name).Attributes.Select(a => a.Type.Name));
 
 			Assert.That(attributes, Is.EqualTo(expected));
 		}
@@ -57,11 +59,11 @@ namespace NBrowse.Test.Reflection.Mono
 
 		[Test]
 		[TestCase("CecilMethodParameters0", "")]
-		[TestCase("CecilMethodParameters1", "T")]
-		[TestCase("CecilMethodParameters2", "T1, T2")]
+		[TestCase("CecilMethodParameters1", "TParameter1")]
+		[TestCase("CecilMethodParameters2", "TParameter1,TParameter2")]
 		public void Parameters(string name, string expected)
 		{
-			var attributes = string.Join(", ", CecilMethodTest.GetMethod(name).Parameters.Select(p => p.Name));
+			var attributes = string.Join(",", CecilMethodTest.GetMethod(name).Parameters.Select(p => p.Name));
 
 			Assert.That(attributes, Is.EqualTo(expected));
 		}
@@ -74,7 +76,7 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilMethodReturnTypeInt32", "Int32")]
+		[TestCase("CecilMethodReturnTypeInt32", nameof(Int32))]
 		[TestCase("CecilMethodReturnTypeVoid", "Void")]
 		public void ReturnType(string name, string expected)
 		{
@@ -158,14 +160,15 @@ namespace NBrowse.Test.Reflection.Mono
 
 
 			protected abstract void CecilMethodParameters0();
-			protected abstract void CecilMethodParameters1<T>();
-			protected abstract void CecilMethodParameters2<T1, T2>();
+			protected abstract void CecilMethodParameters1<TParameter1>();
+			protected abstract void CecilMethodParameters2<TParameter1, TParameter2>();
 			protected abstract void CecilMethodParent();
 			protected abstract int CecilMethodReturnTypeInt32();
 			protected abstract void CecilMethodReturnTypeVoid();
 
 			internal abstract void CecilMethodVisibilityInternal();
 
+			// ReSharper disable once UnusedMember.Local
 			private void CecilMethodVisibilityPrivate()
 			{
 			}

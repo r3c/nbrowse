@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using NBrowse.Reflection;
 using NUnit.Framework;
@@ -27,8 +28,8 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilArgumentMethod", 0, "String")]
-		[TestCase("CecilArgumentMethod", 1, "Int32")]
+		[TestCase("CecilArgumentMethod", 0, nameof(String))]
+		[TestCase("CecilArgumentMethod", 1, nameof(Int32))]
 		public void Type(string method, int index, string expected)
 		{
 			var argument = CecilArgumentTest.GetArgumentFrom(method, index);

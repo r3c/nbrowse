@@ -3,6 +3,8 @@ using NBrowse.Reflection;
 using NBrowse.Reflection.Mono;
 using NUnit.Framework;
 
+// ReSharper disable UnusedMember.Global
+
 namespace NBrowse.Test.Reflection.Mono
 {
 	public class CecilProjectTest
