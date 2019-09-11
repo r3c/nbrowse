@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
@@ -12,6 +13,9 @@ namespace NBrowse.Evaluation.Evaluators
 	/// </summary>
 	internal class RoslynEvaluator : IEvaluator
 	{
+		private static readonly Regex LambdaStyle =
+			new Regex(@"^\s*(?:\((?<name>[A-Za-z_][A-Za-z0-9_]*)\)|(?<name>[A-Za-z_][A-Za-z0-9_]*))\s*=>(?<body>.*)$");
+
 		private readonly ScriptOptions options;
 		private readonly IProject project;
 
@@ -32,7 +36,13 @@ namespace NBrowse.Evaluation.Evaluators
 
 		public async Task<TResult> Evaluate<TResult>(string expression)
 		{
-			var selector = await CSharpScript.EvaluateAsync<Func<IProject, TResult>>(expression, this.options);
+			var match = RoslynEvaluator.LambdaStyle.Match(expression);
+
+			var statement = match.Success
+				? $"({match.Groups["name"].Value}) => {match.Groups["body"].Value}"
+				: $"(project) => {expression}";
+
+			var selector = await CSharpScript.EvaluateAsync<Func<IProject, TResult>>(statement, this.options);
 
 			return selector(this.project);
 		}

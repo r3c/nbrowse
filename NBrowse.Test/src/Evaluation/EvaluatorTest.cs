@@ -8,9 +8,11 @@ namespace NBrowse.Test.Evaluation
 	public class EvaluatorTest
 	{
 		[Test]
-		[TestCase("project => 42", 42)]
-		[TestCase("project => \"Hello, World!\"", "Hello, World!")]
-		[TestCase("project => false", false)]
+		[TestCase("42", 42)]
+		[TestCase("\"Hello, World!\"", "Hello, World!")]
+		[TestCase("false", false)]
+		[TestCase("(project) => 17", 17)]
+		[TestCase("project => 17", 17)]
 		public async Task LoadAndEvaluate_Constant<T>(string expression, T expected)
 		{
 			Assert.That(await EvaluatorTest.LoadAndEvaluate<T>(expression), Is.EqualTo(expected));
