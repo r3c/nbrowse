@@ -5,6 +5,8 @@ namespace NBrowse.Selection
 {
     public static class Is
     {
-        public static System.Func<IType, bool> Generated => Has.Attribute<CompilerGeneratedAttribute>;
+        public static bool Generated(IMethod method) => Has.Attribute<CompilerGeneratedAttribute>(method);
+
+        public static bool Generated(IType type) => Has.Attribute<CompilerGeneratedAttribute>(type);
     }
 }
