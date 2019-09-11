@@ -3,6 +3,9 @@ using System.Linq;
 using NBrowse.Reflection;
 using NUnit.Framework;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedParameter.Global
+
 namespace NBrowse.Test.Reflection.Mono
 {
 	public class CecilArgumentTest

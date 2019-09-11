@@ -211,12 +211,10 @@ namespace NBrowse.Test.Reflection.Mono
 		{
 			public void Dispose()
 			{
-				throw new NotImplementedException();
 			}
 
 			public void GetObjectData(SerializationInfo info, StreamingContext context)
 			{
-				throw new NotImplementedException();
 			}
 		}
 
