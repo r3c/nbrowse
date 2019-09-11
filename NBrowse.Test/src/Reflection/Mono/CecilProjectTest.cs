@@ -9,6 +9,33 @@ namespace NBrowse.Test.Reflection.Mono
 {
 	public class CecilProjectTest
 	{
+		private static readonly string AssemblyName = typeof(CecilProjectTest).Assembly.GetName().Name;
+
+		[Test]
+		public void Assemblies()
+		{
+			var project = CecilProjectTest.CreateProject();
+
+			Assert.That(project.Assemblies, Has.Some.Matches<IAssembly>(a => a.Name == CecilProjectTest.AssemblyName));
+		}
+
+		[Test]
+		public void FilterAssembly_Exclude()
+		{
+			var project = CecilProjectTest.CreateProject();
+
+			Assert.That(project.FilterAssemblies(new[] {"Missing"}), Is.Empty);
+		}
+
+		[Test]
+		public void FilterAssembly_Include()
+		{
+			var project = CecilProjectTest.CreateProject();
+
+			Assert.That(project.FilterAssemblies(new[] {"Missing1", CecilProjectTest.AssemblyName, "Missing2"}),
+				Has.Some.Matches<IAssembly>(a => a.Name == CecilProjectTest.AssemblyName));
+		}
+
 		[Test]
 		public void FindAssembly_ByName_Missing()
 		{
@@ -21,9 +48,9 @@ namespace NBrowse.Test.Reflection.Mono
 		public void FindAssembly_ByName_Unique()
 		{
 			var project = CecilProjectTest.CreateProject();
-			var assembly = project.FindAssembly("NBrowse.Test");
+			var assembly = project.FindAssembly(CecilProjectTest.AssemblyName);
 
-			Assert.That(assembly.Name, Is.EqualTo("NBrowse.Test"));
+			Assert.That(assembly.Name, Is.EqualTo(CecilProjectTest.AssemblyName));
 		}
 
 		[Test]

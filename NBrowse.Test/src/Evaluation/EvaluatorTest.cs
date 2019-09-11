@@ -2,7 +2,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using NBrowse.Evaluation;
-using NBrowse.Reflection;
 using NUnit.Framework;
 
 namespace NBrowse.Test.Evaluation
@@ -33,57 +32,6 @@ namespace NBrowse.Test.Evaluation
 				await EvaluatorTest.CreateAndQuery<bool>(
 					$"project => Is.Generated(project.FindType(\"{nameof(EvaluatorTest)}+{nameof(GeneratedStructure)}\"))"),
 				Is.True);
-		}
-
-		[Test]
-		public async Task Query_Project_FilterAssemblies()
-		{
-			var assemblies = await EvaluatorTest.CreateAndQuery<IAssembly[]>(
-				$"project => project.FilterAssemblies(new [] {{\"Missing1\", \"{typeof(EvaluatorTest).Assembly.GetName().Name}\", \"Missing2\"}}).ToArray()");
-
-			Assert.That(assemblies.Length, Is.EqualTo(1));
-			Assert.That(assemblies[0].Name, Is.EqualTo(typeof(EvaluatorTest).Assembly.GetName().Name));
-		}
-
-		[Test]
-		public async Task Query_Project_FindExistingAssembly()
-		{
-			var assembly = await EvaluatorTest.CreateAndQuery<IAssembly>(
-				$"project => project.FindAssembly(\"{typeof(EvaluatorTest).Assembly.GetName().Name}\")");
-
-			StringAssert.EndsWith("NBrowse.Test.dll", assembly.FileName);
-		}
-
-		[Test]
-		public void Query_Project_FindMissingAssembly()
-		{
-			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
-				await EvaluatorTest.CreateAndQuery<IAssembly>("project => project.FindAssembly(\"DoesNotExist\")"));
-		}
-
-		[Test]
-		public async Task Query_Project_FindExistingTypeByIdentifier()
-		{
-			var type = await EvaluatorTest.CreateAndQuery<IType>(
-				$"project => project.FindType(\"{typeof(EvaluatorTest).FullName}\")");
-
-			Assert.That(type.Identifier, Is.EqualTo(typeof(EvaluatorTest).FullName));
-		}
-
-		[Test]
-		public async Task Query_Project_FindExistingTypeByName()
-		{
-			var type = await EvaluatorTest.CreateAndQuery<IType>(
-				"project => project.FindType(\"" + nameof(EvaluatorTest) + "\")");
-
-			Assert.That(type.Identifier, Is.EqualTo(typeof(EvaluatorTest).FullName));
-		}
-
-		[Test]
-		public void Query_Project_FindMissingType()
-		{
-			Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
-				await EvaluatorTest.CreateAndQuery<IType>("project => project.FindType(\"DoesNotExist\")"));
 		}
 
 		private static async Task<T> CreateAndQuery<T>(string expression)
