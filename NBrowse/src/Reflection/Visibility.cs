@@ -1,4 +1,4 @@
-namespace NBrowse
+namespace NBrowse.Reflection
 {
     public enum Visibility
     {

@@ -8,8 +8,8 @@ namespace NBrowse.Test.Reflection.Mono
 	public class CecilFieldTest
 	{
 		[Test]
-		[TestCase("CecilFieldBindingInstance", NBrowse.Binding.Instance)]
-		[TestCase("CecilFieldBindingStatic", NBrowse.Binding.Static)]
+		[TestCase("CecilFieldBindingInstance", NBrowse.Reflection.Binding.Instance)]
+		[TestCase("CecilFieldBindingStatic", NBrowse.Reflection.Binding.Static)]
 		public void Binding(string name, Binding expected)
 		{
 			Assert.That(CecilFieldTest.GetField(name).Binding, Is.EqualTo(expected));			
@@ -38,10 +38,10 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilFieldVisibilityInternal", NBrowse.Visibility.Internal)]
-		[TestCase("cecilFieldVisibilityPrivate", NBrowse.Visibility.Private)]
-		[TestCase("CecilFieldVisibilityProtected", NBrowse.Visibility.Protected)]
-		[TestCase("CecilFieldVisibilityPublic", NBrowse.Visibility.Public)]
+		[TestCase("CecilFieldVisibilityInternal", NBrowse.Reflection.Visibility.Internal)]
+		[TestCase("cecilFieldVisibilityPrivate", NBrowse.Reflection.Visibility.Private)]
+		[TestCase("CecilFieldVisibilityProtected", NBrowse.Reflection.Visibility.Protected)]
+		[TestCase("CecilFieldVisibilityPublic", NBrowse.Reflection.Visibility.Public)]
 		public void Visibility(string name, Visibility expected)
 		{
 			Assert.That(CecilFieldTest.GetField(name).Visibility, Is.EqualTo(expected));

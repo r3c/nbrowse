@@ -32,19 +32,19 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilMethodTest+TestClass..ctor", NBrowse.Binding.Constructor)]
-		[TestCase("CecilMethodBindingInstance", NBrowse.Binding.Instance)]
-		[TestCase("CecilMethodBindingStatic", NBrowse.Binding.Static)]
+		[TestCase("CecilMethodTest+TestClass..ctor", NBrowse.Reflection.Binding.Constructor)]
+		[TestCase("CecilMethodBindingInstance", NBrowse.Reflection.Binding.Instance)]
+		[TestCase("CecilMethodBindingStatic", NBrowse.Reflection.Binding.Static)]
 		public void Binding(string name, Binding expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Binding, Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase("CecilMethodImplementationAbstract", NBrowse.Implementation.Abstract)]
-		[TestCase("CecilMethodImplementationConcrete", NBrowse.Implementation.Concrete)]
-		[TestCase("CecilMethodTest+TestClass.GetHashCode", NBrowse.Implementation.Final)]
-		[TestCase("CecilMethodImplementationVirtual", NBrowse.Implementation.Virtual)]
+		[TestCase("CecilMethodImplementationAbstract", NBrowse.Reflection.Implementation.Abstract)]
+		[TestCase("CecilMethodImplementationConcrete", NBrowse.Reflection.Implementation.Concrete)]
+		[TestCase("CecilMethodTest+TestClass.GetHashCode", NBrowse.Reflection.Implementation.Final)]
+		[TestCase("CecilMethodImplementationVirtual", NBrowse.Reflection.Implementation.Virtual)]
 		public void Implementation(string name, Implementation expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Implementation, Is.EqualTo(expected));
@@ -84,10 +84,10 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilMethodVisibilityInternal", NBrowse.Visibility.Internal)]
-		[TestCase("CecilMethodVisibilityPrivate", NBrowse.Visibility.Private)]
-		[TestCase("CecilMethodVisibilityProtected", NBrowse.Visibility.Protected)]
-		[TestCase("CecilMethodVisibilityPublic", NBrowse.Visibility.Public)]
+		[TestCase("CecilMethodVisibilityInternal", NBrowse.Reflection.Visibility.Internal)]
+		[TestCase("CecilMethodVisibilityPrivate", NBrowse.Reflection.Visibility.Private)]
+		[TestCase("CecilMethodVisibilityProtected", NBrowse.Reflection.Visibility.Protected)]
+		[TestCase("CecilMethodVisibilityPublic", NBrowse.Reflection.Visibility.Public)]
 		public void Visibility(string name, Visibility expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Visibility, Is.EqualTo(expected));

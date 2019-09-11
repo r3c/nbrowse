@@ -51,9 +51,9 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilTypeImplementationAbstract", NBrowse.Implementation.Abstract)]
-		[TestCase("CecilTypeImplementationFinal", NBrowse.Implementation.Final)]
-		[TestCase("CecilTypeImplementationVirtual", NBrowse.Implementation.Virtual)]
+		[TestCase("CecilTypeImplementationAbstract", NBrowse.Reflection.Implementation.Abstract)]
+		[TestCase("CecilTypeImplementationFinal", NBrowse.Reflection.Implementation.Final)]
+		[TestCase("CecilTypeImplementationVirtual", NBrowse.Reflection.Implementation.Virtual)]
 		public void Implementation(string name, Implementation expected)
 		{
 			Assert.That(CecilTypeTest.GetType(name).Implementation, Is.EqualTo(expected));
@@ -80,10 +80,10 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilTypeModelClass", NBrowse.Model.Class)]
-		[TestCase("CecilTypeModelEnumeration", NBrowse.Model.Enumeration)]
-		[TestCase("ICecilTypeModelInterface", NBrowse.Model.Interface)]
-		[TestCase("CecilTypeModelStructure", NBrowse.Model.Structure)]
+		[TestCase("CecilTypeModelClass", NBrowse.Reflection.Model.Class)]
+		[TestCase("CecilTypeModelEnumeration", NBrowse.Reflection.Model.Enumeration)]
+		[TestCase("ICecilTypeModelInterface", NBrowse.Reflection.Model.Interface)]
+		[TestCase("CecilTypeModelStructure", NBrowse.Reflection.Model.Structure)]
 		public void Model(string name, Model expected)
 		{
 			Assert.That(CecilTypeTest.GetType(name).Model, Is.EqualTo(expected));
@@ -131,10 +131,10 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilTypeVisibilityInternal", NBrowse.Visibility.Internal)]
-		[TestCase("CecilTypeVisibilityPrivate", NBrowse.Visibility.Private)]
-		[TestCase("CecilTypeVisibilityProtected", NBrowse.Visibility.Protected)]
-		[TestCase("CecilTypeVisibilityPublic", NBrowse.Visibility.Public)]
+		[TestCase("CecilTypeVisibilityInternal", NBrowse.Reflection.Visibility.Internal)]
+		[TestCase("CecilTypeVisibilityPrivate", NBrowse.Reflection.Visibility.Private)]
+		[TestCase("CecilTypeVisibilityProtected", NBrowse.Reflection.Visibility.Protected)]
+		[TestCase("CecilTypeVisibilityPublic", NBrowse.Reflection.Visibility.Public)]
 		public void Visibility(string name, Visibility expected)
 		{
 			Assert.That(CecilTypeTest.GetType(name).Visibility, Is.EqualTo(expected));

@@ -70,9 +70,9 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilParameterTest+ICecilParameterVariance", 0, NBrowse.Variance.Contravariant)]
-		[TestCase("CecilParameterTest+ICecilParameterVariance", 1, NBrowse.Variance.Covariant)]
-		[TestCase("CecilParameterTest+ICecilParameterVariance", 2, NBrowse.Variance.Invariant)]
+		[TestCase("CecilParameterTest+ICecilParameterVariance", 0, NBrowse.Reflection.Variance.Contravariant)]
+		[TestCase("CecilParameterTest+ICecilParameterVariance", 1, NBrowse.Reflection.Variance.Covariant)]
+		[TestCase("CecilParameterTest+ICecilParameterVariance", 2, NBrowse.Reflection.Variance.Invariant)]
 		public void Variance(string name, int index, Variance expected)
 		{
 			Assert.That(CecilParameterTest.GetParameterFromType(name, index).Variance, Is.EqualTo(expected));
