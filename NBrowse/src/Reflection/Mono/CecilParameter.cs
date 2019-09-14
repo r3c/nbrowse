@@ -9,7 +9,7 @@ namespace NBrowse.Reflection.Mono
     {
         [JsonIgnore]
         public IEnumerable<IType> Constraints =>
-            this.parameter.Constraints.Select(constraint => new CecilType(constraint) as IType);
+            this.parameter.Constraints.Select(constraint => new CecilType(constraint.ConstraintType) as IType);
 
         public bool HasDefaultConstructor => this.parameter.HasDefaultConstructorConstraint;
 
