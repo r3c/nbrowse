@@ -44,9 +44,13 @@ namespace NBrowse.Reflection.Mono
 						? Model.Structure
 						: Model.Class)));
 
-		public string Name => this.reference.IsNested ? $"{new CecilType(this.reference.DeclaringType).Name}+{this.reference.Name}" : this.reference.Name;
+		public string Name => this.reference.IsNested
+			? $"{new CecilType(this.reference.DeclaringType).Name}+{this.reference.Name}"
+			: this.reference.Name;
 
-		public string Namespace => this.reference.IsNested ? new CecilType(this.reference.DeclaringType).Namespace : this.reference.Namespace;
+		public string Namespace => this.reference.IsNested
+			? new CecilType(this.reference.DeclaringType).Namespace
+			: this.reference.Namespace;
 
 		public IEnumerable<IType> NestedTypes =>
 			this.definition?.NestedTypes.Select(type => new CecilType(type)) ?? Array.Empty<CecilType>();

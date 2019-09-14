@@ -7,7 +7,7 @@ namespace NBrowse.Reflection.Mono
     internal class CecilParameter : IParameter
     {
         public IEnumerable<IType> Constraints =>
-            this.parameter.Constraints.Select(constraint => new CecilType(constraint.ConstraintType) as IType);
+            this.parameter.Constraints.Select(constraint => new CecilType(constraint.ConstraintType));
 
         public bool HasDefaultConstructor => this.parameter.HasDefaultConstructorConstraint;
 

@@ -13,12 +13,13 @@ namespace NBrowse.Reflection.Mono
 
 		public string Name => this.assembly.Name.Name;
 
-		public IEnumerable<string> References => (this.module?.AssemblyReferences ?? Enumerable.Empty<AssemblyNameReference>()).Select(reference => reference.FullName);
+		public IEnumerable<string> References =>
+			this.module?.AssemblyReferences?.Select(reference => reference.FullName) ?? Enumerable.Empty<string>();
 
 		public Version Version => this.assembly.Name.Version;
 
 		public IEnumerable<IType> Types =>
-			(this.module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Select(type => new CecilType(type));
+			this.module?.GetTypes()?.Select(type => new CecilType(type)) ?? Array.Empty<CecilType>();
 
 		private readonly AssemblyDefinition assembly;
 		private readonly ModuleDefinition module;
