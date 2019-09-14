@@ -1,24 +1,19 @@
 using Mono.Cecil;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace NBrowse.Reflection.Mono
 {
 	internal class CecilField : IField
 	{
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
 
 		public string Identifier => $"{this.Parent.Identifier}.{this.Name}";
 
 		public string Name => this.field.Name;
 
-		[JsonIgnore]
 		public IType Parent => new CecilType(this.field.DeclaringType);
 
 		public IType Type => new CecilType(this.field.FieldType);
 
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Visibility Visibility => this.field.IsPublic
 			? Visibility.Public
 			: (this.field.IsPrivate

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace NBrowse.Reflection
 {
@@ -16,12 +17,14 @@ namespace NBrowse.Reflection
 		string Name { get; }
 
 		[Description("Referenced assembly names")]
+		[JsonIgnore]
 		IEnumerable<string> References { get; }
 
 		[Description("Assembly version")]
 		Version Version { get; }
 
 		[Description("Declared types")]
+		[JsonIgnore]
 		IEnumerable<IType> Types { get; }
 	}
 }

@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace NBrowse.Reflection.Mono
 {
 	internal class CecilMethod : IMethod
 	{
-		[JsonIgnore]
 		public IEnumerable<IArgument> Arguments =>
 			this.reference.Parameters.Select(argument => new CecilArgument(argument));
 
-		[JsonIgnore]
 		public IEnumerable<IAttribute> Attributes =>
 			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute)) ??
 			Array.Empty<CecilAttribute>();
 
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Binding Binding => this.definition == null
 			? Binding.Unknown
 			: (this.definition.IsConstructor
@@ -30,7 +25,6 @@ namespace NBrowse.Reflection.Mono
 
 		public string Identifier => $"{this.Parent.Identifier}.{this.Name}({string.Join(", ", this.Arguments.Select(argument => argument.Identifier))})";
 
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Implementation Implementation => this.definition == null
 			? Implementation.Unknown
 			: (this.definition.IsAbstract
@@ -43,16 +37,13 @@ namespace NBrowse.Reflection.Mono
 
 		public string Name => this.reference.Name;
 
-		[JsonIgnore]
 		public IEnumerable<IParameter> Parameters =>
 			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter));
 
-		[JsonIgnore]
 		public IType Parent => new CecilType(this.reference.DeclaringType);
 
 		public IType ReturnType => new CecilType(this.reference.ReturnType);
 
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Visibility Visibility => this.definition == null
 			? Visibility.Unknown
 			: (this.definition.IsPublic

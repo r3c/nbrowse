@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace NBrowse.Reflection
 {
@@ -18,6 +20,7 @@ namespace NBrowse.Reflection
 		string Name { get; }
 
 		[Description("Parameter variance")]
+		[JsonConverter(typeof(StringEnumConverter))]
 		Variance Variance { get; }
 	}
 }

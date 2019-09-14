@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Newtonsoft.Json;
 
 namespace NBrowse.Reflection.Mono
 {
@@ -14,12 +13,10 @@ namespace NBrowse.Reflection.Mono
 
 		public string Name => this.assembly.Name.Name;
 
-		[JsonIgnore]
 		public IEnumerable<string> References => (this.module?.AssemblyReferences ?? Enumerable.Empty<AssemblyNameReference>()).Select(reference => reference.FullName);
 
 		public Version Version => this.assembly.Name.Version;
 
-		[JsonIgnore]
 		public IEnumerable<IType> Types =>
 			(this.module?.GetTypes() ?? Array.Empty<TypeDefinition>()).Select(type => new CecilType(type));
 

@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Newtonsoft.Json;
 
 namespace NBrowse.Reflection.Mono
 {
     internal class CecilParameter : IParameter
     {
-        [JsonIgnore]
         public IEnumerable<IType> Constraints =>
             this.parameter.Constraints.Select(constraint => new CecilType(constraint.ConstraintType) as IType);
 

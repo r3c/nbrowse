@@ -2,30 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace NBrowse.Reflection.Mono
 {
 	internal class CecilType : IType
 	{
-		[JsonIgnore]
 		public IEnumerable<IAttribute> Attributes =>
 			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute)) ??
 			Array.Empty<CecilAttribute>();
 
-		[JsonIgnore]
-		public IType BaseOrNull => this.definition != null && this.definition.BaseType != null
+		public IType BaseOrNull => this.definition?.BaseType != null
 			? new CecilType(this.definition.BaseType)
 			: default(IType);
 
-		[JsonIgnore]
 		public IEnumerable<IField> Fields =>
 			this.definition?.Fields.Select(field => new CecilField(field)) ?? Array.Empty<CecilField>();
 
 		public string Identifier => $"{this.Namespace}{(string.IsNullOrEmpty(this.Namespace) ? "" : ".")}{this.Name}";
 
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Implementation Implementation => this.definition == null
 			? Implementation.Unknown
 			: (this.definition.IsAbstract
@@ -34,15 +28,12 @@ namespace NBrowse.Reflection.Mono
 					? Implementation.Final
 					: Implementation.Virtual));
 
-		[JsonIgnore]
 		public IEnumerable<IType> Interfaces =>
 			this.definition?.Interfaces.Select(i => new CecilType(i.InterfaceType)) ?? Array.Empty<CecilType>();
 
-		[JsonIgnore]
 		public IEnumerable<IMethod> Methods =>
 			this.definition?.Methods.Select(method => new CecilMethod(method)) ?? Array.Empty<CecilMethod>();
 
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Model Model => this.definition == null
 			? Model.Unknown
 			: (this.definition.IsEnum
@@ -57,19 +48,15 @@ namespace NBrowse.Reflection.Mono
 
 		public string Namespace => this.reference.IsNested ? new CecilType(this.reference.DeclaringType).Namespace : this.reference.Namespace;
 
-		[JsonIgnore]
 		public IEnumerable<IType> NestedTypes =>
 			this.definition?.NestedTypes.Select(type => new CecilType(type)) ?? Array.Empty<CecilType>();
 
-		[JsonIgnore]
 		public IEnumerable<IParameter> Parameters =>
 			this.definition?.GenericParameters.Select(parameter => new CecilParameter(parameter)) ??
 			Array.Empty<CecilParameter>();
 
-		[JsonIgnore]
 		public IAssembly Parent => new CecilAssembly(this.reference.Module.Assembly);
 
-		[JsonConverter(typeof(StringEnumConverter))]
 		public Visibility Visibility => this.definition == null
 			? Visibility.Unknown
 			: (this.definition.IsNested

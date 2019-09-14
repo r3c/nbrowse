@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace NBrowse.Reflection
 {
 	public interface IProject
 	{
 		[Description("Loaded assemblies")]
+		[JsonIgnore]
 		IEnumerable<IAssembly> Assemblies { get; }
 
 		[Description("Find multiple assemblies by name")]

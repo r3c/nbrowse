@@ -4,13 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
-using Newtonsoft.Json;
 
 namespace NBrowse.Reflection.Mono
 {
 	internal class CecilProject : IDisposable, IProject
 	{
-		[JsonIgnore]
 		public IEnumerable<IAssembly> Assemblies => this.assemblies.Values;
 
 		private readonly IReadOnlyDictionary<string, IAssembly> assemblies;
