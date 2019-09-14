@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -32,17 +33,19 @@ namespace NBrowse.Execution.Evaluators
 				.WithReferences(references);
 		}
 
-		public async Task<TResult> Evaluate<TResult>(IProject project, string expression)
+		public async Task<TResult> Evaluate<TResult>(IProject project, IReadOnlyList<string> arguments, string expression)
 		{
 			var match = RoslynEvaluator.LambdaStyle.Match(expression);
 
 			var statement = match.Success
-				? $"({match.Groups["name"].Value}) => {match.Groups["body"].Value}"
-				: $"(project) => {expression}";
+				? $"({match.Groups["name"].Value}, arguments) => {match.Groups["body"].Value}"
+				: $"(project, arguments) => {expression}";
 
-			var selector = await CSharpScript.EvaluateAsync<Func<IProject, TResult>>(statement, this.options);
+			var selector =
+				await CSharpScript.EvaluateAsync<Func<IProject, IReadOnlyList<string>, TResult>>(statement,
+					this.options);
 
-			return selector(project);
+			return selector(project, arguments);
 		}
 	}
 }
