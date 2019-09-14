@@ -22,7 +22,7 @@ namespace NBrowse.Reflection.Mono
 		public bool Equals(IArgument other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return this.Identifier == other.Identifier;
+			return other != null && this.Identifier == other.Identifier;
 		}
 
 		public override bool Equals(object o)
