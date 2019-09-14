@@ -11,7 +11,7 @@ NBrowse is a command-line utility to browse and execute search queries in .NET
 compiled assemblies (both .NET Framework and .NET Standard). It exposes loaded
 assemblies through a standard set of traversable entities (e.g. "assembly",
 "project", "type", "method" and so on) and allows you to run C# statements to
-query anything you want to retreive from them.
+query anything you want to retrieve from them.
 
 You can think of it as a stripped down [NDepend](https://www.ndepend.com/)
 equivalent with no graphical interface.
