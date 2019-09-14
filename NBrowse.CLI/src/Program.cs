@@ -5,9 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Scripting;
 using Mono.Options;
-using NBrowse.Evaluation;
-using NBrowse.Formatting;
-using NBrowse.Formatting.Printers;
+using NBrowse.Execution;
 
 namespace NBrowse.CLI
 {
@@ -15,15 +13,15 @@ namespace NBrowse.CLI
 	{
 		private static void Main(string[] args)
 		{
+			var argumentIsQuery = false;
 			var displayHelp = false;
-			var firstIsQuery = false;
-			var printer = new PlainPrinter() as IPrinter;
+			var printer = Printer.CreatePretty(Console.Out);
 			var sources = Array.Empty<string>();
 
 			var options = new OptionSet
 			{
-				{ "c|command", "assume first argument is a query, not a file path", s => firstIsQuery = s != null },
-				{ "f|format=", "change output format (value: json, plain)", format => printer = Program.CreatePrinter(format) },
+				{ "c|command", "assume first argument is a query, not a file path", s => argumentIsQuery = s != null },
+				{ "f|format=", "change output format (value: json, pretty)", format => printer = Program.CreatePrinter(format) },
 				{ "h|help", "show this message and user manual", h => displayHelp = true },
 				{ "i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i) }
 			};
@@ -59,7 +57,7 @@ namespace NBrowse.CLI
 
 			// Read assemblies and query from input arguments, then execute query on target assemblies
 			var assemblies = Program.ReadAssemblies(sources.Concat(remainder.Skip(1)).ToArray());
-			var query = firstIsQuery ? remainder[0] : File.ReadAllText(remainder[0]);
+			var query = argumentIsQuery ? remainder[0] : File.ReadAllText(remainder[0]);
 
 			if (assemblies.Count == 0)
 				Console.Error.WriteLine($"warning: empty assemblies list passed as argument");
@@ -72,10 +70,15 @@ namespace NBrowse.CLI
 			switch (format)
 			{
 				case "json":
-					return new JsonPrinter();
+					return Printer.CreateJson(Console.Out);
 
 				case "plain":
-					return new PlainPrinter();
+					Console.Error.WriteLine($"warning: obsolete format 'plain', please use 'pretty' instead");
+
+					goto case "pretty";
+
+				case "pretty":
+					return Printer.CreatePretty(Console.Out);
 
 				default:
 					throw new ArgumentOutOfRangeException(nameof(format), format, "unknown output format");
@@ -86,9 +89,7 @@ namespace NBrowse.CLI
 		{
 			try
 			{
-				var result = await Evaluator.LoadAndEvaluate(assemblies, query);
-
-				printer.Print(Console.Out, result);
+				await QueryHelper.QueryAndPrint(assemblies, query, printer);
 			}
 			catch (CompilationErrorException exception)
 			{

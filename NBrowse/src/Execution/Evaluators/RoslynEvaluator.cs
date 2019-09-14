@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using NBrowse.Reflection;
 using NBrowse.Selection;
 
-namespace NBrowse.Evaluation.Evaluators
+namespace NBrowse.Execution.Evaluators
 {
 	/// <summary>
 	/// Evaluator implementation based on Microsoft Roslyn scripting tools.
@@ -17,9 +17,8 @@ namespace NBrowse.Evaluation.Evaluators
 			new Regex(@"^\s*(?:\((?<name>[A-Za-z_][A-Za-z0-9_]*)\)|(?<name>[A-Za-z_][A-Za-z0-9_]*))\s*=>(?<body>.*)$");
 
 		private readonly ScriptOptions options;
-		private readonly IProject project;
 
-		public RoslynEvaluator(IProject project)
+		public RoslynEvaluator()
 		{
 			var imports = new[]
 			{
@@ -31,10 +30,9 @@ namespace NBrowse.Evaluation.Evaluators
 			this.options = ScriptOptions.Default
 				.WithImports(imports)
 				.WithReferences(references);
-			this.project = project;
 		}
 
-		public async Task<TResult> Evaluate<TResult>(string expression)
+		public async Task<TResult> Evaluate<TResult>(IProject project, string expression)
 		{
 			var match = RoslynEvaluator.LambdaStyle.Match(expression);
 
@@ -44,7 +42,7 @@ namespace NBrowse.Evaluation.Evaluators
 
 			var selector = await CSharpScript.EvaluateAsync<Func<IProject, TResult>>(statement, this.options);
 
-			return selector(this.project);
+			return selector(project);
 		}
 	}
 }
