@@ -23,7 +23,8 @@ namespace NBrowse.Reflection.Mono
 					? Binding.Static
 					: Binding.Instance));
 
-		public string Identifier => $"{this.Parent.Identifier}.{this.Name}({string.Join(", ", this.Arguments.Select(argument => argument.Identifier))})";
+		public string Identifier =>
+			$"{this.Parent.Identifier}.{this.Name}({string.Join(", ", this.Arguments.Select(argument => argument.Identifier))})";
 
 		public Implementation Implementation => this.definition == null
 			? Implementation.Unknown
@@ -65,7 +66,9 @@ namespace NBrowse.Reflection.Mono
 
 		public CecilMethod(MethodReference reference)
 		{
-			this.definition = reference.IsDefinition || reference.Module.AssemblyResolver != null ? reference.Resolve() : null;
+			this.definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
+				? reference.Resolve()
+				: null;
 			this.reference = reference;
 		}
 

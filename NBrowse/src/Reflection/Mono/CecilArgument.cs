@@ -25,9 +25,9 @@ namespace NBrowse.Reflection.Mono
 			return other != null && this.Identifier == other.Identifier;
 		}
 
-		public override bool Equals(object o)
+		public override bool Equals(object obj)
 		{
-			return o is CecilArgument other && this.Equals(other);
+			return obj is CecilArgument other && this.Equals(other);
 		}
 
 		public override int GetHashCode()
