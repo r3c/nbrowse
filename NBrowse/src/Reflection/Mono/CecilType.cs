@@ -69,7 +69,7 @@ namespace NBrowse.Reflection.Mono
 			this.definition?.GenericParameters.Select(parameter => new CecilParameter(parameter)) ??
 			Array.Empty<CecilParameter>();
 
-		public IAssembly Parent => new CecilAssembly(this.reference.Module.Assembly);
+		public IAssembly Parent => new CecilAssembly(this.reference.Module);
 
 		public Visibility Visibility => this.definition == null
 			? Visibility.Unknown

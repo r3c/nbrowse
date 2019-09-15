@@ -9,31 +9,34 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilProject : IDisposable, IProject
 	{
-		public IEnumerable<IAssembly> Assemblies => this.assemblies.Values;
+		public IEnumerable<IAssembly> Assemblies => this.assemblies;
 
-		private readonly IReadOnlyDictionary<string, IAssembly> assemblies;
-
-		private readonly IReadOnlyList<AssemblyDefinition> resources;
+		private readonly IReadOnlyList<CecilAssembly> assemblies;
+		private readonly IReadOnlyList<ModuleDefinition> modules;
 
 		public void Dispose()
 		{
-			foreach (var resource in this.resources)
-				resource.Dispose();
+			foreach (var module in this.modules)
+				module.Dispose();
 		}
 
-		public IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> fullNames)
+		public IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> name)
 		{
-			foreach (var fullName in fullNames)
+			var hashNames = new HashSet<string>(name);
+
+			foreach (var assembly in this.assemblies)
 			{
-				if (this.assemblies.TryGetValue(fullName, out var assembly))
+				if (hashNames.Contains(assembly.Name))
 					yield return assembly;
 			}
 		}
 
-		public IAssembly FindAssembly(string fullName)
+		public IAssembly FindAssembly(string name)
 		{
-			if (!this.assemblies.TryGetValue(fullName, out var assembly))
-				throw new ArgumentOutOfRangeException(nameof(fullName), fullName, "no matching assembly found");
+			var assembly = this.assemblies.FirstOrDefault(a => a.Name == name);
+
+			if (assembly == null)
+				throw new ArgumentOutOfRangeException(nameof(name), name, "no matching assembly found");
 
 			return assembly;
 		}
@@ -47,7 +50,7 @@ namespace NBrowse.Reflection.Mono
 			var byParent = (IMethod) null;
 			var byParentFound = false;
 
-			foreach (var method in this.assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
+			foreach (var method in this.assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods))
 			{
 				if (method.Identifier == search)
 				{
@@ -102,7 +105,7 @@ namespace NBrowse.Reflection.Mono
 			var byName = (IType) null;
 			var byNameFound = false;
 
-			foreach (var type in this.assemblies.Values.SelectMany(a => a.Types))
+			foreach (var type in this.assemblies.SelectMany(a => a.Types))
 			{
 				if (type.Identifier == search)
 				{
@@ -150,14 +153,11 @@ namespace NBrowse.Reflection.Mono
 
 		public CecilProject(IEnumerable<string> sources)
 		{
-			var resources = sources.Select(AssemblyDefinition.ReadAssembly).ToArray();
-			var byIdentifier = new Dictionary<string, IAssembly>();
+			var parameters = new ReaderParameters {AssemblyResolver = new DefaultAssemblyResolver(), InMemory = true};
+			var modules = sources.Select(source => ModuleDefinition.ReadModule(source, parameters)).ToList();
 
-			foreach (var assembly in resources.Select(resource => new CecilAssembly(resource)))
-				byIdentifier[assembly.Name] = assembly;
-
-			this.assemblies = byIdentifier;
-			this.resources = resources;
+			this.assemblies = modules.Select(definition => new CecilAssembly(definition)).ToList();
+			this.modules = modules;
 		}
 	}
 }

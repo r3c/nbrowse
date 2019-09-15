@@ -11,10 +11,10 @@ namespace NBrowse.Reflection
 		IEnumerable<IAssembly> Assemblies { get; }
 
 		[Description("Find multiple assemblies by name")]
-		IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> fullNames);
+		IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> name);
 
 		[Description("Find assembly by name")]
-		IAssembly FindAssembly(string fullName);
+		IAssembly FindAssembly(string name);
 
 		[Description("Find method by name")]
 		IMethod FindMethod(string search);
