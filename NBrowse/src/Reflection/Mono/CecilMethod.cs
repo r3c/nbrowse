@@ -58,17 +58,16 @@ namespace NBrowse.Reflection.Mono
 		private readonly MethodDefinition definition;
 		private readonly MethodReference reference;
 
-		public CecilMethod(MethodDefinition definition)
-		{
-			this.definition = definition;
-			this.reference = definition;
-		}
-
 		public CecilMethod(MethodReference reference)
 		{
-			this.definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
-				? reference.Resolve()
-				: null;
+			if (!(reference is MethodDefinition definition))
+			{
+				definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
+					? reference.Resolve()
+					: null;
+			}
+
+			this.definition = definition;
 			this.reference = reference;
 		}
 

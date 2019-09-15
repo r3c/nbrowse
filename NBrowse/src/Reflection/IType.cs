@@ -16,6 +16,10 @@ namespace NBrowse.Reflection
 		 [JsonIgnore]
 		 IType BaseOrNull { get; }
 
+		 [Description("Element type if any, null otherwise")]
+		 [JsonIgnore]
+		 IType ElementOrNull { get; }
+
 		 [Description("Declared fields")]
 		 [JsonIgnore]
 		 IEnumerable<IField> Fields { get; }

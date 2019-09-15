@@ -15,6 +15,16 @@ namespace NBrowse.Reflection.Mono
 			? new CecilType(this.definition.BaseType)
 			: default(IType);
 
+		public IType ElementOrNull => this.reference is ArrayType arrayType
+			? (arrayType.ElementType != null ? new CecilType(arrayType.ElementType) : default(IType))
+			: (this.reference is PointerType pointerType
+				? (pointerType.ElementType != null ? new CecilType(pointerType.ElementType) : default(IType))
+				: (this.reference is ByReferenceType byReferenceType
+					? (byReferenceType.ElementType != null
+						? new CecilType(byReferenceType.ElementType)
+						: default(IType))
+					: default(IType)));
+
 		public IEnumerable<IField> Fields =>
 			this.definition?.Fields.Select(field => new CecilField(field)) ?? Array.Empty<CecilField>();
 
@@ -34,15 +44,15 @@ namespace NBrowse.Reflection.Mono
 		public IEnumerable<IMethod> Methods =>
 			this.definition?.Methods.Select(method => new CecilMethod(method)) ?? Array.Empty<CecilMethod>();
 
-		public Model Model => this.definition == null
-			? Model.Unknown
-			: (this.definition.IsEnum
-				? Model.Enumeration
-				: (this.definition.IsInterface
-					? Model.Interface
-					: (this.definition.IsValueType
-						? Model.Structure
-						: Model.Class)));
+		public Model Model => this.reference.IsValueType
+			? (this.definition?.IsEnum ?? false ? Model.Enumeration : Model.Structure)
+			: (this.definition?.IsInterface ?? false
+				? Model.Interface
+				: (this.reference.IsArray
+					? Model.Array
+					: (this.reference.IsPointer
+						? Model.Pointer
+						: (this.reference.IsByReference ? Model.Reference : Model.Class))));
 
 		public string Name => this.reference.IsNested
 			? $"{new CecilType(this.reference.DeclaringType).Name}+{this.reference.Name}"
@@ -80,28 +90,23 @@ namespace NBrowse.Reflection.Mono
 		private readonly TypeDefinition definition;
 		private readonly TypeReference reference;
 
-		public CecilType(TypeDefinition definition)
-		{
-			this.definition = definition;
-			this.reference = definition;
-		}
-
 		public CecilType(TypeReference reference)
 		{
-			TypeDefinition definition;
-
-			try
+			if (!(reference is TypeDefinition definition))
 			{
-				definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
-					? reference.Resolve()
-					: null;
-			}
-			// FIXME: Mono.Cecil throws an exception when trying to resolve a
-			// non-loaded assembly and I don't know how I can safely avoid that
-			// without catching the exception.
-			catch (AssemblyResolutionException)
-			{
-				definition = null;
+				try
+				{
+					definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
+						? reference.Resolve()
+						: null;
+				}
+				// FIXME: Mono.Cecil throws an exception when trying to resolve a
+				// non-loaded assembly and I don't know how I can safely avoid that
+				// without catching the exception.
+				catch (AssemblyResolutionException)
+				{
+					definition = null;
+				}
 			}
 
 			this.definition = definition;

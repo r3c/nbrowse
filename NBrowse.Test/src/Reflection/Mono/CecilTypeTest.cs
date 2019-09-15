@@ -41,6 +41,21 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
+		[TestCase(0, true, nameof(Boolean))]
+		[TestCase(1, true, nameof(Int32))]
+		[TestCase(2, true, nameof(Single))]
+		[TestCase(3, false, "")]
+		public void ElementOrNull(int index, bool defined, string expected)
+		{
+			var type = CecilTypeTest.GetType(nameof(CecilTypeElementOrNull));
+			var method = type.Methods.Single(m => m.Implementation == NBrowse.Reflection.Implementation.Abstract);
+			var argument = method.Arguments.ToArray()[index];
+
+			Assert.That(argument.Type.ElementOrNull, defined ? Is.Not.Null : Is.Null);
+			Assert.That(argument.Type.ElementOrNull?.Name ?? string.Empty, Is.EqualTo(expected));
+		}
+
+		[Test]
 		[TestCase("CecilTypeFields0", "")]
 		[TestCase("CecilTypeFields1", "Field1")]
 		[TestCase("CecilTypeFields2", "Field1,Field2")]
@@ -80,13 +95,20 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilTypeModelClass", NBrowse.Reflection.Model.Class)]
-		[TestCase("CecilTypeModelEnumeration", NBrowse.Reflection.Model.Enumeration)]
-		[TestCase("ICecilTypeModelInterface", NBrowse.Reflection.Model.Interface)]
-		[TestCase("CecilTypeModelStructure", NBrowse.Reflection.Model.Structure)]
-		public void Model(string name, Model expected)
+		[TestCase(0, NBrowse.Reflection.Model.Array)]
+		[TestCase(1, NBrowse.Reflection.Model.Class)]
+		[TestCase(2, NBrowse.Reflection.Model.Enumeration)]
+		[TestCase(3, NBrowse.Reflection.Model.Interface)]
+		[TestCase(4, NBrowse.Reflection.Model.Pointer)]
+		[TestCase(5, NBrowse.Reflection.Model.Reference)]
+		[TestCase(6, NBrowse.Reflection.Model.Structure)]
+		public void Model(int index, Model expected)
 		{
-			Assert.That(CecilTypeTest.GetType(name).Model, Is.EqualTo(expected));
+			var type = CecilTypeTest.GetType(nameof(CecilTypeModel));
+			var method = type.Methods.Single(m => m.Implementation == NBrowse.Reflection.Implementation.Abstract);
+			var argument = method.Arguments.ToArray()[index];
+
+			Assert.That(argument.Type.Model, Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -169,6 +191,11 @@ namespace NBrowse.Test.Reflection.Mono
 		{
 		}
 
+		private abstract class CecilTypeElementOrNull
+		{
+			public abstract unsafe void Method(bool[] array, int* pointer, ref float reference, bool none);
+		}
+
 		private class CecilTypeFields0
 		{
 		}
@@ -233,20 +260,10 @@ namespace NBrowse.Test.Reflection.Mono
 			public abstract void Method2();
 		}
 
-		private class CecilTypeModelClass
+		private abstract class CecilTypeModel
 		{
-		}
-
-		private enum CecilTypeModelEnumeration
-		{
-		}
-
-		private interface ICecilTypeModelInterface
-		{
-		}
-
-		private struct CecilTypeModelStructure
-		{
+			public abstract unsafe void Method(int[] array, object classType, DateTimeKind enumeration,
+				IDisposable iface, int* pointer, ref int reference, bool structure);
 		}
 
 		private class CecilTypeName
