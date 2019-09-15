@@ -1,6 +1,6 @@
 namespace NBrowse.Reflection
 {
-    public enum Implementation
+    public enum Definition
     {
         Unknown,
         Concrete,

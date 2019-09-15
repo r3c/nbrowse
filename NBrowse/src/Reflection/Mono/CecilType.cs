@@ -30,13 +30,13 @@ namespace NBrowse.Reflection.Mono
 
 		public string Identifier => $"{this.Namespace}{(string.IsNullOrEmpty(this.Namespace) ? "" : ".")}{this.Name}";
 
-		public Implementation Implementation => this.definition == null
-			? Implementation.Unknown
+		public Definition Definition => this.definition == null
+			? Definition.Unknown
 			: (this.definition.IsAbstract
-				? Implementation.Abstract
+				? Definition.Abstract
 				: (this.definition.IsSealed
-					? Implementation.Final
-					: Implementation.Virtual));
+					? Definition.Final
+					: Definition.Virtual));
 
 		public IEnumerable<IType> Interfaces =>
 			this.definition?.Interfaces.Select(i => new CecilType(i.InterfaceType)) ?? Array.Empty<CecilType>();

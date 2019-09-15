@@ -23,18 +23,18 @@ namespace NBrowse.Reflection.Mono
 					? Binding.Static
 					: Binding.Instance));
 
+		public Definition Definition => this.definition == null
+			? Definition.Unknown
+			: (this.definition.IsAbstract
+				? Definition.Abstract
+				: (this.definition.IsFinal
+					? Definition.Final
+					: (this.definition.IsVirtual
+						? Definition.Virtual
+						: Definition.Concrete)));
+
 		public string Identifier =>
 			$"{this.Parent.Identifier}.{this.Name}({string.Join(", ", this.Arguments.Select(argument => argument.Identifier))})";
-
-		public Implementation Implementation => this.definition == null
-			? Implementation.Unknown
-			: (this.definition.IsAbstract
-				? Implementation.Abstract
-				: (this.definition.IsFinal
-					? Implementation.Final
-					: (this.definition.IsVirtual
-						? Implementation.Virtual
-						: Implementation.Concrete)));
 
 		public string Name => this.reference.Name;
 

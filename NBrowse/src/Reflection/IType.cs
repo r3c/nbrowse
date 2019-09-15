@@ -29,7 +29,7 @@ namespace NBrowse.Reflection
 
 		 [Description("Type implementation")]
 		 [JsonConverter(typeof(StringEnumConverter))]
-		 Implementation Implementation { get; }
+		 Definition Definition { get; }
 
 		 [Description("Type interfaces")]
 		 [JsonIgnore]

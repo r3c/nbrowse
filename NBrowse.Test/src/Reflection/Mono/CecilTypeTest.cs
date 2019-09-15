@@ -48,7 +48,7 @@ namespace NBrowse.Test.Reflection.Mono
 		public void ElementOrNull(int index, bool defined, string expected)
 		{
 			var type = CecilTypeTest.GetType(nameof(CecilTypeElementOrNull));
-			var method = type.Methods.Single(m => m.Implementation == NBrowse.Reflection.Implementation.Abstract);
+			var method = type.Methods.Single(m => m.Definition == NBrowse.Reflection.Definition.Abstract);
 			var argument = method.Arguments.ToArray()[index];
 
 			Assert.That(argument.Type.ElementOrNull, defined ? Is.Not.Null : Is.Null);
@@ -66,12 +66,12 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilTypeImplementationAbstract", NBrowse.Reflection.Implementation.Abstract)]
-		[TestCase("CecilTypeImplementationFinal", NBrowse.Reflection.Implementation.Final)]
-		[TestCase("CecilTypeImplementationVirtual", NBrowse.Reflection.Implementation.Virtual)]
-		public void Implementation(string name, Implementation expected)
+		[TestCase("CecilTypeImplementationAbstract", NBrowse.Reflection.Definition.Abstract)]
+		[TestCase("CecilTypeImplementationFinal", NBrowse.Reflection.Definition.Final)]
+		[TestCase("CecilTypeImplementationVirtual", NBrowse.Reflection.Definition.Virtual)]
+		public void Implementation(string name, Definition expected)
 		{
-			Assert.That(CecilTypeTest.GetType(name).Implementation, Is.EqualTo(expected));
+			Assert.That(CecilTypeTest.GetType(name).Definition, Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -105,7 +105,7 @@ namespace NBrowse.Test.Reflection.Mono
 		public void Model(int index, Model expected)
 		{
 			var type = CecilTypeTest.GetType(nameof(CecilTypeModel));
-			var method = type.Methods.Single(m => m.Implementation == NBrowse.Reflection.Implementation.Abstract);
+			var method = type.Methods.Single(m => m.Definition == NBrowse.Reflection.Definition.Abstract);
 			var argument = method.Arguments.ToArray()[index];
 
 			Assert.That(argument.Type.Model, Is.EqualTo(expected));

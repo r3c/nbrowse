@@ -41,13 +41,13 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilMethodImplementationAbstract", NBrowse.Reflection.Implementation.Abstract)]
-		[TestCase("CecilMethodImplementationConcrete", NBrowse.Reflection.Implementation.Concrete)]
-		[TestCase("CecilMethodTest+TestClass.GetHashCode", NBrowse.Reflection.Implementation.Final)]
-		[TestCase("CecilMethodImplementationVirtual", NBrowse.Reflection.Implementation.Virtual)]
-		public void Implementation(string name, Implementation expected)
+		[TestCase("CecilMethodDefinitionAbstract", NBrowse.Reflection.Definition.Abstract)]
+		[TestCase("CecilMethodDefinitionConcrete", NBrowse.Reflection.Definition.Concrete)]
+		[TestCase("CecilMethodTest+TestClass.GetHashCode", NBrowse.Reflection.Definition.Final)]
+		[TestCase("CecilMethodDefinitionVirtual", NBrowse.Reflection.Definition.Virtual)]
+		public void Definition(string name, Definition expected)
 		{
-			Assert.That(CecilMethodTest.GetMethod(name).Implementation, Is.EqualTo(expected));
+			Assert.That(CecilMethodTest.GetMethod(name).Definition, Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -132,13 +132,13 @@ namespace NBrowse.Test.Reflection.Mono
 			{
 			}
 
-			protected abstract void CecilMethodImplementationAbstract();
+			protected abstract void CecilMethodDefinitionAbstract();
 
-			protected void CecilMethodImplementationConcrete()
+			protected void CecilMethodDefinitionConcrete()
 			{
 			}
 
-			protected virtual void CecilMethodImplementationVirtual()
+			protected virtual void CecilMethodDefinitionVirtual()
 			{
 			}
 

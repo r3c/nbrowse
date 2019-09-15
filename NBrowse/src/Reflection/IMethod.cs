@@ -20,12 +20,12 @@ namespace NBrowse.Reflection
 		[JsonConverter(typeof(StringEnumConverter))]
 		Binding Binding { get; }
 
+		[Description("Method definition")]
+		[JsonConverter(typeof(StringEnumConverter))]
+		Definition Definition { get; }
+
 		[Description("Unique human-readable identifier")]
 		string Identifier { get; }
-
-		[Description("Method implementation")]
-		[JsonConverter(typeof(StringEnumConverter))]
-		Implementation Implementation { get; }
 
 		[Description("Method name")]
 		string Name { get; }
