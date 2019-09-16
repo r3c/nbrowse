@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -23,7 +24,7 @@ namespace NBrowse.Reflection.Mono
 
         public CecilParameter(GenericParameter parameter)
         {
-            this.parameter = parameter;
+            this.parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
         }
 
         public override string ToString()

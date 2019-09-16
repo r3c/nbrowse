@@ -7,6 +7,9 @@ namespace NBrowse.Reflection
 {
 	public interface IAssembly : IEquatable<IAssembly>
 	{
+		[Description("Custom attributes")]
+		IEnumerable<IAttribute> Attributes { get; }
+
 		[Description("File name on disk")]
 		string FileName { get; }
 

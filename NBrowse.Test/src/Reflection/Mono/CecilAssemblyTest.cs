@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Runtime.Versioning;
 using NBrowse.Reflection;
 using NUnit.Framework;
 
@@ -6,6 +7,14 @@ namespace NBrowse.Test.Reflection.Mono
 {
 	public class CecilAssemblyTest
 	{
+		[Test]
+		public void Attributes()
+		{
+			Assert.That(CecilAssemblyTest.GetAssembly().Attributes,
+				Has.Some.Matches<IAttribute>(attribute =>
+					attribute.Type.Identifier == typeof(TargetFrameworkAttribute).FullName));
+		}
+
 		[Test]
 		public void FileName()
 		{

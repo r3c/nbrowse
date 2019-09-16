@@ -60,6 +60,9 @@ namespace NBrowse.Reflection.Mono
 
 		public CecilMethod(MethodReference reference)
 		{
+			if (reference == null)
+				throw new ArgumentNullException(nameof(reference));
+
 			if (!(reference is MethodDefinition definition))
 			{
 				definition = reference.IsDefinition || reference.Module.AssemblyResolver != null

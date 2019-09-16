@@ -7,25 +7,32 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilAssembly : IAssembly
 	{
-		public string FileName => this.module?.FileName ?? string.Empty;
+		public IEnumerable<IAttribute> Attributes =>
+			this.assembly.CustomAttributes.Select(attribute => new CecilAttribute(attribute));
 
-		public string Identifier => this.module.Assembly.FullName;
+		public string FileName => this.assembly.MainModule.FileName;
 
-		public string Name => this.module.Assembly.Name.Name;
+		public string Identifier => this.assembly.FullName;
+
+		public string Name => this.assembly.Name.Name;
 
 		public IEnumerable<string> References =>
-			this.module?.AssemblyReferences?.Select(reference => reference.FullName) ?? Enumerable.Empty<string>();
+			this.assembly.MainModule.AssemblyReferences?.Select(reference => reference.FullName) ??
+			Enumerable.Empty<string>();
 
-		public Version Version => this.module.Assembly.Name.Version;
+		public Version Version => this.assembly.Name.Version;
 
 		public IEnumerable<IType> Types =>
-			this.module?.GetTypes()?.Select(type => new CecilType(type)) ?? Array.Empty<CecilType>();
+			this.assembly.MainModule?.GetTypes()?.Select(type => new CecilType(type)) ?? Array.Empty<CecilType>();
 
-		private readonly ModuleDefinition module;
+		private readonly AssemblyDefinition assembly;
 
-		public CecilAssembly(ModuleDefinition module)
+		public CecilAssembly(AssemblyDefinition assembly)
 		{
-			this.module = module;
+			if (assembly?.MainModule == null)
+				throw new ArgumentNullException(nameof(assembly));
+
+			this.assembly = assembly;
 		}
 
 		public bool Equals(IAssembly other)
@@ -41,7 +48,7 @@ namespace NBrowse.Reflection.Mono
 
 		public override int GetHashCode()
 		{
-			return this.module.GetHashCode();
+			return this.assembly.GetHashCode();
 		}
 
 		public override string ToString()

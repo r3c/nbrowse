@@ -1,3 +1,4 @@
+using System;
 using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
@@ -26,7 +27,7 @@ namespace NBrowse.Reflection.Mono
 
 		public CecilField(FieldDefinition field)
 		{
-			this.field = field;
+			this.field = field ?? throw new ArgumentNullException(nameof(field));
 		}
 
 		public bool Equals(IField other)

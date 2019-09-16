@@ -1,3 +1,4 @@
+using System;
 using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
@@ -21,7 +22,7 @@ namespace NBrowse.Reflection.Mono
 
 		public CecilArgument(ParameterDefinition argument)
 		{
-			this.argument = argument;
+			this.argument = argument ?? throw new ArgumentNullException(nameof(argument));
 		}
 
 		public bool Equals(IArgument other)

@@ -12,12 +12,12 @@ namespace NBrowse.Reflection.Mono
 		public IEnumerable<IAssembly> Assemblies => this.assemblies;
 
 		private readonly IReadOnlyList<CecilAssembly> assemblies;
-		private readonly IReadOnlyList<ModuleDefinition> modules;
+		private readonly IReadOnlyList<IDisposable> resources;
 
 		public void Dispose()
 		{
-			foreach (var module in this.modules)
-				module.Dispose();
+			foreach (var resource in this.resources)
+				resource.Dispose();
 		}
 
 		public IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> name)
@@ -154,10 +154,10 @@ namespace NBrowse.Reflection.Mono
 		public CecilProject(IEnumerable<string> sources)
 		{
 			var parameters = new ReaderParameters {AssemblyResolver = new DefaultAssemblyResolver(), InMemory = true};
-			var modules = sources.Select(source => ModuleDefinition.ReadModule(source, parameters)).ToList();
+			var assemblies = sources.Select(source => AssemblyDefinition.ReadAssembly(source, parameters)).ToList();
 
-			this.assemblies = modules.Select(definition => new CecilAssembly(definition)).ToList();
-			this.modules = modules;
+			this.assemblies = assemblies.Select(assembly => new CecilAssembly(assembly)).ToList();
+			this.resources = assemblies;
 		}
 	}
 }

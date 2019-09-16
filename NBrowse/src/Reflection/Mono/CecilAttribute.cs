@@ -1,10 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
 {
 	internal class CecilAttribute : IAttribute
 	{
-		public string Identifier => this.Type.Identifier;
+		public IEnumerable<object> Arguments =>
+			this.attribute.ConstructorArguments.Select(argument => argument.Value);
+
+		public IMethod Constructor => new CecilMethod(this.attribute.Constructor);
+
+		public string Identifier => $"{this.Type.Identifier}({string.Join(", ", this.Arguments)})";
 
 		public IType Type => new CecilType(this.attribute.AttributeType);
 
@@ -12,7 +20,7 @@ namespace NBrowse.Reflection.Mono
 
 		public CecilAttribute(CustomAttribute attribute)
 		{
-			this.attribute = attribute;
+			this.attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
 		}
 
 		public bool Equals(IAttribute other)

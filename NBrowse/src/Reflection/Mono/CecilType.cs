@@ -69,7 +69,7 @@ namespace NBrowse.Reflection.Mono
 			this.definition?.GenericParameters.Select(parameter => new CecilParameter(parameter)) ??
 			Array.Empty<CecilParameter>();
 
-		public IAssembly Parent => new CecilAssembly(this.reference.Module);
+		public IAssembly Parent => new CecilAssembly(this.reference.Module.Assembly);
 
 		public Visibility Visibility => this.definition == null
 			? Visibility.Unknown
@@ -92,6 +92,9 @@ namespace NBrowse.Reflection.Mono
 
 		public CecilType(TypeReference reference)
 		{
+			if (reference == null)
+				throw new ArgumentNullException(nameof(reference));
+
 			if (!(reference is TypeDefinition definition))
 			{
 				try
