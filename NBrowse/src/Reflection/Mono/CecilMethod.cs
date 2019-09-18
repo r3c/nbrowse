@@ -87,7 +87,7 @@ namespace NBrowse.Reflection.Mono
 
 		public override int GetHashCode()
 		{
-			return this.reference.GetHashCode();
+			return this.Identifier.GetHashCode();
 		}
 
 		public bool IsUsing(IMethod method)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
@@ -5,7 +6,7 @@ using Newtonsoft.Json.Converters;
 
 namespace NBrowse.Reflection
 {
-	public interface IParameter
+	public interface IParameter : IEquatable<IParameter>
 	{
 		[Description("Type constraints")]
 		IEnumerable<IType> Constraints { get; }

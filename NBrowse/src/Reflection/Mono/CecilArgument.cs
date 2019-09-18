@@ -38,7 +38,7 @@ namespace NBrowse.Reflection.Mono
 
 		public override int GetHashCode()
 		{
-			return this.argument.GetHashCode();
+			return this.Identifier.GetHashCode();
 		}
 
 		public override string ToString()

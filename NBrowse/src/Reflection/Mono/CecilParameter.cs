@@ -27,6 +27,22 @@ namespace NBrowse.Reflection.Mono
             this.parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
         }
 
+        public bool Equals(IParameter other)
+        {
+            // FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
+            return other != null && this.Identifier == other.Identifier;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is CecilParameter other && this.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Identifier.GetHashCode();
+        }
+
         public override string ToString()
         {
             return $"{{Parameter={this.Identifier}}}";
