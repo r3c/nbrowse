@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using NBrowse.Selection;
 
 namespace NBrowse.Reflection.Mono
 {
@@ -130,25 +131,6 @@ namespace NBrowse.Reflection.Mono
 		public override int GetHashCode()
 		{
 			return this.Identifier.GetHashCode();
-		}
-
-		public bool IsUsing(IMethod method)
-		{
-			return this.Methods.Any(candidate => candidate.IsUsing(method));
-		}
-
-		public bool IsUsing(IType type)
-		{
-			var usedInAttributes = this.Attributes.Any(attribute => type.Equals(attribute.Type));
-			var usedInBase = this.BaseOrNull != null && type.Equals(this.BaseOrNull);
-			var usedInFields = this.Fields.Any(field => type.Equals(field.Type));
-			var usedInInterfaces = this.Interfaces.Any(type.Equals);
-			var usedInMethods = this.Methods.Any(method => method.IsUsing(type));
-			var usedInNestedTypes = this.NestedTypes.Any(type.Equals);
-			var usedInParameters = this.Parameters.Any(parameter => parameter.Constraints.Any(type.Equals));
-
-			return usedInAttributes || usedInBase || usedInFields || usedInInterfaces || usedInMethods ||
-			       usedInNestedTypes || usedInParameters;
 		}
 
 		public override string ToString()

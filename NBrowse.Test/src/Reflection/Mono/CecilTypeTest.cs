@@ -162,12 +162,16 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(CecilTypeTest.GetType(name).Visibility, Is.EqualTo(expected));
 		}
 
+		private static IMethod GetMethod(string name)
+		{
+			return CecilProjectTest.CreateProject().FindMethod(name);
+		}
+
 		private static IType GetType(string name)
 		{
 			return CecilProjectTest.CreateProject().FindType($"{nameof(CecilTypeTest)}+{name}");
 		}
 
-#pragma warning disable 649
 		private class CecilTypeAttributes0
 		{
 		}
@@ -200,6 +204,7 @@ namespace NBrowse.Test.Reflection.Mono
 		{
 		}
 
+#pragma warning disable 649
 		private class CecilTypeFields1
 		{
 			public int Field1;
@@ -210,6 +215,7 @@ namespace NBrowse.Test.Reflection.Mono
 			public int Field1;
 			public int Field2;
 		}
+#pragma warning restore 649
 
 		private abstract class CecilTypeImplementationAbstract
 		{
@@ -327,6 +333,5 @@ namespace NBrowse.Test.Reflection.Mono
 		public class CecilTypeVisibilityPublic
 		{
 		}
-#pragma warning restore 649
 	}
 }

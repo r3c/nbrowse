@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using NBrowse.Selection;
 
 namespace NBrowse.Reflection.Mono
 {
@@ -22,6 +23,8 @@ namespace NBrowse.Reflection.Mono
 				: (this.definition.IsStatic
 					? Binding.Static
 					: Binding.Instance));
+
+		public IImplementation ImplementationOrNull => this.definition?.Body != null ? new CecilImplementation(this.definition.Body) : null;
 
 		public Definition Definition => this.definition == null
 			? Definition.Unknown
@@ -90,31 +93,9 @@ namespace NBrowse.Reflection.Mono
 			return this.Identifier.GetHashCode();
 		}
 
-		public bool IsUsing(IMethod method)
-		{
-			return this.MatchInstruction(instruction =>
-				instruction.Operand is MethodReference reference && method.Equals(new CecilMethod(reference)));
-		}
-
-		public bool IsUsing(IType type)
-		{
-			var usedInArguments = this.Arguments.Any(argument => type.Equals(argument.Type));
-			var usedInAttributes = this.Attributes.Any(attribute => type.Equals(attribute.Type));
-			var usedInBody = this.MatchInstruction(instruction => instruction.Operand is TypeReference operand && type.Equals(new CecilType(operand)));
-			var usedInParameters = this.Parameters.Any(parameter => parameter.Constraints.Any(type.Equals));
-			var usedInReturn = type.Equals(this.ReturnType);
-
-			return usedInArguments || usedInAttributes || usedInBody || usedInParameters || usedInReturn;
-		}
-
 		public override string ToString()
 		{
 			return $"{{Method={this.Identifier}}}";
-		}
-
-		private bool MatchInstruction(Func<Instruction, bool> predicate)
-		{
-			return this.definition != null && this.definition.Body != null && this.definition.Body.Instructions.Any(predicate);
 		}
 	}
 }

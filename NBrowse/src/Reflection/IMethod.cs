@@ -20,6 +20,10 @@ namespace NBrowse.Reflection
 		[JsonConverter(typeof(StringEnumConverter))]
 		Binding Binding { get; }
 
+		[Description("Method body if available, null otherwise")]
+		[JsonIgnore]
+		IImplementation ImplementationOrNull { get; }
+
 		[Description("Method definition")]
 		[JsonConverter(typeof(StringEnumConverter))]
 		Definition Definition { get; }
@@ -44,11 +48,5 @@ namespace NBrowse.Reflection
 		[Description("Method visibility")]
 		[JsonConverter(typeof(StringEnumConverter))]
 		Visibility Visibility { get; }
-
-		[Description("Check if referencing given method")]
-		bool IsUsing(IMethod method);
-
-		[Description("Check if referencing given type")]
-		bool IsUsing(IType type);
 	}
 }

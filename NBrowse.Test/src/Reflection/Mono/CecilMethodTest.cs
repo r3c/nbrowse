@@ -3,6 +3,7 @@ using System.Linq;
 using NBrowse.Reflection;
 using NUnit.Framework;
 
+// ReSharper disable ConvertToConstant.Local
 // ReSharper disable UnusedMember.Global
 
 namespace NBrowse.Test.Reflection.Mono
@@ -93,19 +94,6 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(CecilMethodTest.GetMethod(name).Visibility, Is.EqualTo(expected));
 		}
 
-		[Test]
-		public void IsUsing()
-		{
-			var caller = CecilMethodTest.GetMethod("CecilMethodIsUsingCaller");
-			var useAsArgument = CecilMethodTest.GetMethod("CecilMethodIsUsingCalleeArgument");
-			var useAsInvoke = CecilMethodTest.GetMethod("CecilMethodIsUsingCalleeInvoke");
-			var noUse = CecilMethodTest.GetMethod("CecilMethodIsUsingDummy");
-
-			Assert.That(caller.IsUsing(useAsArgument), Is.True);
-			Assert.That(caller.IsUsing(useAsInvoke), Is.True);
-			Assert.That(caller.IsUsing(noUse), Is.False);
-		}
-
 		private static IMethod GetMethod(string name)
 		{
 			return CecilProjectTest.CreateProject().FindMethod(name);
@@ -142,22 +130,7 @@ namespace NBrowse.Test.Reflection.Mono
 			{
 			}
 
-			protected void CecilMethodIsUsingCaller()
-			{
-				this.CecilMethodIsUsingCalleeInvoke();
-
-				Action action = this.CecilMethodIsUsingCalleeArgument;
-
-				if (action == null)
-					throw new Exception();
-			}
-
-			protected abstract void CecilMethodIsUsingCalleeArgument();
-			protected abstract void CecilMethodIsUsingCalleeInvoke();
-			protected abstract void CecilMethodIsUsingDummy();
-
 			protected abstract void CecilMethodName();
-
 
 			protected abstract void CecilMethodParameters0();
 			protected abstract void CecilMethodParameters1<TParameter1>();
