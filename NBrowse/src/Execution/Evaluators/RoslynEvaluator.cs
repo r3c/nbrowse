@@ -23,7 +23,8 @@ namespace NBrowse.Execution.Evaluators
 		{
 			var imports = new[]
 			{
-				typeof(Binding).Namespace, typeof(Has).Namespace, "System", "System.Collections.Generic", "System.Linq"
+				typeof(Binding).Namespace, typeof(Usage).Namespace, "System", "System.Collections.Generic",
+				"System.Linq"
 			};
 
 			var references = new[] {this.GetType().Assembly};

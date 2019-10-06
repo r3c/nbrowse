@@ -2,6 +2,7 @@ using System;
 using Moq;
 using NBrowse.Reflection;
 using NBrowse.Selection;
+using NBrowse.Test.Reflection.Mono;
 using NUnit.Framework;
 
 namespace NBrowse.Test.Selection
@@ -23,7 +24,7 @@ namespace NBrowse.Test.Selection
 			body.Setup(b => b.ReferencedMethods).Returns(new[] {target.Object});
 			source.Setup(t => t.ImplementationOrNull).Returns(matchBody ? body.Object : null);
 
-			Assert.That(source.Object.IsUsing(target.Object), NUnit.Framework.Is.EqualTo(expected));
+			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -63,7 +64,7 @@ namespace NBrowse.Test.Selection
 
 			source.Setup(t => t.ReturnType).Returns(matchReturnType ? target.Object : Mock.Of<IType>());
 
-			Assert.That(source.Object.IsUsing(target.Object), NUnit.Framework.Is.EqualTo(expected));
+			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -85,7 +86,7 @@ namespace NBrowse.Test.Selection
 			method.Setup(t => t.ImplementationOrNull).Returns(matchMethods ? body.Object : null);
 			source.Setup(t => t.Methods).Returns(new[] {method.Object});
 
-			Assert.That(source.Object.IsUsing(target.Object), NUnit.Framework.Is.EqualTo(expected));
+			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -133,28 +134,43 @@ namespace NBrowse.Test.Selection
 			method.Setup(m => m.ReturnType).Returns(matchMethods ? target.Object : Mock.Of<IType>());
 			source.Setup(t => t.Methods).Returns(new[] {method.Object});
 
-			Assert.That(source.Object.IsUsing(target.Object), NUnit.Framework.Is.EqualTo(expected));
+			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
 		}
 
 		[Test]
-		public void IsUsing_Type_Type_WithCache()
+		[TestCase(128, 1)]
+		[TestCase(0, 2)]
+		public void IsUsing_Type_Type_WithCache(int cacheSize, int expectedComparisons)
 		{
+			// Force flush cache by setting size to zero and asking for usage of some type not previously used
+			var fake = CecilProjectTest.CreateProject().FindType(typeof(FakeType).FullName);
+
+			Usage.CacheSize = 0;
+
+			fake.IsUsing(fake);
+
+			Usage.CacheSize = cacheSize;
+
+			// Configure mocks to equal themselves so they pass cache verification
 			var source = new Mock<IType>();
 			var target = new Mock<IType>();
 
-			// Configure mocks to equal themselves so they pass cache verification
 			source.Setup(type => type.Equals(source.Object)).Returns(true);
 			target.Setup(type => type.Equals(target.Object)).Returns(true);
 
 			// Call "IsUsing" a first time and verify type equality was used exactly once
-			Assert.That(source.Object.IsUsing(target.Object), NUnit.Framework.Is.False);
+			Assert.That(source.Object.IsUsing(target.Object), Is.False);
 
 			source.Verify(type => type.Equals(target.Object), Times.Once());
 
-			// Call "IsUsing" a second time and verify type equality wasn't used again
-			Assert.That(source.Object.IsUsing(target.Object), NUnit.Framework.Is.False);
+			// Call "IsUsing" a second time and verify type equality was used depending on cache status
+			Assert.That(source.Object.IsUsing(target.Object), Is.False);
 
-			source.Verify(type => type.Equals(target.Object), Times.Once());
+			source.Verify(type => type.Equals(target.Object), Times.Exactly(expectedComparisons));
+		}
+
+		private struct FakeType
+		{
 		}
 	}
 }

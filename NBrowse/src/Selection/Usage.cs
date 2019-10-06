@@ -6,6 +6,8 @@ namespace NBrowse.Selection
 {
 	public static class Usage
 	{
+		public static int CacheSize { get; set; } = 32768;
+
 		private static readonly Cache<(IMethod, IMethod), bool> MethodToMethod = new Cache<(IMethod, IMethod), bool>();
 		private static readonly Cache<(IMethod, IType), bool> MethodToType = new Cache<(IMethod, IType), bool>();
 		private static readonly Cache<(IType, IMethod), bool> TypeToMethod = new Cache<(IType, IMethod), bool>();
@@ -13,50 +15,22 @@ namespace NBrowse.Selection
 
 		public static bool IsUsing(this IMethod source, IMethod target)
 		{
-			if (Usage.MethodToMethod.TryGet((source, target), out var usage))
-				return usage;
-
-			usage = Usage.IsReferencing(source, target, new State());
-
-			Usage.MethodToMethod.Set((source, target), usage);
-
-			return usage;
+			return Usage.IsReferencing(source, target, new State());
 		}
 
 		public static bool IsUsing(this IMethod source, IType target)
 		{
-			if (Usage.MethodToType.TryGet((source, target), out var usage))
-				return usage;
-
-			usage = Usage.IsReferencing(source, target, new State());
-
-			Usage.MethodToType.Set((source, target), usage);
-
-			return usage;
+			return Usage.IsReferencing(source, target, new State());
 		}
 
 		public static bool IsUsing(this IType source, IMethod target)
 		{
-			if (Usage.TypeToMethod.TryGet((source, target), out var usage))
-				return usage;
-
-			usage = Usage.IsReferencing(source, target, new State());
-
-			Usage.TypeToMethod.Set((source, target), usage);
-
-			return usage;
+			return Usage.IsReferencing(source, target, new State());
 		}
 
 		public static bool IsUsing(this IType source, IType target)
 		{
-			if (Usage.TypeToType.TryGet((source, target), out var usage))
-				return usage;
-
-			usage = Usage.IsReferencing(source, target, new State());
-
-			Usage.TypeToType.Set((source, target), usage);
-
-			return usage;
+			return Usage.IsReferencing(source, target, new State());
 		}
 
 		private static bool IsReferencing(IArgument source, IType target, State state)
@@ -89,11 +63,19 @@ namespace NBrowse.Selection
 			if (!state.ContinueWith(source))
 				return false;
 
+			if (Usage.MethodToMethod.TryGet((source, target), out var usage))
+				return usage;
+
 			var implementationOrNull = source.ImplementationOrNull;
 
-			return source.Equals(target) ||
-			       source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
-			       implementationOrNull != null && Usage.IsReferencing(implementationOrNull, target, state);
+			usage =
+				source.Equals(target) ||
+				source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
+				implementationOrNull != null && Usage.IsReferencing(implementationOrNull, target, state);
+
+			Usage.MethodToMethod.Set((source, target), usage);
+
+			return usage;
 		}
 
 		private static bool IsReferencing(IMethod source, IType target, State state)
@@ -101,14 +83,21 @@ namespace NBrowse.Selection
 			if (!state.ContinueWith(source))
 				return false;
 
+			if (Usage.MethodToType.TryGet((source, target), out var usage))
+				return usage;
+
 			var implementationOrNull = source.ImplementationOrNull;
 
-			return
+			usage =
 				Usage.IsReferencing(source.ReturnType, target, state) ||
 				source.Arguments.Any(argument => Usage.IsReferencing(argument, target, state)) ||
 				source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
 				source.Parameters.Any(parameter => Usage.IsReferencing(parameter, target, state)) ||
 				implementationOrNull != null && Usage.IsReferencing(implementationOrNull, target, state);
+
+			Usage.MethodToType.Set((source, target), usage);
+
+			return usage;
 		}
 
 		private static bool IsReferencing(IParameter source, IType target, State state)
@@ -121,7 +110,14 @@ namespace NBrowse.Selection
 			if (!state.ContinueWith(source))
 				return false;
 
-			return source.Methods.Any(other => Usage.IsReferencing(other, target, state));
+			if (Usage.TypeToMethod.TryGet((source, target), out var usage))
+				return usage;
+
+			usage = source.Methods.Any(other => Usage.IsReferencing(other, target, state));
+
+			Usage.TypeToMethod.Set((source, target), usage);
+
+			return usage;
 		}
 
 		private static bool IsReferencing(IType source, IType target, State state)
@@ -129,9 +125,12 @@ namespace NBrowse.Selection
 			if (!state.ContinueWith(source))
 				return false;
 
+			if (Usage.TypeToType.TryGet((source, target), out var usage))
+				return usage;
+
 			var baseOrNull = source.BaseOrNull;
 
-			return
+			usage =
 				source.Equals(target) ||
 				baseOrNull != null && Usage.IsReferencing(baseOrNull, target, state) ||
 				source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
@@ -140,6 +139,10 @@ namespace NBrowse.Selection
 				source.NestedTypes.Any(type => Usage.IsReferencing(type, target, state)) ||
 				source.Parameters.Any(parameter => Usage.IsReferencing(parameter, target, state)) ||
 				source.Methods.Any(method => Usage.IsReferencing(method, target, state));
+
+			Usage.TypeToType.Set((source, target), usage);
+
+			return usage;
 		}
 
 		/// <summary>
@@ -147,8 +150,6 @@ namespace NBrowse.Selection
 		/// </summary>
 		private class Cache<TKey, TValue>
 		{
-			private const int Size = 8192;
-
 			private readonly Dictionary<TKey, LinkedListNode<(TKey, TValue)>> indexed =
 				new Dictionary<TKey, LinkedListNode<(TKey, TValue)>>();
 
@@ -157,30 +158,32 @@ namespace NBrowse.Selection
 			public void Set(TKey key, TValue value)
 			{
 				if (this.indexed.TryGetValue(key, out var node))
+				{
 					this.ordered.Remove(node);
+					this.ordered.AddFirst(node);
+				}
 				else
 				{
-					while (this.ordered.Count > Cache<TKey, TValue>.Size)
+					node = new LinkedListNode<(TKey, TValue)>((key, value));
+
+					this.indexed.Add(key, node);
+					this.ordered.AddFirst(node);
+
+					while (this.ordered.Count > Usage.CacheSize)
 					{
 						var last = this.ordered.Last;
 
 						this.ordered.RemoveLast();
 						this.indexed.Remove(last.Value.Item1);
 					}
-
-					node = new LinkedListNode<(TKey, TValue)>((key, value));
-
-					this.indexed.Add(key, node);
 				}
-
-				this.ordered.AddFirst(node);
 			}
 
 			public bool TryGet(TKey key, out TValue value)
 			{
 				if (!this.indexed.TryGetValue(key, out var node))
 				{
-					value = default(TValue);
+					value = default;
 
 					return false;
 				}
