@@ -6,50 +6,52 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilImplementation : IImplementation
 	{
-		public IEnumerable<IMethod> ReferencedMethods => CecilImplementation.GetReferencedMethods(this.body.Instructions);
+		public IEnumerable<IMethod> ReferencedMethods => this.GetReferencedMethods(this.body.Instructions);
 
-		public IEnumerable<IType> ReferencedTypes => CecilImplementation.GetReferencedTypes(this.body.Instructions);
+		public IEnumerable<IType> ReferencedTypes => this.GetReferencedTypes(this.body.Instructions);
 
 		private readonly MethodBody body;
+		private readonly IAssembly parent;
 
-		public CecilImplementation(MethodBody body)
+		public CecilImplementation(MethodBody body, IAssembly parent)
 		{
 			this.body = body;
+			this.parent = parent;
 		}
 
-		private static IEnumerable<IMethod> GetReferencedMethods(IEnumerable<Instruction> instructions)
+		private IEnumerable<IMethod> GetReferencedMethods(IEnumerable<Instruction> instructions)
 		{
 			foreach (var instruction in instructions)
 			{
 				switch (instruction.Operand)
 				{
 					case MethodReference method:
-						yield return new CecilMethod(method);
+						yield return new CecilMethod(method, this.parent);
 						break;
 				}
 			}
 		}
 
-		private static IEnumerable<IType> GetReferencedTypes(IEnumerable<Instruction> instructions)
+		private IEnumerable<IType> GetReferencedTypes(IEnumerable<Instruction> instructions)
 		{
 			foreach (var instruction in instructions)
 			{
 				switch (instruction.Operand)
 				{
 					case FieldReference field:
-						yield return new CecilType(field.DeclaringType);
+						yield return new CecilType(field.DeclaringType, this.parent);
 						break;
 
 					case MethodReference method:
-						yield return new CecilType(method.DeclaringType);
+						yield return new CecilType(method.DeclaringType, this.parent);
 						break;
 
 					case PropertyReference property:
-						yield return new CecilType(property.DeclaringType);
+						yield return new CecilType(property.DeclaringType, this.parent);
 						break;
 
 					case TypeReference type:
-						yield return new CecilType(type);
+						yield return new CecilType(type, this.parent);
 						break;
 				}
 			}

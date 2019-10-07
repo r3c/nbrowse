@@ -10,6 +10,9 @@ namespace NBrowse.Reflection
 		[Description("Custom attributes")]
 		IEnumerable<IAttribute> Attributes { get; }
 
+		[Description("Culture")]
+		string Culture { get; }
+
 		[Description("File name on disk")]
 		string FileName { get; }
 
@@ -19,9 +22,9 @@ namespace NBrowse.Reflection
 		[Description("Assembly name")]
 		string Name { get; }
 
-		[Description("Referenced assembly names")]
+		[Description("Referenced assemblies")]
 		[JsonIgnore]
-		IEnumerable<string> References { get; }
+		IEnumerable<IAssembly> References { get; }
 
 		[Description("Assembly version")]
 		Version Version { get; }

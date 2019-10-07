@@ -16,6 +16,13 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
+		public void Culture()
+		{
+			Assert.That(CecilAssemblyTest.GetAssembly().Culture,
+				Is.EqualTo(typeof(CecilAssemblyTest).Assembly.GetName().CultureName));
+		}
+
+		[Test]
 		public void FileName()
 		{
 			Assert.That(CecilAssemblyTest.GetAssembly().FileName,
@@ -34,14 +41,15 @@ namespace NBrowse.Test.Reflection.Mono
 		{
 			var references = typeof(CecilAssemblyTest).Assembly.GetReferencedAssemblies().Select(a => a.FullName);
 
-			Assert.That(CecilAssemblyTest.GetAssembly().References, Is.EquivalentTo(references));
+			Assert.That(CecilAssemblyTest.GetAssembly().References.Select(r => r.Identifier),
+				Is.EquivalentTo(references));
 		}
 
 		[Test]
 		public void Types()
 		{
 			Assert.That(CecilAssemblyTest.GetAssembly().Types,
-				Has.Some.Matches<IType>(t => t.Name == nameof(CecilAssemblyTest)));
+				Has.Some.Matches<IType>(t => t.Identifier == typeof(CecilAssemblyTest).FullName));
 		}
 
 		[Test]

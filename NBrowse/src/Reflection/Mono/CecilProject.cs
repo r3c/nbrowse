@@ -9,10 +9,30 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilProject : IDisposable, IProject
 	{
-		public IEnumerable<IAssembly> Assemblies => this.assemblies;
+		public IEnumerable<IAssembly> Assemblies => this.assemblies.Values;
 
-		private readonly IReadOnlyList<CecilAssembly> assemblies;
+		private readonly IReadOnlyDictionary<string, CecilAssembly> assemblies;
 		private readonly IReadOnlyList<IDisposable> resources;
+
+		public CecilProject(IEnumerable<string> sources)
+		{
+			var parameters = new ReaderParameters {AssemblyResolver = new DefaultAssemblyResolver(), InMemory = true};
+			var assemblies = sources.Select(source => AssemblyDefinition.ReadAssembly(source, parameters)).ToList();
+
+			this.assemblies = assemblies.Select(assembly => new CecilAssembly(assembly, this))
+				.GroupBy(assembly => assembly.Name).ToDictionary(group => group.Key,
+					group =>
+					{
+						if (group.Count() > 1)
+						{
+							Console.Error.WriteLine(
+								$"Warning: project contains more than one assembly named '{group.Key}', only one will be accessible.");
+						}
+
+						return group.First();
+					});
+			this.resources = assemblies;
+		}
 
 		public void Dispose()
 		{
@@ -20,22 +40,18 @@ namespace NBrowse.Reflection.Mono
 				resource.Dispose();
 		}
 
-		public IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> name)
+		public IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> names)
 		{
-			var hashNames = new HashSet<string>(name);
-
-			foreach (var assembly in this.assemblies)
+			foreach (var name in names)
 			{
-				if (hashNames.Contains(assembly.Name))
+				if (this.assemblies.TryGetValue(name, out var assembly))
 					yield return assembly;
 			}
 		}
 
 		public IAssembly FindAssembly(string name)
 		{
-			var assembly = this.assemblies.FirstOrDefault(a => a.Name == name);
-
-			if (assembly == null)
+			if (!this.assemblies.TryGetValue(name, out var assembly))
 				throw new ArgumentOutOfRangeException(nameof(name), name, "no matching assembly found");
 
 			return assembly;
@@ -50,7 +66,7 @@ namespace NBrowse.Reflection.Mono
 			var byParent = (IMethod) null;
 			var byParentFound = false;
 
-			foreach (var method in this.assemblies.SelectMany(a => a.Types).SelectMany(t => t.Methods))
+			foreach (var method in this.assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
 			{
 				if (method.Identifier == search)
 				{
@@ -105,7 +121,7 @@ namespace NBrowse.Reflection.Mono
 			var byName = (IType) null;
 			var byNameFound = false;
 
-			foreach (var type in this.assemblies.SelectMany(a => a.Types))
+			foreach (var type in this.assemblies.Values.SelectMany(a => a.Types))
 			{
 				if (type.Identifier == search)
 				{
@@ -149,15 +165,6 @@ namespace NBrowse.Reflection.Mono
 			}
 
 			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching type found");
-		}
-
-		public CecilProject(IEnumerable<string> sources)
-		{
-			var parameters = new ReaderParameters {AssemblyResolver = new DefaultAssemblyResolver(), InMemory = true};
-			var assemblies = sources.Select(source => AssemblyDefinition.ReadAssembly(source, parameters)).ToList();
-
-			this.assemblies = assemblies.Select(assembly => new CecilAssembly(assembly)).ToList();
-			this.resources = assemblies;
 		}
 	}
 }

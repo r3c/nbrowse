@@ -16,13 +16,15 @@ namespace NBrowse.Reflection.Mono
 
 		public string Name => this.argument.Name;
 
-		public IType Type => new CecilType(this.argument.ParameterType);
+		public IType Type => new CecilType(this.argument.ParameterType, this.parent);
 
 		private readonly ParameterDefinition argument;
+		private readonly IAssembly parent;
 
-		public CecilArgument(ParameterDefinition argument)
+		public CecilArgument(ParameterDefinition argument, IAssembly parent)
 		{
 			this.argument = argument ?? throw new ArgumentNullException(nameof(argument));
+			this.parent = parent;
 		}
 
 		public bool Equals(IArgument other)

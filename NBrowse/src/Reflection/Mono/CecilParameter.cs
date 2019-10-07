@@ -8,7 +8,7 @@ namespace NBrowse.Reflection.Mono
     internal class CecilParameter : IParameter
     {
         public IEnumerable<IType> Constraints =>
-            this.parameter.Constraints.Select(constraint => new CecilType(constraint.ConstraintType));
+            this.parameter.Constraints.Select(constraint => new CecilType(constraint.ConstraintType, this.parent));
 
         public bool HasDefaultConstructor => this.parameter.HasDefaultConstructorConstraint;
 
@@ -21,10 +21,12 @@ namespace NBrowse.Reflection.Mono
             : (this.parameter.IsCovariant ? Variance.Covariant : Variance.Invariant);
 
         private readonly GenericParameter parameter;
+        private readonly IAssembly parent;
 
-        public CecilParameter(GenericParameter parameter)
+        public CecilParameter(GenericParameter parameter, IAssembly parent)
         {
             this.parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
+            this.parent = parent;
         }
 
         public bool Equals(IParameter other)

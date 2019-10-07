@@ -2,18 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
-using NBrowse.Selection;
 
 namespace NBrowse.Reflection.Mono
 {
 	internal class CecilMethod : IMethod
 	{
 		public IEnumerable<IArgument> Arguments =>
-			this.reference.Parameters.Select(argument => new CecilArgument(argument));
+			this.reference.Parameters.Select(argument => new CecilArgument(argument, this.parent));
 
 		public IEnumerable<IAttribute> Attributes =>
-			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute)) ??
+			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.parent)) ??
 			Array.Empty<CecilAttribute>();
 
 		public Binding Binding => this.definition == null
@@ -24,7 +22,9 @@ namespace NBrowse.Reflection.Mono
 					? Binding.Static
 					: Binding.Instance));
 
-		public IImplementation ImplementationOrNull => this.definition?.Body != null ? new CecilImplementation(this.definition.Body) : null;
+		public IImplementation ImplementationOrNull => this.definition?.Body != null
+			? new CecilImplementation(this.definition.Body, this.parent)
+			: null;
 
 		public Definition Definition => this.definition == null
 			? Definition.Unknown
@@ -42,11 +42,11 @@ namespace NBrowse.Reflection.Mono
 		public string Name => this.reference.Name;
 
 		public IEnumerable<IParameter> Parameters =>
-			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter));
+			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.parent));
 
-		public IType Parent => new CecilType(this.reference.DeclaringType);
+		public IType Parent => new CecilType(this.reference.DeclaringType, this.parent);
 
-		public IType ReturnType => new CecilType(this.reference.ReturnType);
+		public IType ReturnType => new CecilType(this.reference.ReturnType, this.parent);
 
 		public Visibility Visibility => this.definition == null
 			? Visibility.Unknown
@@ -59,9 +59,10 @@ namespace NBrowse.Reflection.Mono
 						: Visibility.Internal)));
 
 		private readonly MethodDefinition definition;
+		private readonly IAssembly parent;
 		private readonly MethodReference reference;
 
-		public CecilMethod(MethodReference reference)
+		public CecilMethod(MethodReference reference, IAssembly parent)
 		{
 			if (reference == null)
 				throw new ArgumentNullException(nameof(reference));
@@ -74,6 +75,7 @@ namespace NBrowse.Reflection.Mono
 			}
 
 			this.definition = definition;
+			this.parent = parent;
 			this.reference = reference;
 		}
 
