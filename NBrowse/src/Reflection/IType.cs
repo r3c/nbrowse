@@ -8,38 +8,38 @@ namespace NBrowse.Reflection
  {
 	 public interface IType : IEquatable<IType>
 	 {
-		 [Description("Type custom attributes")]
+		 [Description("Custom attributes (resolved type only)")]
 		 [JsonIgnore]
 		 IEnumerable<IAttribute> Attributes { get; }
 
-		 [Description("Base type if any, null otherwise")]
+		 [Description("Base type if any or null otherwise (resolved type only)")]
 		 [JsonIgnore]
 		 IType BaseOrNull { get; }
 
-		 [Description("Element type if any, null otherwise")]
+		 [Description("Type implementation (resolved type only)")]
+		 [JsonConverter(typeof(StringEnumConverter))]
+		 Definition Definition { get; }
+
+		 [Description("Element type if any or null otherwise")]
 		 [JsonIgnore]
 		 IType ElementOrNull { get; }
 
-		 [Description("Declared fields")]
+		 [Description("Declared fields (resolved type only)")]
 		 [JsonIgnore]
 		 IEnumerable<IField> Fields { get; }
 
 		 [Description("Unique human-readable identifier")]
 		 string Identifier { get; }
 
-		 [Description("Type implementation")]
-		 [JsonConverter(typeof(StringEnumConverter))]
-		 Definition Definition { get; }
-
-		 [Description("Type interfaces")]
+		 [Description("Type interfaces (resolved type only)")]
 		 [JsonIgnore]
 		 IEnumerable<IType> Interfaces { get; }
 
-		 [Description("Declared methods")]
+		 [Description("Declared methods (resolved type only)")]
 		 [JsonIgnore]
 		 IEnumerable<IMethod> Methods { get; }
 
-		 [Description("Type model")]
+		 [Description("Type model (resolved type only)")]
 		 [JsonConverter(typeof(StringEnumConverter))]
 		 Model Model { get; }
 
@@ -49,7 +49,7 @@ namespace NBrowse.Reflection
 		 [Description("Parent namespace")]
 		 string Namespace { get; }
 
-		 [Description("Declared nested types")]
+		 [Description("Declared nested types (resolved type only)")]
 		 [JsonIgnore]
 		 IEnumerable<IType> NestedTypes { get; }
 
@@ -61,7 +61,7 @@ namespace NBrowse.Reflection
 		 [JsonIgnore]
 		 IAssembly Parent { get; }
 
-		 [Description("Type visibility")]
+		 [Description("Type visibility (resolved type only)")]
 		 [JsonConverter(typeof(StringEnumConverter))]
 		 Visibility Visibility { get; }
 	 }

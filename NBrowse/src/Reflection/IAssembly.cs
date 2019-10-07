@@ -7,13 +7,13 @@ namespace NBrowse.Reflection
 {
 	public interface IAssembly : IEquatable<IAssembly>
 	{
-		[Description("Custom attributes")]
+		[Description("Custom attributes (resolved assembly only)")]
 		IEnumerable<IAttribute> Attributes { get; }
 
-		[Description("Culture")]
+		[Description("Name of assembly culture")]
 		string Culture { get; }
 
-		[Description("File name on disk")]
+		[Description("File name on disk (resolved assembly only)")]
 		string FileName { get; }
 
 		[Description("Unique human-readable identifier")]
@@ -22,14 +22,14 @@ namespace NBrowse.Reflection
 		[Description("Assembly name")]
 		string Name { get; }
 
-		[Description("Referenced assemblies")]
+		[Description("Referenced assemblies (resolved assembly only)")]
 		[JsonIgnore]
 		IEnumerable<IAssembly> References { get; }
 
 		[Description("Assembly version")]
 		Version Version { get; }
 
-		[Description("Declared types")]
+		[Description("Declared types (resolved assembly only)")]
 		[JsonIgnore]
 		IEnumerable<IType> Types { get; }
 	}

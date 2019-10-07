@@ -5,7 +5,7 @@ namespace NBrowse.Reflection
 {
 	public interface IArgument : IEquatable<IArgument>
 	{
-		[Description("Default argument value if any, or null otherwise")]
+		[Description("Default value if any or null otherwise")]
 		object DefaultValue { get; }
 
 		[Description("True if argument has default value")]

@@ -68,8 +68,7 @@ namespace NBrowse.Reflection.Mono
 			this.definition?.NestedTypes.Select(type => new CecilType(type, this.Parent)) ?? Array.Empty<CecilType>();
 
 		public IEnumerable<IParameter> Parameters =>
-			this.definition?.GenericParameters.Select(parameter => new CecilParameter(parameter, this.Parent)) ??
-			Array.Empty<CecilParameter>();
+			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.Parent));
 
 		public IAssembly Parent { get; }
 
