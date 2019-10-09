@@ -12,7 +12,7 @@ if [ -z "$version" ]; then
 fi
 
 # Create archive for each target runtime
-framework=netcoreapp2.1
+framework=netcoreapp3.0
 source="$(mktemp -d)"
 
 for runtime in debian-x64 osx-x64 ubuntu-x64 win-x64; do
