@@ -31,7 +31,7 @@ namespace NBrowse.CLI
 
 				if (entity.IsEnum)
 					writer.WriteLine($"     {string.Join(" | ", Enum.GetNames(entity))}");
-				else if (entity.IsInterface)
+				else if (entity.IsClass)
 				{
 					foreach (var property in entity.GetProperties(BindingFlags.Instance | BindingFlags.Public))
 					{
@@ -39,7 +39,8 @@ namespace NBrowse.CLI
 						var propertyType = property.PropertyType;
 						var targetType = Help.GetFirstNonGenericType(property.PropertyType);
 
-						writer.WriteLine($"    .{property.Name}: {Help.GetTypeName(propertyType)} // {propertyDescription?.Description ?? "no description"}");
+						writer.WriteLine(
+							$"    .{property.Name}: {Help.GetTypeName(propertyType)}{(propertyDescription != null ? " // " + propertyDescription.Description : string.Empty)}");
 
 						if (targetType.Namespace == entity.Namespace && uniques.Add(targetType))
 							entities.Enqueue(targetType);
@@ -55,7 +56,7 @@ namespace NBrowse.CLI
 							.Select(p => $"{Help.GetTypeName(p.ParameterType)} {p.Name}");
 
 						writer.WriteLine(
-							$"    .{method.Name}({string.Join(", ", methodParameters)}): {Help.GetTypeName(method.ReturnType)} // {methodDescription?.Description ?? "no description"}");
+							$"    .{method.Name}({string.Join(", ", methodParameters)}): {Help.GetTypeName(method.ReturnType)}{(methodDescription != null ? " // " + methodDescription.Description : string.Empty)}");
 					}
 				}
 			}
