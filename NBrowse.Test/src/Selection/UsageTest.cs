@@ -10,96 +10,176 @@ namespace NBrowse.Test.Selection
 	public class UsageTest
 	{
 		[Test]
-		[TestCase(false, false)]
-		[TestCase(true, true)]
-		public void IsUsing_Method_Method(bool matchBody, bool expected)
+		[TestCase(false, false, false, false)]
+		[TestCase(false, true, false, false)]
+		[TestCase(false, true, true, false)]
+		[TestCase(true, false, false, true)]
+		[TestCase(true, true, false, false)]
+		[TestCase(true, true, true, true)]
+		public void IsUsing_Method_Method(bool matchImplementation, bool setupRecursive, bool usingRecursive,
+			bool expected)
 		{
 			var source = new Mock<IMethod>();
 			var target = new Mock<IMethod>();
 
 			target.Setup(t => t.Equals(target.Object)).Returns(true);
 
-			var body = new Mock<IImplementation>();
+			IMethod resolve;
 
-			body.Setup(b => b.ReferencedMethods).Returns(new[] {target.Object});
-			source.Setup(t => t.ImplementationOrNull).Returns(matchBody ? body.Object : null);
+			if (setupRecursive)
+			{
+				var indirect = new Mock<IMethod>();
+				var indirectImplementation = new Mock<IImplementation>();
 
-			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
+				indirectImplementation.Setup(i => i.ReferencedMethods).Returns(new[] {target.Object});
+				indirect.Setup(i => i.ImplementationOrNull).Returns(indirectImplementation.Object);
+
+				resolve = indirect.Object;
+			}
+			else
+				resolve = target.Object;
+
+			var implementation = new Mock<IImplementation>();
+
+			implementation.Setup(b => b.ReferencedMethods).Returns(new[] {resolve});
+			source.Setup(t => t.ImplementationOrNull).Returns(matchImplementation ? implementation.Object : null);
+
+			Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase(false, false, false, false, false, false)]
-		[TestCase(true, false, false, false, false, true)]
-		[TestCase(false, true, false, false, false, true)]
-		[TestCase(false, false, true, false, false, true)]
-		[TestCase(false, false, false, true, false, true)]
-		[TestCase(false, false, false, false, true, true)]
-		public void IsUsing_Method_Type(bool matchArguments, bool matchAttributes, bool matchParameters, bool matchBody,
-			bool matchReturnType, bool expected)
+		[TestCase(false, false, false, false, false, false, false, false)]
+		[TestCase(false, false, false, false, false, true, false, false)]
+		[TestCase(false, false, false, false, false, true, true, false)]
+		[TestCase(false, false, false, false, true, false, false, true)]
+		[TestCase(false, false, false, false, true, true, false, false)]
+		[TestCase(false, false, false, false, true, true, true, true)]
+		[TestCase(false, false, false, true, false, false, false, true)]
+		[TestCase(false, false, false, true, false, true, false, false)]
+		[TestCase(false, false, false, true, false, true, true, true)]
+		[TestCase(false, false, true, false, false, false, false, true)]
+		[TestCase(false, false, true, false, false, true, false, false)]
+		[TestCase(false, false, true, false, false, true, true, true)]
+		[TestCase(false, true, false, false, false, false, false, true)]
+		[TestCase(false, true, false, false, false, true, false, false)]
+		[TestCase(false, true, false, false, false, true, true, true)]
+		[TestCase(true, false, false, false, false, false, false, true)]
+		[TestCase(true, false, false, false, false, true, false, false)]
+		[TestCase(true, false, false, false, false, true, true, true)]
+		public void IsUsing_Method_Type(bool matchArguments, bool matchAttributes, bool matchParameters,
+			bool matchImplementation, bool matchReturnType, bool setupRecursive, bool usingRecursive, bool expected)
 		{
 			var source = new Mock<IMethod>();
 			var target = new Mock<IType>();
 
 			target.Setup(t => t.Equals(target.Object)).Returns(true);
 
+			IType resolve;
+
+			if (setupRecursive)
+			{
+				var indirectArgument = new Mock<IArgument>();
+				var indirectMethod = new Mock<IMethod>();
+				var indirectType = new Mock<IType>();
+
+				indirectArgument.Setup(a => a.Type).Returns(target.Object);
+				indirectMethod.Setup(i => i.Arguments).Returns(new[] {indirectArgument.Object});
+				indirectMethod.Setup(i => i.ReturnType).Returns(Mock.Of<IType>());
+				indirectType.Setup(t => t.Methods).Returns(new[] {indirectMethod.Object});
+
+				resolve = indirectType.Object;
+			}
+			else
+				resolve = target.Object;
+
 			var argument = new Mock<IArgument>();
 
-			argument.Setup(a => a.Type).Returns(matchArguments ? target.Object : Mock.Of<IType>());
+			argument.Setup(a => a.Type).Returns(matchArguments ? resolve : Mock.Of<IType>());
 			source.Setup(t => t.Arguments).Returns(new[] {argument.Object});
 
 			var attribute = new Mock<IAttribute>();
+			var attributeMethod = new Mock<IMethod>();
 
-			attribute.Setup(a => a.Type).Returns(matchAttributes ? target.Object : Mock.Of<IType>());
+			attributeMethod.Setup(m => m.ReturnType).Returns(Mock.Of<IType>());
+			attribute.Setup(a => a.Constructor).Returns(attributeMethod.Object);
+			attribute.Setup(a => a.Type).Returns(matchAttributes ? resolve : Mock.Of<IType>());
 			source.Setup(t => t.Attributes).Returns(new[] {attribute.Object});
 
 			var parameter = new Mock<IParameter>();
 
-			parameter.Setup(p => p.Constraints).Returns(new[] {matchParameters ? target.Object : Mock.Of<IType>()});
+			parameter.Setup(p => p.Constraints).Returns(new[] {matchParameters ? resolve : Mock.Of<IType>()});
 			source.Setup(t => t.Parameters).Returns(new[] {parameter.Object});
 
-			var body = new Mock<IImplementation>();
+			var implementation = new Mock<IImplementation>();
 
-			body.Setup(b => b.ReferencedTypes).Returns(new[] {target.Object});
-			source.Setup(t => t.ImplementationOrNull).Returns(matchBody ? body.Object : null);
+			implementation.Setup(b => b.ReferencedTypes).Returns(new[] {resolve});
+			source.Setup(t => t.ImplementationOrNull).Returns(matchImplementation ? implementation.Object : null);
+			source.Setup(t => t.ReturnType).Returns(matchReturnType ? resolve : Mock.Of<IType>());
 
-			source.Setup(t => t.ReturnType).Returns(matchReturnType ? target.Object : Mock.Of<IType>());
-
-			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
+			Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase(false, false)]
-		[TestCase(true, true)]
-		public void IsUsing_Type_Method(bool matchMethods, bool expected)
+		[TestCase(false, false, false, false)]
+		[TestCase(false, true, false, false)]
+		[TestCase(false, true, true, false)]
+		[TestCase(true, false, false, true)]
+		[TestCase(true, true, false, false)]
+		[TestCase(true, true, true, true)]
+		public void IsUsing_Type_Method(bool matchMethods, bool setupRecursive, bool usingRecursive, bool expected)
 		{
 			var source = new Mock<IType>();
 			var target = new Mock<IMethod>();
 
 			target.Setup(t => t.Equals(target.Object)).Returns(true);
 
-			var body = new Mock<IImplementation>();
+			IMethod resolve;
 
-			body.Setup(b => b.ReferencedMethods).Returns(new[] {target.Object});
+			if (setupRecursive)
+			{
+				var indirect = new Mock<IMethod>();
+				var indirectImplementation = new Mock<IImplementation>();
 
-			var method = new Mock<IMethod>();
+				indirectImplementation.Setup(b => b.ReferencedMethods).Returns(new[] {target.Object});
+				indirect.Setup(t => t.ImplementationOrNull).Returns(indirectImplementation.Object);
 
-			method.Setup(t => t.ImplementationOrNull).Returns(matchMethods ? body.Object : null);
-			source.Setup(t => t.Methods).Returns(new[] {method.Object});
+				resolve = indirect.Object;
+			}
+			else
+				resolve = target.Object;
+			
+			source.Setup(t => t.Methods).Returns(new[] {matchMethods ? resolve : Mock.Of<IMethod>()});
 
-			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
+			Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase(false, false, false, false, false, false, false, false)]
-		[TestCase(true, false, false, false, false, false, false, true)]
-		[TestCase(false, true, false, false, false, false, false, true)]
-		[TestCase(false, false, true, false, false, false, false, true)]
-		[TestCase(false, false, false, true, false, false, false, true)]
-		[TestCase(false, false, false, false, true, false, false, true)]
-		[TestCase(false, false, false, false, false, true, false, true)]
-		[TestCase(false, false, false, false, false, false, true, true)]
+		[TestCase(false, false, false, false, false, false, false, false, false)]
+		[TestCase(false, false, false, false, false, false, false, false, false)]
+		[TestCase(false, false, false, false, false, false, true, false, false)]
+		[TestCase(false, false, false, false, false, false, true, false, false)]
+		[TestCase(false, false, false, false, false, false, true, true, false)]
+		[TestCase(false, false, false, false, false, false, true, true, false)]
+		[TestCase(false, false, false, false, false, true, false, false, true)]
+		[TestCase(false, false, false, false, false, true, true, false, false)]
+		[TestCase(false, false, false, false, false, true, true, true, true)]
+		[TestCase(false, false, false, false, true, false, false, false, true)]
+		[TestCase(false, false, false, false, true, false, true, false, false)]
+		[TestCase(false, false, false, false, true, false, true, true, true)]
+		[TestCase(false, false, false, true, false, false, false, false, true)]
+		[TestCase(false, false, false, true, false, false, true, false, false)]
+		[TestCase(false, false, false, true, false, false, true, true, true)]
+		[TestCase(false, false, true, false, false, false, false, false, true)]
+		[TestCase(false, false, true, false, false, false, true, false, false)]
+		[TestCase(false, false, true, false, false, false, true, true, true)]
+		[TestCase(false, true, false, false, false, false, false, false, true)]
+		[TestCase(false, true, false, false, false, false, true, false, false)]
+		[TestCase(false, true, false, false, false, false, true, true, true)]
+		[TestCase(true, false, false, false, false, false, false, false, true)]
+		[TestCase(true, false, false, false, false, false, true, false, false)]
+		[TestCase(true, false, false, false, false, false, true, true, true)]
 		public void IsUsing_Type_Type(bool matchAttributes, bool matchBaseOrNull, bool matchFields,
-			bool matchInterfaces, bool matchNestedTypes, bool matchParameters, bool matchMethods,
+			bool matchInterfaces, bool matchNestedTypes, bool matchParameters, bool setupRecursive, bool usingRecursive,
 			bool expected)
 		{
 			var source = new Mock<IType>();
@@ -107,34 +187,51 @@ namespace NBrowse.Test.Selection
 
 			target.Setup(t => t.Equals(target.Object)).Returns(true);
 
+			IType resolve;
+
+			if (setupRecursive)
+			{
+				var indirect = new Mock<IType>();
+				var indirectAttribute = new Mock<IAttribute>();
+				var indirectAttributeConstructor = new Mock<IMethod>();
+
+				indirectAttributeConstructor.Setup(m => m.ReturnType).Returns(Mock.Of<IType>());
+				indirectAttribute.Setup(a => a.Constructor).Returns(indirectAttributeConstructor.Object);
+				indirectAttribute.Setup(a => a.Type).Returns(target.Object);
+				indirect.Setup(i => i.Attributes).Returns(new[] {indirectAttribute.Object});
+
+				resolve = indirect.Object;
+			}
+			else
+				resolve = target.Object;
+
 			var attribute = new Mock<IAttribute>();
+			var attributeConstructor = new Mock<IMethod>();
 
-			attribute.Setup(a => a.Type).Returns(matchAttributes ? target.Object : Mock.Of<IType>());
-
+			attributeConstructor.Setup(m => m.ReturnType).Returns(Mock.Of<IType>());
+			attribute.Setup(a => a.Constructor).Returns(attributeConstructor.Object);
+			attribute.Setup(a => a.Type).Returns(matchAttributes ? resolve : Mock.Of<IType>());
 			source.Setup(t => t.Attributes).Returns(new[] {attribute.Object});
-
-			source.Setup(t => t.BaseOrNull).Returns(matchBaseOrNull ? target.Object : null);
+			source.Setup(t => t.BaseOrNull).Returns(matchBaseOrNull ? resolve : null);
 
 			var field = new Mock<IField>();
 
-			field.Setup(a => a.Type).Returns(matchFields ? target.Object : Mock.Of<IType>());
+			field.Setup(a => a.Type).Returns(matchFields ? resolve : Mock.Of<IType>());
 			source.Setup(t => t.Fields).Returns(new[] {field.Object});
-
-			source.Setup(t => t.Interfaces).Returns(matchInterfaces ? new[] {target.Object} : Array.Empty<IType>());
-
-			source.Setup(t => t.NestedTypes).Returns(matchNestedTypes ? new[] {target.Object} : Array.Empty<IType>());
+			source.Setup(t => t.Interfaces).Returns(matchInterfaces ? new[] {resolve} : Array.Empty<IType>());
+			source.Setup(t => t.NestedTypes).Returns(matchNestedTypes ? new[] {resolve} : Array.Empty<IType>());
 
 			var parameter = new Mock<IParameter>();
 
-			parameter.Setup(p => p.Constraints).Returns(new[] {matchParameters ? target.Object : Mock.Of<IType>()});
+			parameter.Setup(p => p.Constraints).Returns(new[] {matchParameters ? resolve : Mock.Of<IType>()});
 			source.Setup(t => t.Parameters).Returns(new[] {parameter.Object});
 
 			var method = new Mock<IMethod>();
 
-			method.Setup(m => m.ReturnType).Returns(matchMethods ? target.Object : Mock.Of<IType>());
+			method.Setup(m => m.ReturnType).Returns(Mock.Of<IType>());
 			source.Setup(t => t.Methods).Returns(new[] {method.Object});
 
-			Assert.That(source.Object.IsUsing(target.Object), Is.EqualTo(expected));
+			Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
 		}
 
 		[Test]

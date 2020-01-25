@@ -13,52 +13,66 @@ namespace NBrowse.Selection
 		private static readonly Cache<(IType, IMethod), bool> TypeToMethod = new Cache<(IType, IMethod), bool>();
 		private static readonly Cache<(IType, IType), bool> TypeToType = new Cache<(IType, IType), bool>();
 
-		public static bool IsUsing(this IMethod source, IMethod target)
+		public static bool IsUsing(this IMethod source, IMethod target, bool includeIndirectUsage = false)
 		{
-			return Usage.IsReferencing(source, target, new State());
+			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
-		public static bool IsUsing(this IMethod source, IType target)
+		public static bool IsUsing(this IMethod source, IType target, bool includeIndirectUsage = false)
 		{
-			return Usage.IsReferencing(source, target, new State());
+			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
-		public static bool IsUsing(this IType source, IMethod target)
+		public static bool IsUsing(this IType source, IMethod target, bool includeIndirectUsage = false)
 		{
-			return Usage.IsReferencing(source, target, new State());
+			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
-		public static bool IsUsing(this IType source, IType target)
+		public static bool IsUsing(this IType source, IType target, bool includeIndirectUsage = false)
 		{
-			return Usage.IsReferencing(source, target, new State());
+			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
 		private static bool IsReferencing(IArgument source, IType target, State state)
 		{
-			return Usage.IsReferencing(source.Type, target, state);
+			return Usage.IsUsing(source.Type, target, state);
 		}
 
 		private static bool IsReferencing(IAttribute source, IMethod target, State state)
 		{
-			return Usage.IsReferencing(source.Constructor, target, state);
+			return
+				Usage.IsUsing(source.Constructor, target, state) ||
+				Usage.IsUsing(source.Type, target, state);
 		}
 
 		private static bool IsReferencing(IAttribute source, IType target, State state)
 		{
-			return Usage.IsReferencing(source.Type, target, state);
+			return
+				Usage.IsUsing(source.Constructor, target, state) ||
+				Usage.IsUsing(source.Type, target, state);
+		}
+
+		private static bool IsReferencing(IField source, IType target, State state)
+		{
+			return Usage.IsUsing(source.Type, target, state);
 		}
 
 		private static bool IsReferencing(IImplementation source, IMethod target, State state)
 		{
-			return source.ReferencedMethods.Any(method => Usage.IsReferencing(method, target, state));
+			return source.ReferencedMethods.Any(method => Usage.IsUsing(method, target, state));
 		}
 
 		private static bool IsReferencing(IImplementation source, IType target, State state)
 		{
-			return source.ReferencedTypes.Any(type => Usage.IsReferencing(type, target, state));
+			return source.ReferencedTypes.Any(type => Usage.IsUsing(type, target, state));
 		}
 
-		private static bool IsReferencing(IMethod source, IMethod target, State state)
+		private static bool IsReferencing(IParameter source, IType target, State state)
+		{
+			return source.Constraints.Any(constraint => Usage.IsUsing(constraint, target, state));
+		}
+
+		private static bool IsUsing(IMethod source, IMethod target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -70,15 +84,18 @@ namespace NBrowse.Selection
 
 			usage =
 				source.Equals(target) ||
-				source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
-				implementationOrNull != null && Usage.IsReferencing(implementationOrNull, target, state);
+				state.TryRecurse() &&
+				(
+					source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
+					implementationOrNull != null && Usage.IsReferencing(implementationOrNull, target, state)
+				);
 
 			Usage.MethodToMethod.Set((source, target), usage);
 
 			return usage;
 		}
 
-		private static bool IsReferencing(IMethod source, IType target, State state)
+		private static bool IsUsing(IMethod source, IType target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -89,23 +106,21 @@ namespace NBrowse.Selection
 			var implementationOrNull = source.ImplementationOrNull;
 
 			usage =
-				Usage.IsReferencing(source.ReturnType, target, state) ||
-				source.Arguments.Any(argument => Usage.IsReferencing(argument, target, state)) ||
-				source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
-				source.Parameters.Any(parameter => Usage.IsReferencing(parameter, target, state)) ||
-				implementationOrNull != null && Usage.IsReferencing(implementationOrNull, target, state);
+				state.TryRecurse() &&
+				(
+					Usage.IsUsing(source.ReturnType, target, state) ||
+					source.Arguments.Any(argument => Usage.IsReferencing(argument, target, state)) ||
+					source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
+					source.Parameters.Any(parameter => Usage.IsReferencing(parameter, target, state)) ||
+					implementationOrNull != null && Usage.IsReferencing(implementationOrNull, target, state)
+				);
 
 			Usage.MethodToType.Set((source, target), usage);
 
 			return usage;
 		}
 
-		private static bool IsReferencing(IParameter source, IType target, State state)
-		{
-			return source.Constraints.Any(constraint => Usage.IsReferencing(constraint, target, state));
-		}
-
-		private static bool IsReferencing(IType source, IMethod target, State state)
+		private static bool IsUsing(IType source, IMethod target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -113,14 +128,14 @@ namespace NBrowse.Selection
 			if (Usage.TypeToMethod.TryGet((source, target), out var usage))
 				return usage;
 
-			usage = source.Methods.Any(other => Usage.IsReferencing(other, target, state));
+			usage = state.TryRecurse() && source.Methods.Any(other => Usage.IsUsing(other, target, state));
 
 			Usage.TypeToMethod.Set((source, target), usage);
 
 			return usage;
 		}
 
-		private static bool IsReferencing(IType source, IType target, State state)
+		private static bool IsUsing(IType source, IType target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -132,13 +147,16 @@ namespace NBrowse.Selection
 
 			usage =
 				source.Equals(target) ||
-				baseOrNull != null && Usage.IsReferencing(baseOrNull, target, state) ||
-				source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
-				source.Fields.Any(field => Usage.IsReferencing(field.Type, target, state)) ||
-				source.Interfaces.Any(iface => Usage.IsReferencing(iface, target, state)) ||
-				source.NestedTypes.Any(type => Usage.IsReferencing(type, target, state)) ||
-				source.Parameters.Any(parameter => Usage.IsReferencing(parameter, target, state)) ||
-				source.Methods.Any(method => Usage.IsReferencing(method, target, state));
+				state.TryRecurse() &&
+				(
+					baseOrNull != null && Usage.IsUsing(baseOrNull, target, state) ||
+					source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
+					source.Fields.Any(field => Usage.IsReferencing(field, target, state)) ||
+					source.Interfaces.Any(iface => Usage.IsUsing(iface, target, state)) ||
+					source.NestedTypes.Any(type => Usage.IsUsing(type, target, state)) ||
+					source.Parameters.Any(parameter => Usage.IsReferencing(parameter, target, state)) ||
+					source.Methods.Any(method => Usage.IsUsing(method, target, state))
+				);
 
 			Usage.TypeToType.Set((source, target), usage);
 
@@ -202,8 +220,14 @@ namespace NBrowse.Selection
 		/// </summary>
 		private class State
 		{
+			private int depth;
 			private readonly ISet<IMethod> methods = new HashSet<IMethod>();
 			private readonly ISet<IType> types = new HashSet<IType>();
+
+			public State(int depth)
+			{
+				this.depth = depth;
+			}
 
 			public bool ContinueWith(IMethod method)
 			{
@@ -213,6 +237,16 @@ namespace NBrowse.Selection
 			public bool ContinueWith(IType type)
 			{
 				return this.types.Add(type);
+			}
+
+			public bool TryRecurse()
+			{
+				if (this.depth < 1)
+					return false;
+
+				--this.depth;
+
+				return true;
 			}
 		}
 	}
