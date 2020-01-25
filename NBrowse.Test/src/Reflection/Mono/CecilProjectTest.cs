@@ -17,7 +17,7 @@ namespace NBrowse.Test.Reflection.Mono
 		{
 			var project = CecilProjectTest.CreateProject();
 
-			Assert.That(project.Assemblies, Has.Some.Matches<IAssembly>(a => a.Name == CecilProjectTest.AssemblyName));
+			Assert.That(project.Assemblies, Has.Some.Matches<NBrowse.Reflection.Assembly>(a => a.Name == CecilProjectTest.AssemblyName));
 		}
 
 		[Test]
@@ -34,7 +34,7 @@ namespace NBrowse.Test.Reflection.Mono
 			var project = CecilProjectTest.CreateProject();
 
 			Assert.That(project.FilterAssemblies(new[] {"Missing1", CecilProjectTest.AssemblyName, "Missing2"}),
-				Has.Some.Matches<IAssembly>(a => a.Name == CecilProjectTest.AssemblyName));
+				Has.Some.Matches<NBrowse.Reflection.Assembly>(a => a.Name == CecilProjectTest.AssemblyName));
 		}
 
 		[Test]
@@ -156,7 +156,7 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(type.Name, Is.EqualTo("Unique"));
 		}
 
-		public static IProject CreateProject()
+		public static Project CreateProject()
 		{
 			return new CecilProject(new[] {typeof(CecilProjectTest).Assembly.Location});
 		}

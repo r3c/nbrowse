@@ -8,71 +8,71 @@ namespace NBrowse.Selection
 	{
 		public static int CacheSize { get; set; } = 32768;
 
-		private static readonly Cache<(IMethod, IMethod), bool> MethodToMethod = new Cache<(IMethod, IMethod), bool>();
-		private static readonly Cache<(IMethod, IType), bool> MethodToType = new Cache<(IMethod, IType), bool>();
-		private static readonly Cache<(IType, IMethod), bool> TypeToMethod = new Cache<(IType, IMethod), bool>();
-		private static readonly Cache<(IType, IType), bool> TypeToType = new Cache<(IType, IType), bool>();
+		private static readonly Cache<(Method, Method), bool> MethodToMethod = new Cache<(Method, Method), bool>();
+		private static readonly Cache<(Method, Type), bool> MethodToType = new Cache<(Method, Type), bool>();
+		private static readonly Cache<(Type, Method), bool> TypeToMethod = new Cache<(Type, Method), bool>();
+		private static readonly Cache<(Type, Type), bool> TypeToType = new Cache<(Type, Type), bool>();
 
-		public static bool IsUsing(this IMethod source, IMethod target, bool includeIndirectUsage = false)
+		public static bool IsUsing(this Method source, Method target, bool includeIndirectUsage = false)
 		{
 			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
-		public static bool IsUsing(this IMethod source, IType target, bool includeIndirectUsage = false)
+		public static bool IsUsing(this Method source, Type target, bool includeIndirectUsage = false)
 		{
 			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
-		public static bool IsUsing(this IType source, IMethod target, bool includeIndirectUsage = false)
+		public static bool IsUsing(this Type source, Method target, bool includeIndirectUsage = false)
 		{
 			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
-		public static bool IsUsing(this IType source, IType target, bool includeIndirectUsage = false)
+		public static bool IsUsing(this Type source, Type target, bool includeIndirectUsage = false)
 		{
 			return Usage.IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
 		}
 
-		private static bool IsReferencing(IArgument source, IType target, State state)
+		private static bool IsReferencing(Argument source, Type target, State state)
 		{
 			return Usage.IsUsing(source.Type, target, state);
 		}
 
-		private static bool IsReferencing(IAttribute source, IMethod target, State state)
+		private static bool IsReferencing(Reflection.Attribute source, Method target, State state)
 		{
 			return
 				Usage.IsUsing(source.Constructor, target, state) ||
 				Usage.IsUsing(source.Type, target, state);
 		}
 
-		private static bool IsReferencing(IAttribute source, IType target, State state)
+		private static bool IsReferencing(Reflection.Attribute source, Type target, State state)
 		{
 			return
 				Usage.IsUsing(source.Constructor, target, state) ||
 				Usage.IsUsing(source.Type, target, state);
 		}
 
-		private static bool IsReferencing(IField source, IType target, State state)
+		private static bool IsReferencing(Field source, Type target, State state)
 		{
 			return Usage.IsUsing(source.Type, target, state);
 		}
 
-		private static bool IsReferencing(IImplementation source, IMethod target, State state)
+		private static bool IsReferencing(Implementation source, Method target, State state)
 		{
 			return source.ReferencedMethods.Any(method => Usage.IsUsing(method, target, state));
 		}
 
-		private static bool IsReferencing(IImplementation source, IType target, State state)
+		private static bool IsReferencing(Implementation source, Type target, State state)
 		{
 			return source.ReferencedTypes.Any(type => Usage.IsUsing(type, target, state));
 		}
 
-		private static bool IsReferencing(IParameter source, IType target, State state)
+		private static bool IsReferencing(Parameter source, Type target, State state)
 		{
 			return source.Constraints.Any(constraint => Usage.IsUsing(constraint, target, state));
 		}
 
-		private static bool IsUsing(IMethod source, IMethod target, State state)
+		private static bool IsUsing(Method source, Method target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -95,7 +95,7 @@ namespace NBrowse.Selection
 			return usage;
 		}
 
-		private static bool IsUsing(IMethod source, IType target, State state)
+		private static bool IsUsing(Method source, Type target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -120,7 +120,7 @@ namespace NBrowse.Selection
 			return usage;
 		}
 
-		private static bool IsUsing(IType source, IMethod target, State state)
+		private static bool IsUsing(Type source, Method target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -135,7 +135,7 @@ namespace NBrowse.Selection
 			return usage;
 		}
 
-		private static bool IsUsing(IType source, IType target, State state)
+		private static bool IsUsing(Type source, Type target, State state)
 		{
 			if (!state.ContinueWith(source))
 				return false;
@@ -221,20 +221,20 @@ namespace NBrowse.Selection
 		private class State
 		{
 			private int depth;
-			private readonly ISet<IMethod> methods = new HashSet<IMethod>();
-			private readonly ISet<IType> types = new HashSet<IType>();
+			private readonly ISet<Method> methods = new HashSet<Method>();
+			private readonly ISet<Type> types = new HashSet<Type>();
 
 			public State(int depth)
 			{
 				this.depth = depth;
 			}
 
-			public bool ContinueWith(IMethod method)
+			public bool ContinueWith(Method method)
 			{
 				return this.methods.Add(method);
 			}
 
-			public bool ContinueWith(IType type)
+			public bool ContinueWith(Type type)
 			{
 				return this.types.Add(type);
 			}

@@ -17,11 +17,11 @@ namespace NBrowse.CLI
 			writer.WriteLine("Entities available in queries are:");
 			writer.WriteLine();
 
-			var entities = new Queue<Type>();
+			var entities = new Queue<System.Type>();
 
-			entities.Enqueue(typeof(IProject));
+			entities.Enqueue(typeof(Project));
 
-			var uniques = new HashSet<Type>(entities);
+			var uniques = new HashSet<System.Type>(entities);
 
 			while (entities.Count > 0)
 			{
@@ -61,7 +61,7 @@ namespace NBrowse.CLI
 			}
 		}
 
-		private static Type GetFirstNonGenericType(Type type)
+		private static System.Type GetFirstNonGenericType(System.Type type)
 		{
 			while (type.IsGenericType)
 				type = type.GetGenericArguments()[0];
@@ -69,7 +69,7 @@ namespace NBrowse.CLI
 			return type;
 		}
 
-		private static string GetTypeName(Type type)
+		private static string GetTypeName(System.Type type)
 		{
 			if (!type.IsGenericType)
 				return type.Name;

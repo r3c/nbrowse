@@ -39,12 +39,12 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(caller.ImplementationOrNull.ReferencedTypes, expected ? Does.Contain(type) : Does.Not.Contain(type));
 		}
 
-		private static IMethod GetMethod(string name)
+		private static Method GetMethod(string name)
 		{
 			return CecilProjectTest.CreateProject().FindMethod(name);
 		}
 
-		private static IType GetType(string name)
+		private static NBrowse.Reflection.Type GetType(string name)
 		{
 			return CecilProjectTest.CreateProject().FindType($"{nameof(CecilImplementationTest)}+{name}");
 		}

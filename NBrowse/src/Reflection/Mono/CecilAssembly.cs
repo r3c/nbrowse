@@ -5,21 +5,21 @@ using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
 {
-	internal class CecilAssembly : IAssembly
+	internal class CecilAssembly : Assembly
 	{
-		public IEnumerable<IAttribute> Attributes =>
+		public override IEnumerable<Attribute> Attributes =>
 			this.assembly?.CustomAttributes?.Select(attribute => new CecilAttribute(attribute, this)) ??
-			Enumerable.Empty<IAttribute>();
+			Enumerable.Empty<Attribute>();
 
-		public string Culture => this.name.Culture;
+		public override string Culture => this.name.Culture;
 
-		public string FileName => this.assembly?.MainModule?.FileName;
+		public override string FileName => this.assembly?.MainModule?.FileName;
 
-		public string Identifier => this.name.FullName;
+		public override string Identifier => this.name.FullName;
 
-		public string Name => this.name.Name;
+		public override string Name => this.name.Name;
 
-		public IEnumerable<IAssembly> References =>
+		public override IEnumerable<Assembly> References =>
 			this.assembly?.MainModule?.AssemblyReferences?.Select(referenceName =>
 			{
 				var reference = this.project.FilterAssemblies(new[] {referenceName.Name}).FirstOrDefault();
@@ -29,19 +29,19 @@ namespace NBrowse.Reflection.Mono
 
 				return new CecilAssembly(referenceName, this.project);
 			}) ??
-			Enumerable.Empty<IAssembly>();
+			Enumerable.Empty<Assembly>();
 
-		public Version Version => this.name.Version;
+		public override Version Version => this.name.Version;
 
-		public IEnumerable<IType> Types =>
+		public override IEnumerable<Type> Types =>
 			this.assembly?.MainModule?.GetTypes()?.Select(type => new CecilType(type, this)) ??
 			Array.Empty<CecilType>();
 
 		private readonly AssemblyDefinition assembly;
-		private readonly IProject project;
+		private readonly Project project;
 		private readonly AssemblyNameReference name;
 
-		public CecilAssembly(AssemblyDefinition assembly, IProject project)
+		public CecilAssembly(AssemblyDefinition assembly, Project project)
 		{
 			if (assembly?.MainModule == null)
 				throw new ArgumentNullException(nameof(assembly));
@@ -51,32 +51,17 @@ namespace NBrowse.Reflection.Mono
 			this.project = project;
 		}
 
-		private CecilAssembly(AssemblyNameReference name, IProject project)
+		private CecilAssembly(AssemblyNameReference name, Project project)
 		{
 			this.assembly = null;
 			this.name = name;
 			this.project = project;
 		}
 
-		public bool Equals(IAssembly other)
+		public override bool Equals(Assembly other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return other != null && this.Identifier == other.Identifier;
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is CecilAssembly other && this.Equals(other);
-		}
-
-		public override int GetHashCode()
-		{
-			return this.Identifier.GetHashCode();
-		}
-
-		public override string ToString()
-		{
-			return $"{{Assembly={this.Identifier}}}";
+			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
 		}
 	}
 }

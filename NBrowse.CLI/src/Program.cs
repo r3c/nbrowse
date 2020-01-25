@@ -62,7 +62,7 @@ namespace NBrowse.CLI
 			var query = command ? remainder[0] : File.ReadAllText(remainder[0]);
 
 			if (assemblies.Count == 0)
-				Console.Error.WriteLine($"warning: empty assemblies list passed as argument");
+				Console.Error.WriteLine("warning: empty assemblies list passed as argument");
 
 			Program.ExecuteQuery(assemblies, arguments, query, printer).Wait();
 		}
@@ -75,7 +75,7 @@ namespace NBrowse.CLI
 					return Printer.CreateJson(Console.Out);
 
 				case "plain":
-					Console.Error.WriteLine($"warning: obsolete format 'plain', please use 'pretty' instead");
+					Console.Error.WriteLine("warning: obsolete format 'plain', please use 'pretty' instead");
 
 					goto case "pretty";
 

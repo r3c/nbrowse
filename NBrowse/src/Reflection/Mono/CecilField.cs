@@ -3,19 +3,19 @@ using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
 {
-	internal class CecilField : IField
+	internal class CecilField : Field
 	{
-		public Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
+		public override Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
 
-		public string Identifier => $"{this.Parent.Identifier}.{this.Name}";
+		public override string Identifier => $"{this.Parent.Identifier}.{this.Name}";
 
-		public string Name => this.field.Name;
+		public override string Name => this.field.Name;
 
-		public IType Parent => new CecilType(this.field.DeclaringType, this.parent);
+		public override Type Parent => new CecilType(this.field.DeclaringType, this.parent);
 
-		public IType Type => new CecilType(this.field.FieldType, this.parent);
+		public override Type Type => new CecilType(this.field.FieldType, this.parent);
 
-		public Visibility Visibility => this.field.IsPublic
+		public override Visibility Visibility => this.field.IsPublic
 			? Visibility.Public
 			: (this.field.IsPrivate
 				? Visibility.Private
@@ -24,33 +24,18 @@ namespace NBrowse.Reflection.Mono
 					: Visibility.Internal));
 
 		private readonly FieldDefinition field;
-		private readonly IAssembly parent;
+		private readonly Assembly parent;
 
-		public CecilField(FieldDefinition field, IAssembly parent)
+		public CecilField(FieldDefinition field, Assembly parent)
 		{
 			this.field = field ?? throw new ArgumentNullException(nameof(field));
 			this.parent = parent;
 		}
 
-		public bool Equals(IField other)
+		public override bool Equals(Field other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return other != null && this.Identifier == other.Identifier;
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is CecilField other && this.Equals(other);
-		}
-
-		public override int GetHashCode()
-		{
-			return this.Identifier.GetHashCode();
-		}
-
-		public override string ToString()
-		{
-			return $"{{Field={this.Identifier}}}";
+			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
 		}
 	}
 }

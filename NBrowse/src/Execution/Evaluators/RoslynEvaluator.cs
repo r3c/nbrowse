@@ -34,7 +34,7 @@ namespace NBrowse.Execution.Evaluators
 				.WithReferences(references);
 		}
 
-		public async Task<TResult> Evaluate<TResult>(IProject project, IReadOnlyList<string> arguments, string expression)
+		public async Task<TResult> Evaluate<TResult>(Project project, IReadOnlyList<string> arguments, string expression)
 		{
 			var match = RoslynEvaluator.LambdaStyle.Match(expression);
 
@@ -43,7 +43,7 @@ namespace NBrowse.Execution.Evaluators
 				: $"(project, arguments) => {expression}";
 
 			var selector =
-				await CSharpScript.EvaluateAsync<Func<IProject, IReadOnlyList<string>, TResult>>(statement,
+				await CSharpScript.EvaluateAsync<Func<Project, IReadOnlyList<string>, TResult>>(statement,
 					this.options);
 
 			return selector(project, arguments);

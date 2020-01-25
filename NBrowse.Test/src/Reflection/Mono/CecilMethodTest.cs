@@ -11,9 +11,9 @@ namespace NBrowse.Test.Reflection.Mono
 	public class CecilMethodTest
 	{
 		[Test]
-		[TestCase("CecilMethodArguments0", "")]
-		[TestCase("CecilMethodArguments1", "a")]
-		[TestCase("CecilMethodArguments2", "a,b")]
+		[TestCase(nameof(TestClass.CecilMethodArguments0), "")]
+		[TestCase(nameof(TestClass.CecilMethodArguments1), "a")]
+		[TestCase(nameof(TestClass.CecilMethodArguments2), "a,b")]
 		public void Arguments(string name, string expected)
 		{
 			var arguments = string.Join(",", CecilMethodTest.GetMethod(name).Arguments.Select(a => a.Name));
@@ -22,9 +22,9 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilMethodAttributes0", "")]
-		[TestCase("CecilMethodAttributes1", "ObsoleteAttribute")]
-		[TestCase("CecilMethodAttributes2", "MTAThreadAttribute,STAThreadAttribute")]
+		[TestCase(nameof(TestClass.CecilMethodAttributes0), "")]
+		[TestCase(nameof(TestClass.CecilMethodAttributes1), "DescriptionAttribute")]
+		[TestCase(nameof(TestClass.CecilMethodAttributes2), "MTAThreadAttribute,STAThreadAttribute")]
 		public void Attributes(string name, string expected)
 		{
 			var attributes = string.Join(",", CecilMethodTest.GetMethod(name).Attributes.Select(a => a.Type.Name));
@@ -33,35 +33,49 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilMethodTest+TestClass..ctor", NBrowse.Reflection.Binding.Constructor)]
-		[TestCase("CecilMethodBindingInstance", NBrowse.Reflection.Binding.Instance)]
-		[TestCase("CecilMethodBindingStatic", NBrowse.Reflection.Binding.Static)]
+		[TestCase(nameof(CecilMethodTest) + "+" + nameof(TestClass) + "..ctor", NBrowse.Reflection.Binding.Constructor)]
+		[TestCase(nameof(TestClass.CecilMethodBindingInstance), NBrowse.Reflection.Binding.Instance)]
+		[TestCase(nameof(TestClass.CecilMethodBindingStatic), NBrowse.Reflection.Binding.Static)]
 		public void Binding(string name, Binding expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Binding, Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase("CecilMethodDefinitionAbstract", NBrowse.Reflection.Definition.Abstract)]
-		[TestCase("CecilMethodDefinitionConcrete", NBrowse.Reflection.Definition.Concrete)]
-		[TestCase("CecilMethodTest+TestClass.GetHashCode", NBrowse.Reflection.Definition.Final)]
-		[TestCase("CecilMethodDefinitionVirtual", NBrowse.Reflection.Definition.Virtual)]
+		[TestCase(nameof(TestClass.CecilMethodDefinitionAbstract), NBrowse.Reflection.Definition.Abstract)]
+		[TestCase(nameof(TestClass.CecilMethodDefinitionConcrete), NBrowse.Reflection.Definition.Concrete)]
+		[TestCase(nameof(CecilMethodTest) + "+" + nameof(TestClass) + "." + nameof(TestClass.GetHashCode),
+			NBrowse.Reflection.Definition.Final)]
+		[TestCase(nameof(TestClass.CecilMethodDefinitionVirtual), NBrowse.Reflection.Definition.Virtual)]
 		public void Definition(string name, Definition expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Definition, Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase("CecilMethodName", "CecilMethodName")]
+		[TestCase(nameof(TestClass.CecilMethodArguments0), nameof(TestClass.CecilMethodArguments0), true)]
+		[TestCase(nameof(TestClass.CecilMethodArguments0), nameof(TestClass.CecilMethodArguments1), false)]
+		public void Equals(string name1, string name2, bool expected)
+		{
+			var method1 = CecilMethodTest.GetMethod(name1);
+			var method2 = CecilMethodTest.GetMethod(name2);
+
+			Assert.That(method1.Equals(method2), Is.EqualTo(expected));
+			Assert.That(method1 == method2, Is.EqualTo(expected));
+			Assert.That(method1 != method2, Is.EqualTo(!expected));
+		}
+
+		[Test]
+		[TestCase(nameof(TestClass.CecilMethodName), "CecilMethodName")]
 		public void Name(string name, string expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Name, Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase("CecilMethodParameters0", "")]
-		[TestCase("CecilMethodParameters1", "TParameter1")]
-		[TestCase("CecilMethodParameters2", "TParameter1,TParameter2")]
+		[TestCase(nameof(TestClass.CecilMethodParameters0), "")]
+		[TestCase(nameof(TestClass.CecilMethodParameters1), "TParameter1")]
+		[TestCase(nameof(TestClass.CecilMethodParameters2), "TParameter1,TParameter2")]
 		public void Parameters(string name, string expected)
 		{
 			var attributes = string.Join(",", CecilMethodTest.GetMethod(name).Parameters.Select(p => p.Name));
@@ -70,74 +84,74 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilMethodParent", "CecilMethodTest+TestClass")]
+		[TestCase(nameof(TestClass.CecilMethodParent), "CecilMethodTest+TestClass")]
 		public void Parent(string name, string expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Parent.Name, Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase("CecilMethodReturnTypeInt32", nameof(Int32))]
-		[TestCase("CecilMethodReturnTypeVoid", "Void")]
+		[TestCase(nameof(TestClass.CecilMethodReturnTypeInt32), nameof(Int32))]
+		[TestCase(nameof(TestClass.CecilMethodReturnTypeVoid), "Void")]
 		public void ReturnType(string name, string expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).ReturnType.Name, Is.EqualTo(expected));
 		}
 
 		[Test]
-		[TestCase("CecilMethodVisibilityInternal", NBrowse.Reflection.Visibility.Internal)]
+		[TestCase(nameof(TestClass.CecilMethodVisibilityInternal), NBrowse.Reflection.Visibility.Internal)]
 		[TestCase("CecilMethodVisibilityPrivate", NBrowse.Reflection.Visibility.Private)]
 		[TestCase("CecilMethodVisibilityProtected", NBrowse.Reflection.Visibility.Protected)]
-		[TestCase("CecilMethodVisibilityPublic", NBrowse.Reflection.Visibility.Public)]
+		[TestCase(nameof(TestClass.CecilMethodVisibilityPublic), NBrowse.Reflection.Visibility.Public)]
 		public void Visibility(string name, Visibility expected)
 		{
 			Assert.That(CecilMethodTest.GetMethod(name).Visibility, Is.EqualTo(expected));
 		}
 
-		private static IMethod GetMethod(string name)
+		private static Method GetMethod(string name)
 		{
 			return CecilProjectTest.CreateProject().FindMethod(name);
 		}
 
-		public abstract class TestClass
+		private abstract class TestClass
 		{
-			protected abstract void CecilMethodArguments0();
-			protected abstract void CecilMethodArguments1(int a);
-			protected abstract void CecilMethodArguments2(int a, int b);
+			public abstract void CecilMethodArguments0();
+			public abstract void CecilMethodArguments1(int a);
+			public abstract void CecilMethodArguments2(int a, int b);
 
-			protected abstract void CecilMethodAttributes0();
+			public abstract void CecilMethodAttributes0();
 
-			[Obsolete]
-			protected abstract void CecilMethodAttributes1();
+			[Description("attribute")]
+			public abstract void CecilMethodAttributes1();
 
 			[MTAThread]
 			[STAThread]
-			protected abstract void CecilMethodAttributes2();
+			public abstract void CecilMethodAttributes2();
 
-			protected abstract void CecilMethodBindingInstance();
+			public abstract void CecilMethodBindingInstance();
 
-			protected static void CecilMethodBindingStatic()
+			public static void CecilMethodBindingStatic()
 			{
 			}
 
-			protected abstract void CecilMethodDefinitionAbstract();
+			public abstract void CecilMethodDefinitionAbstract();
 
-			protected void CecilMethodDefinitionConcrete()
+			public void CecilMethodDefinitionConcrete()
 			{
 			}
 
-			protected virtual void CecilMethodDefinitionVirtual()
+			public virtual void CecilMethodDefinitionVirtual()
 			{
 			}
 
-			protected abstract void CecilMethodName();
+			public abstract void CecilMethodName();
 
-			protected abstract void CecilMethodParameters0();
-			protected abstract void CecilMethodParameters1<TParameter1>();
-			protected abstract void CecilMethodParameters2<TParameter1, TParameter2>();
-			protected abstract void CecilMethodParent();
-			protected abstract int CecilMethodReturnTypeInt32();
-			protected abstract void CecilMethodReturnTypeVoid();
+			public abstract void CecilMethodParameters0();
+			public abstract void CecilMethodParameters1<TParameter1>();
+			public abstract void CecilMethodParameters2<TParameter1, TParameter2>();
+			public abstract void CecilMethodParent();
+			public abstract int CecilMethodReturnTypeInt32();
+			public abstract void CecilMethodReturnTypeVoid();
 
 			internal abstract void CecilMethodVisibilityInternal();
 

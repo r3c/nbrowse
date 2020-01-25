@@ -7,9 +7,9 @@ using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
 {
-	internal class CecilProject : IDisposable, IProject
+	internal class CecilProject : Project, IDisposable
 	{
-		public IEnumerable<IAssembly> Assemblies => this.assemblies.Values;
+		public override IEnumerable<Assembly> Assemblies => this.assemblies.Values;
 
 		private readonly IReadOnlyDictionary<string, CecilAssembly> assemblies;
 		private readonly IReadOnlyList<IDisposable> resources;
@@ -40,7 +40,7 @@ namespace NBrowse.Reflection.Mono
 				resource.Dispose();
 		}
 
-		public IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> names)
+		public override IEnumerable<Assembly> FilterAssemblies(IEnumerable<string> names)
 		{
 			foreach (var name in names)
 			{
@@ -49,7 +49,7 @@ namespace NBrowse.Reflection.Mono
 			}
 		}
 
-		public IAssembly FindAssembly(string name)
+		public override Assembly FindAssembly(string name)
 		{
 			if (!this.assemblies.TryGetValue(name, out var assembly))
 				throw new ArgumentOutOfRangeException(nameof(name), name, "no matching assembly found");
@@ -57,13 +57,13 @@ namespace NBrowse.Reflection.Mono
 			return assembly;
 		}
 
-		public IMethod FindMethod(string search)
+		public override Method FindMethod(string search)
 		{
-			var byIdentifier = (IMethod) null;
+			var byIdentifier = (Method) null;
 			var byIdentifierFound = false;
-			var byName = (IMethod) null;
+			var byName = (Method) null;
 			var byNameFound = false;
-			var byParent = (IMethod) null;
+			var byParent = (Method) null;
 			var byParentFound = false;
 
 			foreach (var method in this.assemblies.Values.SelectMany(a => a.Types).SelectMany(t => t.Methods))
@@ -112,13 +112,13 @@ namespace NBrowse.Reflection.Mono
 			throw new ArgumentOutOfRangeException(nameof(search), search, "no matching method found");
 		}
 
-		public IType FindType(string search)
+		public override Type FindType(string search)
 		{
-			var byGeneric = (IType) null;
+			var byGeneric = (Type) null;
 			var byGenericFound = false;
-			var byIdentifier = (IType) null;
+			var byIdentifier = (Type) null;
 			var byIdentifierFound = false;
-			var byName = (IType) null;
+			var byName = (Type) null;
 			var byNameFound = false;
 
 			foreach (var type in this.assemblies.Values.SelectMany(a => a.Types))

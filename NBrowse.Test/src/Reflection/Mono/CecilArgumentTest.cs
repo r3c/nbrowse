@@ -11,9 +11,9 @@ namespace NBrowse.Test.Reflection.Mono
 	public class CecilArgumentTest
 	{
 		[Test]
-		[TestCase("CecilArgumentMethod", 0, null)]
-		[TestCase("CecilArgumentMethod", 1, 3)]
-		[TestCase("CecilArgumentMethod", 2, "hello")]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 0, null)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 1, 3)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 2, "hello")]
 		public void DefaultValue(string method, int index, object expected)
 		{
 			var argument = CecilArgumentTest.GetArgumentFrom(method, index);
@@ -22,9 +22,9 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilArgumentMethod", 0, false)]
-		[TestCase("CecilArgumentMethod", 1, true)]
-		[TestCase("CecilArgumentMethod", 2, true)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 0, false)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 1, true)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 2, true)]
 		public void HasDefaultValue(string method, int index, bool expected)
 		{
 			var argument = CecilArgumentTest.GetArgumentFrom(method, index);
@@ -33,9 +33,9 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilArgumentMethod", 0, "a")]
-		[TestCase("CecilArgumentMethod", 1, "b")]
-		[TestCase("CecilArgumentMethod", 2, "c")]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 0, "a")]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 1, "b")]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 2, "c")]
 		public void Name(string method, int index, string expected)
 		{
 			var argument = CecilArgumentTest.GetArgumentFrom(method, index);
@@ -44,9 +44,9 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilArgumentMethod", 0, NBrowse.Reflection.Modifier.Out)]
-		[TestCase("CecilArgumentMethod", 1, NBrowse.Reflection.Modifier.In)]
-		[TestCase("CecilArgumentMethod", 2, NBrowse.Reflection.Modifier.None)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 0, NBrowse.Reflection.Modifier.Out)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 1, NBrowse.Reflection.Modifier.In)]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 2, NBrowse.Reflection.Modifier.None)]
 		public void Modifier(string method, int index, Modifier expected)
 		{
 			var argument = CecilArgumentTest.GetArgumentFrom(method, index);
@@ -55,9 +55,9 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
-		[TestCase("CecilArgumentMethod", 0, "Boolean&")]
-		[TestCase("CecilArgumentMethod", 1, "Int32&")]
-		[TestCase("CecilArgumentMethod", 2, nameof(String))]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 0, "Boolean&")]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 1, "Int32&")]
+		[TestCase(nameof(TestClass.CecilArgumentMethod), 2, nameof(String))]
 		public void Type(string method, int index, string expected)
 		{
 			var argument = CecilArgumentTest.GetArgumentFrom(method, index);
@@ -65,14 +65,14 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(argument.Type.Name, Is.EqualTo(expected));
 		}
 
-		private static IArgument GetArgumentFrom(string method, int index)
+		private static Argument GetArgumentFrom(string method, int index)
 		{
 			return CecilProjectTest.CreateProject().FindMethod(method).Arguments.ToArray()[index];
 		}
 
-		public class TestClass
+		private static class TestClass
 		{
-			public void CecilArgumentMethod(out bool a, in int b = 3, string c = "hello")
+			public static void CecilArgumentMethod(out bool a, in int b = 3, string c = "hello")
 			{
 				a = default;
 			}

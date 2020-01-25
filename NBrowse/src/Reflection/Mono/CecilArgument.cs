@@ -3,49 +3,34 @@ using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
 {
-	internal class CecilArgument : IArgument
+	internal class CecilArgument : Argument
 	{
-		public object DefaultValue => this.argument.Constant;
+		public override object DefaultValue => this.argument.Constant;
 
-		public bool HasDefaultValue => this.argument.HasConstant;
+		public override bool HasDefaultValue => this.argument.HasConstant;
 
-		public string Identifier => $"{this.Type.Identifier} {this.Name}";
+		public override string Identifier => $"{this.Type.Identifier} {this.Name}";
 
-		public Modifier Modifier =>
+		public override Modifier Modifier =>
 			this.argument.IsIn ? Modifier.In : (this.argument.IsOut ? Modifier.Out : Modifier.None);
 
-		public string Name => this.argument.Name;
+		public override string Name => this.argument.Name;
 
-		public IType Type => new CecilType(this.argument.ParameterType, this.parent);
+		public override Type Type => new CecilType(this.argument.ParameterType, this.parent);
 
 		private readonly ParameterDefinition argument;
-		private readonly IAssembly parent;
+		private readonly Assembly parent;
 
-		public CecilArgument(ParameterDefinition argument, IAssembly parent)
+		public CecilArgument(ParameterDefinition argument, Assembly parent)
 		{
 			this.argument = argument ?? throw new ArgumentNullException(nameof(argument));
 			this.parent = parent;
 		}
 
-		public bool Equals(IArgument other)
+		public override bool Equals(Argument other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return other != null && this.Identifier == other.Identifier;
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is CecilArgument other && this.Equals(other);
-		}
-
-		public override int GetHashCode()
-		{
-			return this.Identifier.GetHashCode();
-		}
-
-		public override string ToString()
-		{
-			return $"{{Argument={this.Name}}}";
+			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
 		}
 	}
 }

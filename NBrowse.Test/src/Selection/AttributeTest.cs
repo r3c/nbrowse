@@ -49,12 +49,12 @@ namespace NBrowse.Test.Selection
 			Assert.That(type.IsGenerated(), Is.EqualTo(expected));
 		}
 
-		private static IMethod GetMethod(string name)
+		private static Method GetMethod(string name)
 		{
 			return CecilProjectTest.CreateProject().FindMethod(name);
 		}
 
-		private static IType GetType(string name)
+		private static NBrowse.Reflection.Type GetType(string name)
 		{
 			return CecilProjectTest.CreateProject().FindType(name);
 		}

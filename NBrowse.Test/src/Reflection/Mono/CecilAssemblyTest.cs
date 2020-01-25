@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Runtime.Versioning;
 using NBrowse.Reflection;
+using NBrowse.Reflection.Mono;
 using NUnit.Framework;
 
 namespace NBrowse.Test.Reflection.Mono
@@ -11,7 +12,7 @@ namespace NBrowse.Test.Reflection.Mono
 		public void Attributes()
 		{
 			Assert.That(CecilAssemblyTest.GetAssembly().Attributes,
-				Has.Some.Matches<IAttribute>(attribute =>
+				Has.Some.Matches<Attribute>(attribute =>
 					attribute.Type.Identifier == typeof(TargetFrameworkAttribute).FullName));
 		}
 
@@ -20,6 +21,19 @@ namespace NBrowse.Test.Reflection.Mono
 		{
 			Assert.That(CecilAssemblyTest.GetAssembly().Culture,
 				Is.EqualTo(typeof(CecilAssemblyTest).Assembly.GetName().CultureName));
+		}
+
+		[Test]
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Equals(bool same)
+		{
+			var assembly1 = CecilAssemblyTest.GetAssembly();
+			var assembly2 = same ? CecilAssemblyTest.GetAssembly() : CecilAssemblyTest.GetOtherAssembly();
+
+			Assert.That(assembly1.Equals(assembly2), Is.EqualTo(same));
+			Assert.That(assembly1 == assembly2, Is.EqualTo(same));
+			Assert.That(assembly1 != assembly2, Is.EqualTo(!same));
 		}
 
 		[Test]
@@ -49,7 +63,7 @@ namespace NBrowse.Test.Reflection.Mono
 		public void Types()
 		{
 			Assert.That(CecilAssemblyTest.GetAssembly().Types,
-				Has.Some.Matches<IType>(t => t.Identifier == typeof(CecilAssemblyTest).FullName));
+				Has.Some.Matches<Type>(t => t.Identifier == typeof(CecilAssemblyTest).FullName));
 		}
 
 		[Test]
@@ -60,9 +74,17 @@ namespace NBrowse.Test.Reflection.Mono
 			Assert.That(CecilAssemblyTest.GetAssembly().Version, Is.EqualTo(expected));
 		}
 
-		private static IAssembly GetAssembly()
+		private static Assembly GetAssembly()
 		{
 			return CecilProjectTest.CreateProject().FindAssembly(typeof(CecilAssemblyTest).Assembly.GetName().Name);
+		}
+
+		private static Assembly GetOtherAssembly()
+		{
+			var assembly = typeof(CecilProject).Assembly;
+			var project = new CecilProject(new[] {assembly.Location});
+
+			return project.FindAssembly(assembly.GetName().Name);
 		}
 	}
 }

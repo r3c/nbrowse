@@ -5,16 +5,16 @@ using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
 {
-	internal class CecilMethod : IMethod
+	internal class CecilMethod : Method
 	{
-		public IEnumerable<IArgument> Arguments =>
+		public override IEnumerable<Argument> Arguments =>
 			this.reference.Parameters.Select(argument => new CecilArgument(argument, this.parent));
 
-		public IEnumerable<IAttribute> Attributes =>
+		public override IEnumerable<Attribute> Attributes =>
 			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.parent)) ??
 			Array.Empty<CecilAttribute>();
 
-		public Binding Binding => this.definition == null
+		public override Binding Binding => this.definition == null
 			? Binding.Unknown
 			: (this.definition.IsConstructor
 				? Binding.Constructor
@@ -22,11 +22,11 @@ namespace NBrowse.Reflection.Mono
 					? Binding.Static
 					: Binding.Instance));
 
-		public IImplementation ImplementationOrNull => this.definition?.Body != null
+		public override Implementation ImplementationOrNull => this.definition?.Body != null
 			? new CecilImplementation(this.definition.Body, this.parent)
 			: null;
 
-		public Definition Definition => this.definition == null
+		public override Definition Definition => this.definition == null
 			? Definition.Unknown
 			: (this.definition.IsAbstract
 				? Definition.Abstract
@@ -36,19 +36,19 @@ namespace NBrowse.Reflection.Mono
 						? Definition.Virtual
 						: Definition.Concrete)));
 
-		public string Identifier =>
+		public override string Identifier =>
 			$"{this.Parent.Identifier}.{this.Name}({string.Join(", ", this.Arguments.Select(argument => argument.Identifier))})";
 
-		public string Name => this.reference.Name;
+		public override string Name => this.reference.Name;
 
-		public IEnumerable<IParameter> Parameters =>
+		public override IEnumerable<Parameter> Parameters =>
 			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.parent));
 
-		public IType Parent => new CecilType(this.reference.DeclaringType, this.parent);
+		public override Type Parent => new CecilType(this.reference.DeclaringType, this.parent);
 
-		public IType ReturnType => new CecilType(this.reference.ReturnType, this.parent);
+		public override Type ReturnType => new CecilType(this.reference.ReturnType, this.parent);
 
-		public Visibility Visibility => this.definition == null
+		public override Visibility Visibility => this.definition == null
 			? Visibility.Unknown
 			: (this.definition.IsPublic
 				? Visibility.Public
@@ -59,10 +59,10 @@ namespace NBrowse.Reflection.Mono
 						: Visibility.Internal)));
 
 		private readonly MethodDefinition definition;
-		private readonly IAssembly parent;
+		private readonly Assembly parent;
 		private readonly MethodReference reference;
 
-		public CecilMethod(MethodReference reference, IAssembly parent)
+		public CecilMethod(MethodReference reference, Assembly parent)
 		{
 			if (reference == null)
 				throw new ArgumentNullException(nameof(reference));
@@ -79,25 +79,10 @@ namespace NBrowse.Reflection.Mono
 			this.reference = reference;
 		}
 
-		public bool Equals(IMethod other)
+		public override bool Equals(Method other)
 		{
 			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return other != null && this.Identifier == other.Identifier;
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is CecilMethod other && this.Equals(other);
-		}
-
-		public override int GetHashCode()
-		{
-			return this.Identifier.GetHashCode();
-		}
-
-		public override string ToString()
-		{
-			return $"{{Method={this.Identifier}}}";
+			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
 		}
 	}
 }

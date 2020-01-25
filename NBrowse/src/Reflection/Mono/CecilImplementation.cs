@@ -4,22 +4,22 @@ using Mono.Cecil.Cil;
 
 namespace NBrowse.Reflection.Mono
 {
-	internal class CecilImplementation : IImplementation
+	internal class CecilImplementation : Implementation
 	{
-		public IEnumerable<IMethod> ReferencedMethods => this.GetReferencedMethods(this.body.Instructions);
+		public override IEnumerable<Method> ReferencedMethods => this.GetReferencedMethods(this.body.Instructions);
 
-		public IEnumerable<IType> ReferencedTypes => this.GetReferencedTypes(this.body.Instructions);
+		public override IEnumerable<Type> ReferencedTypes => this.GetReferencedTypes(this.body.Instructions);
 
 		private readonly MethodBody body;
-		private readonly IAssembly parent;
+		private readonly Assembly parent;
 
-		public CecilImplementation(MethodBody body, IAssembly parent)
+		public CecilImplementation(MethodBody body, Assembly parent)
 		{
 			this.body = body;
 			this.parent = parent;
 		}
 
-		private IEnumerable<IMethod> GetReferencedMethods(IEnumerable<Instruction> instructions)
+		private IEnumerable<Method> GetReferencedMethods(IEnumerable<Instruction> instructions)
 		{
 			foreach (var instruction in instructions)
 			{
@@ -32,7 +32,7 @@ namespace NBrowse.Reflection.Mono
 			}
 		}
 
-		private IEnumerable<IType> GetReferencedTypes(IEnumerable<Instruction> instructions)
+		private IEnumerable<Type> GetReferencedTypes(IEnumerable<Instruction> instructions)
 		{
 			foreach (var instruction in instructions)
 			{

@@ -4,22 +4,22 @@ using Newtonsoft.Json;
 
 namespace NBrowse.Reflection
 {
-	public interface IProject
+	public abstract class Project
 	{
 		[Description("Loaded assemblies")]
 		[JsonIgnore]
-		IEnumerable<IAssembly> Assemblies { get; }
+		public abstract IEnumerable<Assembly> Assemblies { get; }
 
 		[Description("Find multiple assemblies by name")]
-		IEnumerable<IAssembly> FilterAssemblies(IEnumerable<string> name);
+		public abstract IEnumerable<Assembly> FilterAssemblies(IEnumerable<string> name);
 
 		[Description("Find assembly by name")]
-		IAssembly FindAssembly(string name);
+		public abstract Assembly FindAssembly(string name);
 
 		[Description("Find method by name")]
-		IMethod FindMethod(string search);
+		public abstract Method FindMethod(string search);
 
 		[Description("Find type by name")]
-		IType FindType(string search);
+		public abstract Type FindType(string search);
 	}
 }
