@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Moq;
 using NBrowse.Execution;
 using NUnit.Framework;
@@ -10,22 +11,30 @@ namespace NBrowse.Test
 	public class QueryHelperTest
 	{
 		[Test]
-		[TestCase("", "arguments.Count", 0)]
-		[TestCase("a", "arguments[0]", "a")]
-		[TestCase("a,b", "arguments[1]", "b")]
-		public async Task LoadAndEvaluate_Arguments<T>(string arguments, string query, T expected)
+		[TestCase("x", "(project, arguments) => x")]
+		[TestCase("a => x", "(a, arguments) => x")]
+		[TestCase("(a) => x", "(a, arguments) => x")]
+		[TestCase("(a, b) => x", "(a, b) => x")]
+		public void NormalizeQuery(string query, string expected)
+		{
+			Assert.That(QueryHelper.NormalizeQuery(query), Is.EqualTo(expected));
+		}
+
+		[Test]
+		[TestCase("", "(_, arguments) => arguments.Count", 0)]
+		[TestCase("a", "(_, arguments) => arguments[0]", "a")]
+		[TestCase("a,b", "(_, arguments) => arguments[1]", "b")]
+		public async Task QueryAndPrint_Arguments<T>(string arguments, string query, T expected)
 		{
 			await QueryHelperTest.QueryAndAssert(arguments.Split(',', StringSplitOptions.RemoveEmptyEntries), query,
 				expected);
 		}
 
 		[Test]
-		[TestCase("42", 42)]
-		[TestCase("\"Hello, World!\"", "Hello, World!")]
-		[TestCase("false", false)]
-		[TestCase("(project) => 17", 17)]
-		[TestCase("project => 17", 17)]
-		public async Task LoadAndEvaluate_Constant<T>(string query, T expected)
+		[TestCase("(p, a) => 42", 42)]
+		[TestCase("(p, a) => \"Hello, World!\"", "Hello, World!")]
+		[TestCase("(p, a) => false", false)]
+		public async Task QueryAndPrint_Constant<T>(string query, T expected)
 		{
 			await QueryHelperTest.QueryAndAssert(Array.Empty<string>(), query, expected);
 		}

@@ -92,7 +92,7 @@ namespace NBrowse.CLI
 		{
 			try
 			{
-				await QueryHelper.QueryAndPrint(assemblies, arguments, query, printer);
+				await QueryHelper.QueryAndPrint(assemblies, arguments, QueryHelper.NormalizeQuery(query), printer);
 			}
 			catch (CompilationErrorException exception)
 			{
@@ -129,8 +129,8 @@ namespace NBrowse.CLI
 		{
 			writer.WriteLine(".NET assembly query utility");
 			writer.WriteLine();
-			writer.WriteLine("Usage: NBrowse [options] PathOrQuery AssemblyOrDirectory [AssemblyOrDirectory...]");
-			writer.WriteLine("Example: NBrowse -c \"project => project.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
+			writer.WriteLine("Usage: NBrowse [options] PathOrQuery AssemblyOrDirectory1 [AssemblyOrDirectory2...]");
+			writer.WriteLine("Example: NBrowse -c \"p => p.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
 			writer.WriteLine();
 
 			options.WriteOptionDescriptions(writer);
