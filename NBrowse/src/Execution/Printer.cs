@@ -5,6 +5,11 @@ namespace NBrowse.Execution
 {
 	public static class Printer
 	{
+		public static IPrinter CreateCsv(TextWriter output)
+		{
+			return new CsvPrinter(output);
+		}
+
 		public static IPrinter CreateJson(TextWriter output)
 		{
 			return new JsonPrinter(output);

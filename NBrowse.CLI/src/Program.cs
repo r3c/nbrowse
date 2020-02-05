@@ -23,7 +23,10 @@ namespace NBrowse.CLI
 			{
 				{"a|argument=", "append string to `arguments` variable", a => arguments.Add(a)},
 				{"c|command", "assume first argument is a query, not a file path", s => command = s != null},
-				{"f|format=", "change output format (value: json, pretty)", f => printer = Program.CreatePrinter(f)},
+				{
+					"f|format=", "change output format (value: csv, json, pretty)",
+					f => printer = Program.CreatePrinter(f)
+				},
 				{"h|help", "show this message and user manual", h => displayHelp = true},
 				{"i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i)}
 			};
@@ -71,6 +74,9 @@ namespace NBrowse.CLI
 		{
 			switch (format)
 			{
+				case "csv":
+					return Printer.CreateCsv(Console.Out);
+
 				case "json":
 					return Printer.CreateJson(Console.Out);
 
