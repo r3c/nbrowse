@@ -55,21 +55,48 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
+		public void FindMethod_ByFullName_Conflict()
+		{
+			var project = CecilProjectTest.CreateProject();
+
+			Assert.Throws<AmbiguousMatchException>(() =>
+				project.FindMethod("NBrowse.Test.Namespace1.Conflict.ConflictOnArguments"));
+		}
+
+		[Test]
+		public void FindMethod_ByFullName_Missing()
+		{
+			var project = CecilProjectTest.CreateProject();
+
+			Assert.Throws<ArgumentOutOfRangeException>(() =>
+				project.FindMethod("NBrowse.Test.Namespace1.Conflict.Missing"));
+		}
+
+		[Test]
+		public void FindMethod_ByFullName_Unique()
+		{
+			var project = CecilProjectTest.CreateProject();
+			var method = project.FindMethod("NBrowse.Test.Namespace2.Conflict.NoConflict");
+
+			Assert.That(method.Name, Is.EqualTo("NoConflict"));
+		}
+
+		[Test]
 		public void FindMethod_ByIdentifier_Missing()
 		{
 			var project = CecilProjectTest.CreateProject();
 
 			Assert.Throws<ArgumentOutOfRangeException>(() =>
-				project.FindMethod("NBrowse.Test.Namespace1.Conflict.NoConflict()"));
+				project.FindMethod("NBrowse.Test.Namespace1.Conflict.ConflictOnArguments(bool)"));
 		}
 
 		[Test]
 		public void FindMethod_ByIdentifier_Unique()
 		{
 			var project = CecilProjectTest.CreateProject();
-			var method = project.FindMethod("NBrowse.Test.Namespace2.Conflict.NoConflict()");
+			var method = project.FindMethod("NBrowse.Test.Namespace1.Conflict.ConflictOnArguments()");
 
-			Assert.That(method.Name, Is.EqualTo("NoConflict"));
+			Assert.That(method.Name, Is.EqualTo("ConflictOnArguments"));
 		}
 
 		[Test]
@@ -167,6 +194,10 @@ namespace NBrowse.Test.Namespace1
 {
 	public abstract class Conflict
 	{
+		public abstract void ConflictOnArguments(int a);
+
+		public abstract void ConflictOnArguments();
+
 		public abstract void ConflictOnName();
 	}
 

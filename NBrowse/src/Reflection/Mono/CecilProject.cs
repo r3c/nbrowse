@@ -59,6 +59,8 @@ namespace NBrowse.Reflection.Mono
 
 		public override Method FindMethod(string search)
 		{
+			var byFullName = (Method) null;
+			var byFullNameFound = false;
 			var byIdentifier = (Method) null;
 			var byIdentifierFound = false;
 			var byName = (Method) null;
@@ -73,15 +75,20 @@ namespace NBrowse.Reflection.Mono
 					byIdentifier = byIdentifierFound ? null : method;
 					byIdentifierFound = true;
 				}
-				else if (method.Name == search)
+				else if ($"{method.Parent.Identifier}.{method.Name}" == search)
 				{
-					byName = byNameFound ? null : method;
-					byNameFound = true;
+					byFullName = byFullNameFound ? null : method;
+					byFullNameFound = true;
 				}
 				else if ($"{method.Parent.Name}.{method.Name}" == search)
 				{
 					byParent = byParentFound ? null : method;
 					byParentFound = true;
+				}
+				else if (method.Name == search)
+				{
+					byName = byNameFound ? null : method;
+					byNameFound = true;
 				}
 			}
 
@@ -91,6 +98,14 @@ namespace NBrowse.Reflection.Mono
 					return byIdentifier;
 
 				throw new AmbiguousMatchException($"more than one method match identifier '{search}'");
+			}
+
+			if (byFullNameFound)
+			{
+				if (byFullName != null)
+					return byFullName;
+
+				throw new AmbiguousMatchException($"more than one method match full name '{search}'");
 			}
 
 			if (byParentFound)
