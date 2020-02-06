@@ -98,7 +98,7 @@ namespace NBrowse.CLI
 		{
 			try
 			{
-				await QueryHelper.QueryAndPrint(assemblies, arguments, QueryHelper.NormalizeQuery(query), printer);
+				await Engine.QueryAndPrint(assemblies, arguments, Engine.NormalizeQuery(query), printer);
 			}
 			catch (CompilationErrorException exception)
 			{

@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Moq;
 using NBrowse.Execution;
 using NUnit.Framework;
 
 namespace NBrowse.Test
 {
-	public class QueryHelperTest
+	public class EngineTest
 	{
 		[Test]
 		[TestCase("x", "(project, arguments) => x")]
@@ -17,7 +16,7 @@ namespace NBrowse.Test
 		[TestCase("(a, b) => x", "(a, b) => x")]
 		public void NormalizeQuery(string query, string expected)
 		{
-			Assert.That(QueryHelper.NormalizeQuery(query), Is.EqualTo(expected));
+			Assert.That(Engine.NormalizeQuery(query), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -26,7 +25,7 @@ namespace NBrowse.Test
 		[TestCase("a,b", "(_, arguments) => arguments[1]", "b")]
 		public async Task QueryAndPrint_Arguments<T>(string arguments, string query, T expected)
 		{
-			await QueryHelperTest.QueryAndAssert(arguments.Split(',', StringSplitOptions.RemoveEmptyEntries), query,
+			await EngineTest.QueryAndAssert(arguments.Split(',', StringSplitOptions.RemoveEmptyEntries), query,
 				expected);
 		}
 
@@ -36,14 +35,14 @@ namespace NBrowse.Test
 		[TestCase("(p, a) => false", false)]
 		public async Task QueryAndPrint_Constant<T>(string query, T expected)
 		{
-			await QueryHelperTest.QueryAndAssert(Array.Empty<string>(), query, expected);
+			await EngineTest.QueryAndAssert(Array.Empty<string>(), query, expected);
 		}
 
 		private static async Task QueryAndAssert<T>(IReadOnlyList<string> arguments, string query, T expected)
 		{
 			var printer = new Mock<IPrinter>();
 
-			await QueryHelper.QueryAndPrint(new[] {typeof(QueryHelperTest).Assembly.Location}, arguments, query,
+			await Engine.QueryAndPrint(new[] {typeof(EngineTest).Assembly.Location}, arguments, query,
 				printer.Object);
 
 			printer.Verify(p => p.Print<object>(expected));
