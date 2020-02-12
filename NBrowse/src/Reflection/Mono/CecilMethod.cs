@@ -69,9 +69,19 @@ namespace NBrowse.Reflection.Mono
 
 			if (!(reference is MethodDefinition definition))
 			{
-				definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
-					? reference.Resolve()
-					: null;
+				try
+				{
+					definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
+						? reference.Resolve()
+						: null;
+				}
+				// FIXME: Mono.Cecil throws an exception when trying to resolve a
+				// non-loaded assembly and I don't know how I can safely avoid that
+				// without catching the exception.
+				catch (AssemblyResolutionException)
+				{
+					definition = null;
+				}
 			}
 
 			this.definition = definition;
