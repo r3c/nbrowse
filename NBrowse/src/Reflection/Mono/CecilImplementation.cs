@@ -6,6 +6,8 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilImplementation : Implementation
 	{
+		public override Method Parent => new CecilMethod(this.body.Method, this.parent);
+
 		public override IEnumerable<Method> ReferencedMethods => this.GetReferencedMethods(this.body.Instructions);
 
 		public override IEnumerable<Type> ReferencedTypes => this.GetReferencedTypes(this.body.Instructions);

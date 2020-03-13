@@ -6,6 +6,10 @@ namespace NBrowse.Reflection
 {
 	public abstract class Implementation
 	{
+		[Description("Implementation parent method")]
+		[JsonIgnore]
+		public abstract Method Parent { get; }
+
 		[Description("Methods referenced in code")]
 		[JsonIgnore]
 		public abstract IEnumerable<Method> ReferencedMethods { get; }

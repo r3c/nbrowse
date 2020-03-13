@@ -9,6 +9,15 @@ namespace NBrowse.Test.Reflection.Mono
 	public class CecilImplementationTest
 	{
 		[Test]
+		public void Parent()
+		{
+			var caller = CecilImplementationTest.GetMethod("CecilImplementationParent");
+
+			Assert.That(caller.ImplementationOrNull, Is.Not.Null);
+			Assert.That(caller.ImplementationOrNull.Parent, Is.EqualTo(caller));
+		}
+
+		[Test]
 		[TestCase("CecilImplementationReferencedMethodsInvoke", true)]
 		[TestCase("CecilImplementationReferencedMethodsNothing", false)]
 		[TestCase("CecilImplementationReferencedMethodsValue", true)]
@@ -102,6 +111,7 @@ namespace NBrowse.Test.Reflection.Mono
 				Console.WriteLine(action);
 			}
 
+			protected abstract void CecilImplementationParent();
 			protected abstract void CecilImplementationReferencedMethodsInvoke();
 			protected abstract void CecilImplementationReferencedMethodsNothing();
 			protected abstract void CecilImplementationReferencedMethodsValue();
