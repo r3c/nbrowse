@@ -111,7 +111,10 @@ namespace NBrowse.Test.Reflection.Mono
 				Console.WriteLine(action);
 			}
 
-			protected abstract void CecilImplementationParent();
+			protected void CecilImplementationParent()
+			{
+			}
+
 			protected abstract void CecilImplementationReferencedMethodsInvoke();
 			protected abstract void CecilImplementationReferencedMethodsNothing();
 			protected abstract void CecilImplementationReferencedMethodsValue();
