@@ -30,9 +30,9 @@ namespace NBrowse.Reflection
 		[JsonConverter(typeof(StringEnumConverter))]
 		public abstract Binding Binding { get; }
 
-		[Description("Method body if available, null otherwise")]
+		[Description("Method implementation information")]
 		[JsonIgnore]
-		public abstract Implementation ImplementationOrNull { get; }
+		public abstract Implementation Implementation { get; }
 
 		[Description("Method definition")]
 		[JsonConverter(typeof(StringEnumConverter))]

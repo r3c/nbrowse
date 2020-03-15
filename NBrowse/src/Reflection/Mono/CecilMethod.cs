@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using NBrowse.Reflection.Empty;
 
 namespace NBrowse.Reflection.Mono
 {
@@ -22,9 +23,9 @@ namespace NBrowse.Reflection.Mono
 					? Binding.Static
 					: Binding.Instance));
 
-		public override Implementation ImplementationOrNull => this.definition?.Body != null
-			? new CecilImplementation(this.definition.Body, this.project)
-			: null;
+		public override Implementation Implementation => this.definition?.Body != null
+			? new CecilImplementation(this, this.definition.Body, this.project)
+			: new EmptyImplementation(this) as Implementation;
 
 		public override Definition Definition => this.definition == null
 			? Definition.Unknown

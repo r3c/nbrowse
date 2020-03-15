@@ -32,7 +32,7 @@ namespace NBrowse.Test.Selection
 				var indirectImplementation = new Mock<Implementation>();
 
 				indirectImplementation.Setup(i => i.ReferencedMethods).Returns(new[] {target.Object});
-				indirect.Setup(i => i.ImplementationOrNull).Returns(indirectImplementation.Object);
+				indirect.Setup(i => i.Implementation).Returns(indirectImplementation.Object);
 
 				resolve = indirect.Object;
 			}
@@ -42,7 +42,7 @@ namespace NBrowse.Test.Selection
 			var implementation = new Mock<Implementation>();
 
 			implementation.Setup(b => b.ReferencedMethods).Returns(new[] {resolve});
-			source.Setup(t => t.ImplementationOrNull).Returns(matchImplementation ? implementation.Object : null);
+			source.Setup(t => t.Implementation).Returns(matchImplementation ? implementation.Object : null);
 
 			Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
 		}
@@ -113,7 +113,7 @@ namespace NBrowse.Test.Selection
 			var implementation = new Mock<Implementation>();
 
 			implementation.Setup(b => b.ReferencedTypes).Returns(new[] {resolve});
-			source.Setup(t => t.ImplementationOrNull).Returns(matchImplementation ? implementation.Object : null);
+			source.Setup(t => t.Implementation).Returns(matchImplementation ? implementation.Object : null);
 			source.Setup(t => t.ReturnType).Returns(matchReturnType ? resolve : Mock.Of<NBrowse.Reflection.Type>());
 
 			Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
@@ -141,7 +141,7 @@ namespace NBrowse.Test.Selection
 				var indirectImplementation = new Mock<Implementation>();
 
 				indirectImplementation.Setup(b => b.ReferencedMethods).Returns(new[] {target.Object});
-				indirect.Setup(t => t.ImplementationOrNull).Returns(indirectImplementation.Object);
+				indirect.Setup(t => t.Implementation).Returns(indirectImplementation.Object);
 
 				resolve = indirect.Object;
 			}

@@ -13,8 +13,8 @@ namespace NBrowse.Test.Reflection.Mono
 		{
 			var caller = CecilImplementationTest.GetMethod("CecilImplementationParent");
 
-			Assert.That(caller.ImplementationOrNull, Is.Not.Null);
-			Assert.That(caller.ImplementationOrNull.Parent, Is.EqualTo(caller));
+			Assert.That(caller.Implementation, Is.Not.Null);
+			Assert.That(caller.Implementation.Parent, Is.EqualTo(caller));
 		}
 
 		[Test]
@@ -26,8 +26,8 @@ namespace NBrowse.Test.Reflection.Mono
 			var caller = CecilImplementationTest.GetMethod("CecilImplementationReferencedMethods");
 			var callee = CecilImplementationTest.GetMethod(name);
 
-			Assert.That(caller.ImplementationOrNull, Is.Not.Null);
-			Assert.That(caller.ImplementationOrNull.ReferencedMethods,
+			Assert.That(caller.Implementation, Is.Not.Null);
+			Assert.That(caller.Implementation.ReferencedMethods,
 				expected ? Does.Contain(callee) : Does.Not.Contain(callee));
 		}
 
@@ -44,8 +44,8 @@ namespace NBrowse.Test.Reflection.Mono
 			var caller = CecilImplementationTest.GetMethod("CecilImplementationReferencedTypes");
 			var type = CecilImplementationTest.GetType(name);
 
-			Assert.That(caller.ImplementationOrNull, Is.Not.Null);
-			Assert.That(caller.ImplementationOrNull.ReferencedTypes, expected ? Does.Contain(type) : Does.Not.Contain(type));
+			Assert.That(caller.Implementation, Is.Not.Null);
+			Assert.That(caller.Implementation.ReferencedTypes, expected ? Does.Contain(type) : Does.Not.Contain(type));
 		}
 
 		private static Method GetMethod(string name)

@@ -7,9 +7,6 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilAssembly : Assembly
 	{
-		public static readonly CecilAssembly Empty =
-			new CecilAssembly(new AssemblyNameReference("<unresolved>", new Version()));
-
 		public override IEnumerable<Attribute> Attributes => this.assembly != null
 			? this.assembly.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project))
 			: Enumerable.Empty<Attribute>();

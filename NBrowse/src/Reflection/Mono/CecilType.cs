@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using NBrowse.Reflection.Empty;
 
 namespace NBrowse.Reflection.Mono
 {
@@ -75,7 +76,7 @@ namespace NBrowse.Reflection.Mono
 
 		public override Assembly Parent => this.definition != null
 			? new CecilAssembly(this.definition.Module.Assembly, this.project)
-			: CecilAssembly.Empty;
+			: EmptyAssembly.Instance;
 
 		public override Visibility Visibility => this.definition == null
 			? Visibility.Unknown
