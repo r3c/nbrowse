@@ -80,14 +80,12 @@ namespace NBrowse.Selection
 			if (Usage.MethodToMethod.TryGet((source, target), out var usage))
 				return usage;
 
-			var implementation = source.Implementation;
-
 			usage =
 				source.Equals(target) ||
 				state.TryRecurse() &&
 				(
 					source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
-					Usage.IsReferencing(implementation, target, state)
+					Usage.IsReferencing(source.Implementation, target, state)
 				);
 
 			Usage.MethodToMethod.Set((source, target), usage);
@@ -103,8 +101,6 @@ namespace NBrowse.Selection
 			if (Usage.MethodToType.TryGet((source, target), out var usage))
 				return usage;
 
-			var implementation = source.Implementation;
-
 			usage =
 				state.TryRecurse() &&
 				(
@@ -112,7 +108,7 @@ namespace NBrowse.Selection
 					source.Arguments.Any(argument => Usage.IsReferencing(argument, target, state)) ||
 					source.Attributes.Any(attribute => Usage.IsReferencing(attribute, target, state)) ||
 					source.Parameters.Any(parameter => Usage.IsReferencing(parameter, target, state)) ||
-					Usage.IsReferencing(implementation, target, state)
+					Usage.IsReferencing(source.Implementation, target, state)
 				);
 
 			Usage.MethodToType.Set((source, target), usage);

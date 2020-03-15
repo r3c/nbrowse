@@ -24,8 +24,8 @@ namespace NBrowse.Reflection.Mono
 					: Binding.Instance));
 
 		public override Implementation Implementation => this.definition?.Body != null
-			? new CecilImplementation(this, this.definition.Body, this.project)
-			: new EmptyImplementation(this) as Implementation;
+			? new CecilImplementation(this, this.definition.Body, this.project) as Implementation
+			: new EmptyImplementation(this);
 
 		public override Definition Definition => this.definition == null
 			? Definition.Unknown
