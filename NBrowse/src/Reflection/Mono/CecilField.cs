@@ -11,9 +11,9 @@ namespace NBrowse.Reflection.Mono
 
 		public override string Name => this.field.Name;
 
-		public override Type Parent => new CecilType(this.field.DeclaringType, this.parent);
+		public override Type Parent => new CecilType(this.field.DeclaringType, this.project);
 
-		public override Type Type => new CecilType(this.field.FieldType, this.parent);
+		public override Type Type => new CecilType(this.field.FieldType, this.project);
 
 		public override Visibility Visibility => this.field.IsPublic
 			? Visibility.Public
@@ -24,18 +24,18 @@ namespace NBrowse.Reflection.Mono
 					: Visibility.Internal));
 
 		private readonly FieldDefinition field;
-		private readonly Assembly parent;
+		private readonly Project project;
 
-		public CecilField(FieldDefinition field, Assembly parent)
+		public CecilField(FieldDefinition field, Project project)
 		{
 			this.field = field ?? throw new ArgumentNullException(nameof(field));
-			this.parent = parent;
+			this.project = project;
 		}
 
 		public override bool Equals(Field other)
 		{
-			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
+			return !object.ReferenceEquals(other, null) && this.Binding == other.Binding && this.Name == other.Name &&
+			       this.Parent == other.Parent && this.Type == other.Type;
 		}
 	}
 }

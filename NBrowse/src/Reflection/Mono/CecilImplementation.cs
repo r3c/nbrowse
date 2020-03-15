@@ -6,19 +6,19 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilImplementation : Implementation
 	{
-		public override Method Parent => new CecilMethod(this.body.Method, this.parent);
+		public override Method Parent => new CecilMethod(this.body.Method, this.project);
 
 		public override IEnumerable<Method> ReferencedMethods => this.GetReferencedMethods(this.body.Instructions);
 
 		public override IEnumerable<Type> ReferencedTypes => this.GetReferencedTypes(this.body.Instructions);
 
 		private readonly MethodBody body;
-		private readonly Assembly parent;
+		private readonly Project project;
 
-		public CecilImplementation(MethodBody body, Assembly parent)
+		public CecilImplementation(MethodBody body, Project project)
 		{
 			this.body = body;
-			this.parent = parent;
+			this.project = project;
 		}
 
 		private IEnumerable<Method> GetReferencedMethods(IEnumerable<Instruction> instructions)
@@ -28,7 +28,7 @@ namespace NBrowse.Reflection.Mono
 				switch (instruction.Operand)
 				{
 					case MethodReference method:
-						yield return new CecilMethod(method, this.parent);
+						yield return new CecilMethod(method, this.project);
 						break;
 				}
 			}
@@ -41,19 +41,19 @@ namespace NBrowse.Reflection.Mono
 				switch (instruction.Operand)
 				{
 					case FieldReference field:
-						yield return new CecilType(field.DeclaringType, this.parent);
+						yield return new CecilType(field.DeclaringType, this.project);
 						break;
 
 					case MethodReference method:
-						yield return new CecilType(method.DeclaringType, this.parent);
+						yield return new CecilType(method.DeclaringType, this.project);
 						break;
 
 					case PropertyReference property:
-						yield return new CecilType(property.DeclaringType, this.parent);
+						yield return new CecilType(property.DeclaringType, this.project);
 						break;
 
 					case TypeReference type:
-						yield return new CecilType(type, this.parent);
+						yield return new CecilType(type, this.project);
 						break;
 				}
 			}

@@ -8,27 +8,27 @@ namespace NBrowse.Reflection.Mono
 	internal class CecilType : Type
 	{
 		public override IEnumerable<Attribute> Attributes =>
-			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.Parent)) ??
+			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project)) ??
 			Array.Empty<CecilAttribute>();
 
 		public override Type BaseOrNull => this.definition?.BaseType != null
-			? new CecilType(this.definition.BaseType, this.Parent)
+			? new CecilType(this.definition.BaseType, this.project)
 			: default(Type);
 
 		public override Type ElementOrNull => this.reference is ArrayType arrayType
-			? (arrayType.ElementType != null ? new CecilType(arrayType.ElementType, this.Parent) : default(Type))
+			? (arrayType.ElementType != null ? new CecilType(arrayType.ElementType, this.project) : default(Type))
 			: (this.reference is PointerType pointerType
 				? (pointerType.ElementType != null
-					? new CecilType(pointerType.ElementType, this.Parent)
+					? new CecilType(pointerType.ElementType, this.project)
 					: default(Type))
 				: (this.reference is ByReferenceType byReferenceType
 					? (byReferenceType.ElementType != null
-						? new CecilType(byReferenceType.ElementType, this.Parent)
+						? new CecilType(byReferenceType.ElementType, this.project)
 						: default(Type))
 					: default));
 
 		public override IEnumerable<Field> Fields =>
-			this.definition?.Fields.Select(field => new CecilField(field, this.Parent)) ?? Array.Empty<CecilField>();
+			this.definition?.Fields.Select(field => new CecilField(field, this.project)) ?? Array.Empty<CecilField>();
 
 		public override string Identifier =>
 			$"{this.Namespace}{(string.IsNullOrEmpty(this.Namespace) ? "" : ".")}{this.Name}";
@@ -42,11 +42,11 @@ namespace NBrowse.Reflection.Mono
 					: Definition.Virtual));
 
 		public override IEnumerable<Type> Interfaces =>
-			this.definition?.Interfaces.Select(i => new CecilType(i.InterfaceType, this.Parent)) ??
+			this.definition?.Interfaces.Select(i => new CecilType(i.InterfaceType, this.project)) ??
 			Array.Empty<CecilType>();
 
 		public override IEnumerable<Method> Methods =>
-			this.definition?.Methods.Select(method => new CecilMethod(method, this.Parent)) ??
+			this.definition?.Methods.Select(method => new CecilMethod(method, this.project)) ??
 			Array.Empty<CecilMethod>();
 
 		public override Model Model => this.reference.IsValueType
@@ -60,20 +60,22 @@ namespace NBrowse.Reflection.Mono
 						: (this.reference.IsByReference ? Model.Reference : Model.Class))));
 
 		public override string Name => this.reference.IsNested
-			? $"{new CecilType(this.reference.DeclaringType, this.Parent).Name}+{this.reference.Name}"
+			? $"{new CecilType(this.reference.DeclaringType, this.project).Name}+{this.reference.Name}"
 			: this.reference.Name;
 
 		public override string Namespace => this.reference.IsNested
-			? new CecilType(this.reference.DeclaringType, this.Parent).Namespace
+			? new CecilType(this.reference.DeclaringType, this.project).Namespace
 			: this.reference.Namespace;
 
 		public override IEnumerable<Type> NestedTypes =>
-			this.definition?.NestedTypes.Select(type => new CecilType(type, this.Parent)) ?? Array.Empty<CecilType>();
+			this.definition?.NestedTypes.Select(type => new CecilType(type, this.project)) ?? Array.Empty<CecilType>();
 
 		public override IEnumerable<Parameter> Parameters =>
-			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.Parent));
+			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.project));
 
-		public override Assembly Parent { get; }
+		public override Assembly Parent => this.definition != null
+			? new CecilAssembly(this.definition.Module.Assembly, this.project)
+			: CecilAssembly.Empty;
 
 		public override Visibility Visibility => this.definition == null
 			? Visibility.Unknown
@@ -92,9 +94,10 @@ namespace NBrowse.Reflection.Mono
 						: Visibility.Internal)));
 
 		private readonly TypeDefinition definition;
+		private readonly Project project;
 		private readonly TypeReference reference;
 
-		public CecilType(TypeReference reference, Assembly parent)
+		public CecilType(TypeReference reference, Project project)
 		{
 			if (reference == null)
 				throw new ArgumentNullException(nameof(reference));
@@ -117,15 +120,14 @@ namespace NBrowse.Reflection.Mono
 			}
 
 			this.definition = definition;
+			this.project = project;
 			this.reference = reference;
-
-			this.Parent = parent;
 		}
 
 		public override bool Equals(Type other)
 		{
-			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
+			return !object.ReferenceEquals(other, null) && this.Namespace == other.Namespace &&
+			       this.Name == other.Name && this.Parameters.SequenceEqual(other.Parameters);
 		}
 	}
 }

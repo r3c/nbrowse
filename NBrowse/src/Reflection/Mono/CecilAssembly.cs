@@ -7,9 +7,12 @@ namespace NBrowse.Reflection.Mono
 {
 	internal class CecilAssembly : Assembly
 	{
-		public override IEnumerable<Attribute> Attributes =>
-			this.assembly?.CustomAttributes?.Select(attribute => new CecilAttribute(attribute, this)) ??
-			Enumerable.Empty<Attribute>();
+		public static readonly CecilAssembly Empty =
+			new CecilAssembly(new AssemblyNameReference("<unresolved>", new Version()));
+
+		public override IEnumerable<Attribute> Attributes => this.assembly != null
+			? this.assembly.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project))
+			: Enumerable.Empty<Attribute>();
 
 		public override string Culture => this.name.Culture;
 
@@ -19,23 +22,23 @@ namespace NBrowse.Reflection.Mono
 
 		public override string Name => this.name.Name;
 
-		public override IEnumerable<Assembly> References =>
-			this.assembly?.MainModule?.AssemblyReferences?.Select(referenceName =>
+		public override IEnumerable<Assembly> References => this.assembly != null
+			? this.assembly.MainModule.AssemblyReferences.Select(referenceName =>
 			{
 				var reference = this.project.FilterAssemblies(new[] {referenceName.Name}).FirstOrDefault();
 
 				if (reference != null && reference.Identifier == referenceName.FullName)
 					return reference;
 
-				return new CecilAssembly(referenceName, this.project);
-			}) ??
-			Enumerable.Empty<Assembly>();
+				return new CecilAssembly(referenceName);
+			})
+			: Enumerable.Empty<Assembly>();
 
 		public override Version Version => this.name.Version;
 
-		public override IEnumerable<Type> Types =>
-			this.assembly?.MainModule?.GetTypes()?.Select(type => new CecilType(type, this)) ??
-			Array.Empty<CecilType>();
+		public override IEnumerable<Type> Types => this.assembly != null
+			? this.assembly.MainModule.GetTypes().Select(type => new CecilType(type, this.project))
+			: Array.Empty<CecilType>();
 
 		private readonly AssemblyDefinition assembly;
 		private readonly Project project;
@@ -51,17 +54,17 @@ namespace NBrowse.Reflection.Mono
 			this.project = project;
 		}
 
-		private CecilAssembly(AssemblyNameReference name, Project project)
+		private CecilAssembly(AssemblyNameReference name)
 		{
 			this.assembly = null;
 			this.name = name;
-			this.project = project;
+			this.project = null;
 		}
 
 		public override bool Equals(Assembly other)
 		{
-			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
+			return !object.ReferenceEquals(other, null) && this.Culture == other.Culture && this.Name == other.Name &&
+			       this.Version == other.Version;
 		}
 	}
 }

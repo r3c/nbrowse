@@ -4,4 +4,4 @@ NBrowse TODO list
 TODO
 ----
 
-- [ ] Update `IType` properties to properly expose types using "in" modifier
+- Use comparison from Cecil package for Mono.Cecil types: https://github.com/jbevain/cecil/issues/389

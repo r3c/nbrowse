@@ -10,24 +10,25 @@ namespace NBrowse.Reflection.Mono
 		public override IEnumerable<object> Arguments =>
 			this.attribute.ConstructorArguments.Select(argument => argument.Value);
 
-		public override Method Constructor => new CecilMethod(this.attribute.Constructor, this.parent);
+		public override Method Constructor => new CecilMethod(this.attribute.Constructor, this.project);
 
 		public override string Identifier => $"{this.Type.Identifier}({string.Join(", ", this.Arguments)})";
 
-		public override Type Type => new CecilType(this.attribute.AttributeType, this.parent);
+		public override Type Type => new CecilType(this.attribute.AttributeType, this.project);
 
 		private readonly CustomAttribute attribute;
-		private readonly Assembly parent;
+		private readonly Project project;
 
-		public CecilAttribute(CustomAttribute attribute, Assembly parent)
+		public CecilAttribute(CustomAttribute attribute, Project project)
 		{
 			this.attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
-			this.parent = parent;
+			this.project = project;
 		}
 
 		public override bool Equals(Attribute other)
 		{
-			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
+			return !object.ReferenceEquals(other, null) && this.Constructor == other.Constructor &&
+			       this.Type == other.Type && this.Arguments.SequenceEqual(other.Arguments);
 		}
 	}
 }

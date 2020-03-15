@@ -8,10 +8,10 @@ namespace NBrowse.Reflection.Mono
 	internal class CecilMethod : Method
 	{
 		public override IEnumerable<Argument> Arguments =>
-			this.reference.Parameters.Select(argument => new CecilArgument(argument, this.parent));
+			this.reference.Parameters.Select(argument => new CecilArgument(argument, this.project));
 
 		public override IEnumerable<Attribute> Attributes =>
-			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.parent)) ??
+			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project)) ??
 			Array.Empty<CecilAttribute>();
 
 		public override Binding Binding => this.definition == null
@@ -23,7 +23,7 @@ namespace NBrowse.Reflection.Mono
 					: Binding.Instance));
 
 		public override Implementation ImplementationOrNull => this.definition?.Body != null
-			? new CecilImplementation(this.definition.Body, this.parent)
+			? new CecilImplementation(this.definition.Body, this.project)
 			: null;
 
 		public override Definition Definition => this.definition == null
@@ -42,11 +42,11 @@ namespace NBrowse.Reflection.Mono
 		public override string Name => this.reference.Name;
 
 		public override IEnumerable<Parameter> Parameters =>
-			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.parent));
+			this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.project));
 
-		public override Type Parent => new CecilType(this.reference.DeclaringType, this.parent);
+		public override Type Parent => new CecilType(this.reference.DeclaringType, this.project);
 
-		public override Type ReturnType => new CecilType(this.reference.ReturnType, this.parent);
+		public override Type ReturnType => new CecilType(this.reference.ReturnType, this.project);
 
 		public override Visibility Visibility => this.definition == null
 			? Visibility.Unknown
@@ -59,10 +59,10 @@ namespace NBrowse.Reflection.Mono
 						: Visibility.Internal)));
 
 		private readonly MethodDefinition definition;
-		private readonly Assembly parent;
+		private readonly Project project;
 		private readonly MethodReference reference;
 
-		public CecilMethod(MethodReference reference, Assembly parent)
+		public CecilMethod(MethodReference reference, Project project)
 		{
 			if (reference == null)
 				throw new ArgumentNullException(nameof(reference));
@@ -85,14 +85,15 @@ namespace NBrowse.Reflection.Mono
 			}
 
 			this.definition = definition;
-			this.parent = parent;
+			this.project = project;
 			this.reference = reference;
 		}
 
 		public override bool Equals(Method other)
 		{
-			// FIXME: inaccurate, waiting for https://github.com/jbevain/cecil/issues/389
-			return !object.ReferenceEquals(other, null) && this.Identifier == other.Identifier;
+			return !object.ReferenceEquals(other, null) && this.Name == other.Name && this.Parent == other.Parent &&
+			       this.ReturnType == other.ReturnType && this.Arguments.SequenceEqual(other.Arguments) &&
+			       this.Parameters.SequenceEqual(other.Parameters);
 		}
 	}
 }
