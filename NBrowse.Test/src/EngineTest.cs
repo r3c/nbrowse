@@ -25,7 +25,7 @@ namespace NBrowse.Test
 		[TestCase("a,b", "(_, arguments) => arguments[1]", "b")]
 		public async Task QueryAndPrint_Arguments<T>(string arguments, string query, T expected)
 		{
-			await EngineTest.QueryAndAssert(arguments.Split(',', StringSplitOptions.RemoveEmptyEntries), query,
+			await EngineTest.QueryAndAssert(arguments.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries), query,
 				expected);
 		}
 
