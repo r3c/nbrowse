@@ -1,32 +1,42 @@
 #!/bin/sh -e
 
+# Package configuration
+artifact=nbrowse
+framework=netcoreapp3.1
+project=NBrowse.CLI
+runtimes='debian-x64 osx-x64 ubuntu-x64 win-x64'
+
+# Retreive latest version tag from current HEAD
 base="$(dirname "$0")"
-root=nbrowse
+tag="$(git --work-tree "$base" tag --points-at HEAD)"
 
-# Retreive latest version from current HEAD
-version="$(git --work-tree "$base" tag --points-at HEAD)"
+if [ -n "$tag" ]; then
+    version="v$tag"
+else
+	echo >&2 "warning: missing tag on HEAD, will assume draft version"
 
-if [ -z "$version" ]; then
-	echo >&2 "error: current HEAD doesn't point to a tag"
-	exit 1
+	version=draft
 fi
 
 # Create archive for each target runtime
-framework=netcoreapp3.1
 source="$(mktemp -d)"
 
-for runtime in debian-x64 osx-x64 ubuntu-x64 win-x64; do
-	dotnet publish -c Release -r "$runtime" -v quiet "$base/NBrowse.CLI"
+for runtime in $runtimes; do
+    archive="$artifact-$version-$runtime.zip"
 
-	ln -s "$(realpath "$base/NBrowse.CLI/bin/Release/$framework/$runtime/publish")" "$source/$root"
+    echo >&2 "publishing $archive..."
 
-	archive="$root-v$version-$runtime.zip"
+	dotnet publish --nologo -c Release -f "$framework" -r "$runtime" -v quiet "$base/$project"
 
-	( cd "$source" && zip -qr "$archive" "$root" )
+	ln -s "$(realpath "$base/$project/bin/Release/$framework/$runtime/publish")" "$source/$artifact"
+
+	( cd "$source" && zip -qr "$archive" "$artifact" )
 
 	mv "$source/$archive" "$base/$archive"
-	rm "$source/$root"
+	rm "$source/$artifact"
 done
+
+echo >&2 "done."
 
 # Cleanup
 rm -r "$source"
