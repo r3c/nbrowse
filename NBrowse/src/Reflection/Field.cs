@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -16,6 +17,10 @@ namespace NBrowse.Reflection
 		{
 			return !lhs?.Equals(rhs) ?? !ReferenceEquals(rhs, null);
 		}
+
+        [Description("Custom attributes")]
+        [JsonIgnore]
+        public abstract IEnumerable<Attribute> Attributes { get; }
 
 		[Description("Field binding to parent type")]
 		[JsonConverter(typeof(StringEnumConverter))]

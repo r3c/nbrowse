@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using NBrowse.Reflection;
 using NUnit.Framework;
 
@@ -7,12 +8,23 @@ namespace NBrowse.Test.Reflection.Mono
 {
 	public class CecilFieldTest
 	{
-		[Test]
+        [Test]
+        [TestCase(nameof(TestClass.CecilFieldAttributes0), "")]
+        [TestCase(nameof(TestClass.CecilFieldAttributes1), "DataMemberAttribute")]
+        [TestCase(nameof(TestClass.CecilFieldAttributes2), "ContextStaticAttribute,OptionalFieldAttribute")]
+        public void Attributes(string name, string expected)
+        {
+            var attributes = string.Join(",", CecilFieldTest.GetField(name).Attributes.Select(a => a.Type.Name));
+
+            Assert.That(attributes, Is.EqualTo(expected));
+        }
+
+        [Test]
 		[TestCase(nameof(TestClass.CecilFieldBindingInstance), NBrowse.Reflection.Binding.Instance)]
 		[TestCase(nameof(TestClass.CecilFieldBindingStatic), NBrowse.Reflection.Binding.Static)]
 		public void Binding(string name, Binding expected)
 		{
-			Assert.That(CecilFieldTest.GetField(name).Binding, Is.EqualTo(expected));			
+			Assert.That(CecilFieldTest.GetField(name).Binding, Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -69,6 +81,15 @@ namespace NBrowse.Test.Reflection.Mono
 		private abstract class TestClass
 		{
 #pragma warning disable 649
+			public int CecilFieldAttributes0;
+
+			[DataMember]
+			public int CecilFieldAttributes1;
+
+			[ContextStatic]
+			[OptionalField]
+			public int CecilFieldAttributes2;
+
 			public int CecilFieldBindingInstance;
 
 			public static int CecilFieldBindingStatic;

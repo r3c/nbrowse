@@ -1,11 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Mono.Cecil;
 
 namespace NBrowse.Reflection.Mono
 {
 	internal class CecilField : Field
-	{
-		public override Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
+    {
+        public override IEnumerable<Attribute> Attributes =>
+            this.field.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project));
+
+        public override Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
 
 		public override string Identifier => $"{this.Parent.Identifier}.{this.Name}";
 
