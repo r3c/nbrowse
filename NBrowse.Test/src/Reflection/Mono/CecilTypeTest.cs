@@ -27,6 +27,17 @@ namespace NBrowse.Test.Reflection.Mono
 		}
 
 		[Test]
+		[TestCase("MemberTypeParameters0", "")]
+		[TestCase("MemberTypeParameters1", "CecilTypeTest+CecilMemberTypeParameters`2+TParameter1")]
+		[TestCase("MemberTypeParameters2", "CecilTypeTest+CecilMemberTypeParameters`2+TParameter1,CecilTypeTest+CecilMemberTypeParameters`2+TParameter2")]
+		public void Arguments(string fieldName, string expected)
+		{
+			var fieldType = CecilTypeTest.GetType("CecilMemberTypeParameters").Fields.First(field => field.Name == fieldName).Type;
+			Assert.That(string.Join(",", fieldType.Arguments.Select(p => p.Name)),
+				Is.EqualTo(expected));
+		}
+
+		[Test]
 		[TestCase(nameof(CecilTypeBaseOrNullIsDefined), "Stream")]
 		public void BaseOrNullIsDefined(string name, string expected)
 		{
@@ -317,7 +328,7 @@ namespace NBrowse.Test.Reflection.Mono
 			}
 		}
 
-		private static class CecilTypeParameters0
+		private class CecilTypeParameters0
 		{
 		}
 
@@ -327,6 +338,13 @@ namespace NBrowse.Test.Reflection.Mono
 
 		private class CecilTypeParameters2<TParameter1, TParameter2>
 		{
+		}
+
+		private class CecilMemberTypeParameters<TParameter1, TParameter2>
+		{
+			public CecilTypeParameters0 MemberTypeParameters0;
+			public CecilTypeParameters1<TParameter1> MemberTypeParameters1;
+			public CecilTypeParameters2<TParameter1, TParameter2> MemberTypeParameters2;
 		}
 
 		private static class CecilTypeParent
