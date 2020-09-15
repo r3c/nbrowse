@@ -12,6 +12,17 @@ namespace NBrowse.Reflection.Mono
 			this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project)) ??
 			Array.Empty<CecilAttribute>();
 
+		public override IEnumerable<Type> Arguments
+		{
+			get
+			{
+				if (!this.reference.IsGenericInstance)
+					return Array.Empty<Type>();
+				return ((GenericInstanceType) this.reference).GenericArguments.Select(arg =>
+					new CecilType(arg, this.project));
+			}
+		}
+
 		public override Type BaseOrNull => this.definition?.BaseType != null
 			? new CecilType(this.definition.BaseType, this.project)
 			: default(Type);

@@ -18,6 +18,10 @@ namespace NBrowse.Reflection
 			return !lhs?.Equals(rhs) ?? !ReferenceEquals(rhs, null);
 		}
 
+		[Description("Generic arguments types")]
+		[JsonIgnore]
+		public abstract IEnumerable<Type> Arguments { get; }
+
 		[Description("Custom attributes (resolved type only)")]
 		[JsonIgnore]
 		public abstract IEnumerable<Attribute> Attributes { get; }
