@@ -2,7 +2,6 @@
 
 # Package configuration
 artifact=nbrowse
-framework=netcoreapp3.1
 project=NBrowse.CLI
 runtimes='debian-x64 osx-x64 ubuntu-x64 win-x64'
 
@@ -24,14 +23,17 @@ source="$(mktemp -d)"
 for runtime in $runtimes; do
     archive="$artifact-$version-$runtime.zip"
 
+	# Publish archive for requested runtime
     echo >&2 "publishing $archive..."
 
-	dotnet publish --nologo -c Release -f "$framework" -r "$runtime" -v quiet "$base/$project"
+	dotnet publish --nologo -c Release -r "$runtime" -v quiet "$base/$project"
 
-	ln -s "$(realpath "$base/$project/bin/Release/$framework/$runtime/publish")" "$source/$artifact"
+	# Create temporary directory to get desired archive path
+	ln -s "$(realpath "$base/$project/bin/Release/"*"/$runtime/publish")" "$source/$artifact"
 
 	( cd "$source" && zip -qr "$archive" "$artifact" )
 
+	# Move and erase temporary directory
 	mv "$source/$archive" "$base/$archive"
 	rm "$source/$artifact"
 done
