@@ -10,7 +10,11 @@ namespace NBrowse.Reflection.Mono
         public override IEnumerable<Type> Constraints =>
             this.parameter.Constraints.Select(constraint => new CecilType(constraint.ConstraintType, this.project));
 
-        public override bool HasDefaultConstructor => this.parameter.HasDefaultConstructorConstraint;
+        public override bool HasDefaultConstructorConstraint => this.parameter.HasDefaultConstructorConstraint;
+
+        public override bool HasReferenceTypeConstraint => this.parameter.HasReferenceTypeConstraint;
+
+        public override bool HasValueTypeConstraint => this.parameter.HasNotNullableValueTypeConstraint;
 
         public override string Identifier => this.parameter.FullName + (this.parameter.Constraints.Count > 0
                                                  ? " : " + string.Join(", ", this.Constraints)
@@ -33,7 +37,7 @@ namespace NBrowse.Reflection.Mono
 
         public override bool Equals(Parameter other)
         {
-            return !object.ReferenceEquals(other, null) && this.HasDefaultConstructor == other.HasDefaultConstructor &&
+            return !object.ReferenceEquals(other, null) && this.HasDefaultConstructorConstraint == other.HasDefaultConstructorConstraint &&
                    this.Name == other.Name && this.Variance == other.Variance &&
                    this.Constraints.SequenceEqual(other.Constraints);
         }

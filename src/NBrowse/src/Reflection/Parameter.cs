@@ -22,7 +22,13 @@ namespace NBrowse.Reflection
         public abstract IEnumerable<Type> Constraints { get; }
 
         [Description("True if has default constructor constraint")]
-        public abstract bool HasDefaultConstructor { get; }
+        public abstract bool HasDefaultConstructorConstraint { get; }
+
+        [Description("True if has reference type constraint")]
+        public abstract bool HasReferenceTypeConstraint { get; }
+
+        [Description("True if has (non-nullable) value type constraint")]
+        public abstract bool HasValueTypeConstraint { get; }
 
         [Description("Unique human-readable identifier")]
         public abstract string Identifier { get; }
