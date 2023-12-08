@@ -342,9 +342,11 @@ namespace NBrowse.Test.Reflection.Mono
 
         private class CecilMemberTypeParameters<TParameter1, TParameter2>
         {
+#pragma warning disable CS0649
             public CecilTypeParameters0 MemberTypeParameters0;
             public CecilTypeParameters1<TParameter1> MemberTypeParameters1;
             public CecilTypeParameters2<TParameter1, TParameter2> MemberTypeParameters2;
+#pragma warning restore CS0649
         }
 
         private static class CecilTypeParent
