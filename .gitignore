@@ -1,6 +1,6 @@
-/.idea/
-/.vscode/
-/nbrowse-*.zip
+.idea/
+.vscode/
 bin/
 obj/
 *.user
+/src/nbrowse-*.zip

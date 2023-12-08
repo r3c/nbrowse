@@ -1,6 +1,0 @@
-language: csharp
-dotnet: 3.1
-mono: none
-script:
- - dotnet build NBrowse.CLI -f netcoreapp3.1
- - dotnet test NBrowse.Test -f netcoreapp3.1

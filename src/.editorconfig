@@ -1,0 +1,15 @@
+root = true
+
+[*]
+end_of_line = crlf
+indent_size = 4
+indent_style = space
+insert_final_newline = false
+
+[*.cs]
+dotnet_sort_system_directives_first = true
+dotnet_style_qualification_for_event = false
+dotnet_style_qualification_for_field = false
+dotnet_style_qualification_for_property = false
+dotnet_style_qualification_for_method = false
+dotnet_style_require_accessibility_modifiers = always
