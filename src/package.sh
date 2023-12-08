@@ -2,6 +2,7 @@
 
 # Package configuration
 artifact=nbrowse
+framework=net7.0
 project=NBrowse.CLI
 runtimes='debian-x64 osx-x64 ubuntu-x64 win-x64'
 
@@ -26,7 +27,7 @@ for runtime in $runtimes; do
 	# Publish archive for requested runtime
     echo >&2 "publishing $archive..."
 
-	dotnet publish --nologo -c Release -r "$runtime" -v quiet "$base/$project"
+	dotnet publish --nologo --self-contained -c Release -f "$framework" -r "$runtime" -v quiet "$base/$project"
 
 	# Create temporary directory to get desired archive path
 	ln -s "$(realpath "$base/$project/bin/Release/"*"/$runtime/publish")" "$source/$artifact"

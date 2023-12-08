@@ -5,7 +5,7 @@
     <Description>.NET assembly query utility</Description>
     <LangVersion>latest</LangVersion>
     <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
