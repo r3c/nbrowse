@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>NBrowse</AssemblyName>
+    <Description>.NET assembly query utility</Description>
     <LangVersion>latest</LangVersion>
     <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
     <Version>0.5.1</Version>
