@@ -1,17 +1,16 @@
 NBrowse: .NET assembly query utility
 ====================================
 
-[![Build Status](https://travis-ci.org/r3c/nbrowse.svg?branch=master)](https://travis-ci.org/r3c/nbrowse)
-[![license](https://img.shields.io/github/license/r3c/nbrowse.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/r3c/nbrowse/validate.yml?branch=master)](https://github.com/r3c/nbrowse/actions)
+[![License](https://img.shields.io/github/license/r3c/nbrowse.svg)](https://opensource.org/licenses/MIT)
 
 Overview
 --------
 
 NBrowse is a command-line utility to browse and execute search queries in .NET
-compiled assemblies (both .NET Framework and .NET Standard). It exposes loaded
-assemblies through a standard set of traversable entities (e.g. "assembly",
-"project", "type", "method" and so on) and allows you to run C# statements to
-query anything you want to retrieve from them.
+compiled assemblies. It exposes loaded assemblies through a standard set of
+traversable entities (e.g. "assembly", "project", "type", "method", etc.) and
+running C# statements to query anything you want to retrieve from them.
 
 You can think of it as a stripped down [NDepend](https://www.ndepend.com/)
 equivalent with no graphical interface.
@@ -32,9 +31,7 @@ Usage
 
 Download latest [release](https://github.com/r3c/nbrowse/releases) from GitHub
 or checkout code and build using your preferred
-[.NET Core](https://dotnet.microsoft.com/download) or
-[.NET Framework](https://dotnet.microsoft.com/download/dotnet-framework-runtime/net472)
-SDK.
+[.NET](https://dotnet.microsoft.com/download) SDK.
 
 Once you have a NBrowse.CLI executable file, run it with `-h` command line
 argument to display help.
