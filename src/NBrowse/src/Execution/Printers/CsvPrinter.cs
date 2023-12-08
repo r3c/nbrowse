@@ -19,15 +19,14 @@ namespace NBrowse.Execution.Printers
         public void Print<TValue>(TValue result)
         {
             var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
-            { Delimiter = ";", Encoding = Encoding.UTF8, Escape = '\\', NewLine = NewLine.LF, Quote = '"' };
+            { Delimiter = ";", Encoding = Encoding.UTF8, Escape = '\\', NewLine = "\n", Quote = '"' };
 
-            using (var csv = new CsvWriter(this.output, configuration))
-            {
-                if (result is IEnumerable enumerable)
-                    csv.WriteRecords(enumerable);
-                else
-                    csv.WriteRecords(new[] { result });
-            }
+            using var csv = new CsvWriter(this.output, configuration);
+
+            if (result is IEnumerable enumerable)
+                csv.WriteRecords(enumerable);
+            else
+                csv.WriteRecords(new[] { result });
         }
     }
 }
