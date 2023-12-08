@@ -51,21 +51,75 @@ namespace NBrowse.Test.Reflection.Mono
         }
 
         [Test]
-        [TestCase(nameof(TestClass.CecilParameterHasDefaultConstructor), 0, false)]
-        [TestCase(nameof(TestClass.CecilParameterHasDefaultConstructor), 1, true)]
-        public void HasDefaultConstructorOfMethodAttribute(string name, int index, bool expected)
+        [TestCase(0, true)]
+        [TestCase(1, false)]
+        [TestCase(2, true)]
+        public void HasDefaultConstructorConstraintOfMethodAttribute(int index, bool expected)
         {
-            Assert.That(CecilParameterTest.GetParameterFromMethod(name, index).HasDefaultConstructor,
-                Is.EqualTo(expected));
+            var parameter = CecilParameterTest.GetParameterFromMethod(
+                nameof(TestClass.CecilParameterHasConstraint), index);
+
+            Assert.That(parameter.HasDefaultConstructorConstraint, Is.EqualTo(expected));
         }
 
         [Test]
-        [TestCase(nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", 0, false)]
-        [TestCase(nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", 1, true)]
-        public void HasDefaultConstructorOfTypeAttribute(string name, int index, bool expected)
+        [TestCase(0, true)]
+        [TestCase(1, false)]
+        [TestCase(2, true)]
+        public void HasDefaultConstructorConstraintOfTypeAttribute(int index, bool expected)
         {
-            Assert.That(CecilParameterTest.GetParameterFromType(name, index).HasDefaultConstructor,
-                Is.EqualTo(expected));
+            var parameter = CecilParameterTest.GetParameterFromType(
+                nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", index);
+
+            Assert.That(parameter.HasDefaultConstructorConstraint, Is.EqualTo(expected));
+        }
+
+        [Test]
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        [TestCase(2, false)]
+        public void HasReferenceTypeConstraintOfMethodAttribute(int index, bool expected)
+        {
+            var parameter = CecilParameterTest.GetParameterFromMethod(
+                nameof(TestClass.CecilParameterHasConstraint), index);
+
+            Assert.That(parameter.HasReferenceTypeConstraint, Is.EqualTo(expected));
+        }
+
+        [Test]
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        [TestCase(2, false)]
+        public void HasReferenceTypeConstraintOfTypeAttribute(int index, bool expected)
+        {
+            var parameter = CecilParameterTest.GetParameterFromType(
+                nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", index);
+
+            Assert.That(parameter.HasReferenceTypeConstraint, Is.EqualTo(expected));
+        }
+
+        [Test]
+        [TestCase(0, false)]
+        [TestCase(1, false)]
+        [TestCase(2, true)]
+        public void HasValueTypeConstraintOfMethodAttribute(int index, bool expected)
+        {
+            var parameter = CecilParameterTest.GetParameterFromMethod(
+                nameof(TestClass.CecilParameterHasConstraint), index);
+
+            Assert.That(parameter.HasValueTypeConstraint, Is.EqualTo(expected));
+        }
+
+        [Test]
+        [TestCase(0, false)]
+        [TestCase(1, false)]
+        [TestCase(2, true)]
+        public void HasValueTypeConstraintOfTypeAttribute(int index, bool expected)
+        {
+            var parameter = CecilParameterTest.GetParameterFromType(
+                nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", index);
+
+            Assert.That(parameter.HasValueTypeConstraint, Is.EqualTo(expected));
         }
 
         [Test]
@@ -109,7 +163,10 @@ namespace NBrowse.Test.Reflection.Mono
         {
         }
 
-        private interface ICecilParameterHasDefaultConstructor<TParameter1, TParameter2> where TParameter2 : new()
+        private interface ICecilParameterHasDefaultConstructor<TParameter1, TParameter2, TParameter3>
+            where TParameter1 : new()
+            where TParameter2 : class
+            where TParameter3 : struct
         {
         }
 
@@ -124,10 +181,13 @@ namespace NBrowse.Test.Reflection.Mono
         private abstract class TestClass
         {
             public abstract void CecilParameterConstraints<TParameter1, TParameter2, TParameter3>()
-                where TParameter2 : IDisposable where TParameter3 : struct, IDisposable;
+                where TParameter2 : IDisposable
+                where TParameter3 : struct, IDisposable;
 
-            public abstract void CecilParameterHasDefaultConstructor<TParameter1, TParameter2>()
-                where TParameter2 : new();
+            public abstract void CecilParameterHasConstraint<TParameter1, TParameter2, TParameter3>()
+                where TParameter1 : new()
+                where TParameter2 : class
+                where TParameter3 : struct;
 
             public abstract void CecilParameterName<TParameter1, TParameter2>();
 
