@@ -14,7 +14,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilFieldAttributes2), "ContextStaticAttribute,OptionalFieldAttribute")]
         public void Attributes(string name, string expected)
         {
-            var attributes = string.Join(",", CecilFieldTest.GetField(name).Attributes.Select(a => a.Type.Name));
+            var attributes = string.Join(",", GetField(name).Attributes.Select(a => a.Type.Name));
 
             Assert.That(attributes, Is.EqualTo(expected));
         }
@@ -24,7 +24,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilFieldBindingStatic), NBrowse.Reflection.Binding.Static)]
         public void Binding(string name, Binding expected)
         {
-            Assert.That(CecilFieldTest.GetField(name).Binding, Is.EqualTo(expected));
+            Assert.That(GetField(name).Binding, Is.EqualTo(expected));
         }
 
         [Test]
@@ -32,8 +32,8 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilFieldBindingInstance), nameof(TestClass.CecilFieldBindingStatic), false)]
         public void Equals(string name1, string name2, bool expected)
         {
-            var field1 = CecilFieldTest.GetField(name1);
-            var field2 = CecilFieldTest.GetField(name2);
+            var field1 = GetField(name1);
+            var field2 = GetField(name2);
 
             Assert.That(field1.Equals(field2), Is.EqualTo(expected));
             Assert.That(field1 == field2, Is.EqualTo(expected));
@@ -44,14 +44,14 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilFieldName))]
         public void Name(string name)
         {
-            Assert.That(CecilFieldTest.GetField(name).Name, Is.EqualTo(name));
+            Assert.That(GetField(name).Name, Is.EqualTo(name));
         }
 
         [Test]
         [TestCase(nameof(TestClass.CecilFieldParent), nameof(CecilFieldTest) + "+" + nameof(TestClass))]
         public void Parent(string name, string expected)
         {
-            Assert.That(CecilFieldTest.GetField(name).Parent.Name, Is.EqualTo(expected));
+            Assert.That(GetField(name).Parent.Name, Is.EqualTo(expected));
         }
 
         [Test]
@@ -59,17 +59,17 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilFieldTypeString), nameof(String))]
         public void Type(string name, string expected)
         {
-            Assert.That(CecilFieldTest.GetField(name).Type.Name, Is.EqualTo(expected));
+            Assert.That(GetField(name).Type.Name, Is.EqualTo(expected));
         }
 
         [Test]
         [TestCase(nameof(TestClass.CecilFieldVisibilityInternal), NBrowse.Reflection.Visibility.Internal)]
-        [TestCase("cecilFieldVisibilityPrivate", NBrowse.Reflection.Visibility.Private)]
+        [TestCase("_cecilFieldVisibilityPrivate", NBrowse.Reflection.Visibility.Private)]
         [TestCase("CecilFieldVisibilityProtected", NBrowse.Reflection.Visibility.Protected)]
         [TestCase(nameof(TestClass.CecilFieldVisibilityPublic), NBrowse.Reflection.Visibility.Public)]
         public void Visibility(string name, Visibility expected)
         {
-            Assert.That(CecilFieldTest.GetField(name).Visibility, Is.EqualTo(expected));
+            Assert.That(GetField(name).Visibility, Is.EqualTo(expected));
         }
 
         private static Field GetField(string name)
@@ -103,7 +103,7 @@ namespace NBrowse.Test.Reflection.Mono
 
             internal int CecilFieldVisibilityInternal;
 #pragma warning disable 169
-            private int cecilFieldVisibilityPrivate;
+            private int _cecilFieldVisibilityPrivate;
 #pragma warning restore 169
             protected int CecilFieldVisibilityProtected;
             public int CecilFieldVisibilityPublic;

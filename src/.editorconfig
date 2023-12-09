@@ -1,15 +1,36 @@
 root = true
 
 [*]
+
 end_of_line = crlf
 indent_size = 4
 indent_style = space
 insert_final_newline = false
 
 [*.cs]
+
+# Microsoft .NET properties
+csharp_new_line_before_members_in_object_initializers = false
+csharp_preferred_modifier_order = private, internal, public, protected, file, new, static, sealed, override, virtual, abstract, async, extern, unsafe, volatile, readonly, required:suggestion
 dotnet_sort_system_directives_first = true
-dotnet_style_qualification_for_event = false
-dotnet_style_qualification_for_field = false
-dotnet_style_qualification_for_property = false
-dotnet_style_qualification_for_method = false
+dotnet_style_qualification_for_event = false:suggestion
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_require_accessibility_modifiers = always
+
+# ReSharper properties
+resharper_blank_lines_before_block_statements = 1
+resharper_blank_lines_before_case = 1
+resharper_braces_for_ifelse = not_required
+resharper_braces_redundant = false
+resharper_instance_members_qualify_declared_in = 
+resharper_keep_existing_attribute_arrangement = true
+resharper_object_creation_when_type_not_evident = target_typed
+resharper_parentheses_redundancy_style = remove
+resharper_place_accessorholder_attribute_on_same_line = false
+resharper_place_expr_property_on_single_line = true
+resharper_place_field_attribute_on_same_line = false
+resharper_place_simple_embedded_statement_on_same_line = false
+resharper_static_members_qualify_members = none
+resharper_wrap_object_and_collection_initializer_style = chop_always

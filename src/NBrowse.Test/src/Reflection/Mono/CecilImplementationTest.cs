@@ -11,7 +11,7 @@ namespace NBrowse.Test.Reflection.Mono
         [Test]
         public void Parent()
         {
-            var caller = CecilImplementationTest.GetMethod("CecilImplementationParent");
+            var caller = GetMethod("CecilImplementationParent");
 
             Assert.That(caller.Implementation, Is.Not.Null);
             Assert.That(caller.Implementation.Parent, Is.EqualTo(caller));
@@ -23,8 +23,8 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase("CecilImplementationReferencedMethodsValue", true)]
         public void ReferencedMethods(string name, bool expected)
         {
-            var caller = CecilImplementationTest.GetMethod("CecilImplementationReferencedMethods");
-            var callee = CecilImplementationTest.GetMethod(name);
+            var caller = GetMethod("CecilImplementationReferencedMethods");
+            var callee = GetMethod(name);
 
             Assert.That(caller.Implementation, Is.Not.Null);
             Assert.That(caller.Implementation.ReferencedMethods,
@@ -41,8 +41,8 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase("CecilImplementationReferencedTypesReturn", true)]
         public void ReferencedTypes(string name, bool expected)
         {
-            var caller = CecilImplementationTest.GetMethod("CecilImplementationReferencedTypes");
-            var type = CecilImplementationTest.GetType(name);
+            var caller = GetMethod("CecilImplementationReferencedTypes");
+            var type = GetType(name);
 
             Assert.That(caller.Implementation, Is.Not.Null);
             Assert.That(caller.Implementation.ReferencedTypes, expected ? Does.Contain(type) : Does.Not.Contain(type));
@@ -104,9 +104,9 @@ namespace NBrowse.Test.Reflection.Mono
         {
             protected void CecilImplementationReferencedMethods()
             {
-                this.CecilImplementationReferencedMethodsInvoke();
+                CecilImplementationReferencedMethodsInvoke();
 
-                Action action = this.CecilImplementationReferencedMethodsValue;
+                Action action = CecilImplementationReferencedMethodsValue;
 
                 Console.WriteLine(action);
             }

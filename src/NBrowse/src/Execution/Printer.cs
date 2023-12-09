@@ -1,23 +1,22 @@
 using System.IO;
 using NBrowse.Execution.Printers;
 
-namespace NBrowse.Execution
+namespace NBrowse.Execution;
+
+public static class Printer
 {
-    public static class Printer
+    public static IPrinter CreateCsv(TextWriter output)
     {
-        public static IPrinter CreateCsv(TextWriter output)
-        {
-            return new CsvPrinter(output);
-        }
+        return new CsvPrinter(output);
+    }
 
-        public static IPrinter CreateJson(TextWriter output)
-        {
-            return new JsonPrinter(output);
-        }
+    public static IPrinter CreateJson(TextWriter output)
+    {
+        return new JsonPrinter(output);
+    }
 
-        public static IPrinter CreatePretty(TextWriter output)
-        {
-            return new PrettyPrinter(output);
-        }
+    public static IPrinter CreatePretty(TextWriter output)
+    {
+        return new PrettyPrinter(output);
     }
 }

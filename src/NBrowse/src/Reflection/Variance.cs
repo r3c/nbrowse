@@ -1,9 +1,8 @@
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection;
+
+public enum Variance
 {
-    public enum Variance
-    {
-        Invariant,
-        Contravariant,
-        Covariant
-    }
+    Invariant,
+    Contravariant,
+    Covariant
 }

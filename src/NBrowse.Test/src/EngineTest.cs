@@ -11,8 +11,8 @@ namespace NBrowse.Test
     {
         [Test]
         [TestCase("x", "(project, arguments) => x")]
-        [TestCase("a => x", "(a, arguments) => x")]
-        [TestCase("(a) => x", "(a, arguments) => x")]
+        [TestCase("a => x", "(a, _) => x")]
+        [TestCase("(a) => x", "(a, _) => x")]
         [TestCase("(a, b) => x", "(a, b) => x")]
         public void NormalizeQuery(string query, string expected)
         {
@@ -25,7 +25,7 @@ namespace NBrowse.Test
         [TestCase("a,b", "(_, arguments) => arguments[1]", "b")]
         public async Task QueryAndPrint_Arguments<T>(string arguments, string query, T expected)
         {
-            await EngineTest.QueryAndAssert(arguments.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries), query,
+            await QueryAndAssert(arguments.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries), query,
                 expected);
         }
 
@@ -35,7 +35,7 @@ namespace NBrowse.Test
         [TestCase("(p, a) => false", false)]
         public async Task QueryAndPrint_Constant<T>(string query, T expected)
         {
-            await EngineTest.QueryAndAssert(Array.Empty<string>(), query, expected);
+            await QueryAndAssert(Array.Empty<string>(), query, expected);
         }
 
         private static async Task QueryAndAssert<T>(IReadOnlyList<string> arguments, string query, T expected)

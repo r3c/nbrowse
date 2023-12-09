@@ -3,44 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 
-namespace NBrowse.Reflection.Mono
+namespace NBrowse.Reflection.Mono;
+
+internal class CecilField : Field
 {
-    internal class CecilField : Field
+    public override IEnumerable<Attribute> Attributes =>
+        _field.CustomAttributes.Select(attribute => new CecilAttribute(attribute, _project));
+
+    public override Binding Binding => _field.IsStatic ? Binding.Static : Binding.Instance;
+
+    public override string Identifier => $"{Parent.Identifier}.{Name}";
+
+    public override string Name => _field.Name;
+
+    public override Type Parent => new CecilType(_field.DeclaringType, _project);
+
+    public override Type Type => new CecilType(_field.FieldType, _project);
+
+    public override Visibility Visibility => _field.IsPublic
+        ? Visibility.Public
+        : _field.IsPrivate
+            ? Visibility.Private
+            : _field.IsFamily
+                ? Visibility.Protected
+                : Visibility.Internal;
+
+    private readonly FieldDefinition _field;
+    private readonly Project _project;
+
+    public CecilField(FieldDefinition field, Project project)
     {
-        public override IEnumerable<Attribute> Attributes =>
-            this.field.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project));
+        _field = field ?? throw new ArgumentNullException(nameof(field));
+        _project = project;
+    }
 
-        public override Binding Binding => this.field.IsStatic ? Binding.Static : Binding.Instance;
-
-        public override string Identifier => $"{this.Parent.Identifier}.{this.Name}";
-
-        public override string Name => this.field.Name;
-
-        public override Type Parent => new CecilType(this.field.DeclaringType, this.project);
-
-        public override Type Type => new CecilType(this.field.FieldType, this.project);
-
-        public override Visibility Visibility => this.field.IsPublic
-            ? Visibility.Public
-            : (this.field.IsPrivate
-                ? Visibility.Private
-                : (this.field.IsFamily
-                    ? Visibility.Protected
-                    : Visibility.Internal));
-
-        private readonly FieldDefinition field;
-        private readonly Project project;
-
-        public CecilField(FieldDefinition field, Project project)
-        {
-            this.field = field ?? throw new ArgumentNullException(nameof(field));
-            this.project = project;
-        }
-
-        public override bool Equals(Field other)
-        {
-            return !object.ReferenceEquals(other, null) && this.Binding == other.Binding && this.Name == other.Name &&
-                   this.Parent == other.Parent && this.Type == other.Type;
-        }
+    public override bool Equals(Field other)
+    {
+        return !ReferenceEquals(other, null) && Binding == other.Binding && Name == other.Name &&
+               Parent == other.Parent && Type == other.Type;
     }
 }

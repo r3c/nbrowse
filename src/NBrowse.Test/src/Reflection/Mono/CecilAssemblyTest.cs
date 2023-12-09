@@ -11,7 +11,7 @@ namespace NBrowse.Test.Reflection.Mono
         [Test]
         public void Attributes()
         {
-            Assert.That(CecilAssemblyTest.GetAssembly().Attributes,
+            Assert.That(GetAssembly().Attributes,
                 Has.Some.Matches<Attribute>(attribute =>
                     attribute.Type.Identifier == typeof(TargetFrameworkAttribute).FullName));
         }
@@ -19,7 +19,7 @@ namespace NBrowse.Test.Reflection.Mono
         [Test]
         public void Culture()
         {
-            Assert.That(CecilAssemblyTest.GetAssembly().Culture,
+            Assert.That(GetAssembly().Culture,
                 Is.EqualTo(typeof(CecilAssemblyTest).Assembly.GetName().CultureName));
         }
 
@@ -28,8 +28,8 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(true)]
         public void Equals(bool same)
         {
-            var assembly1 = CecilAssemblyTest.GetAssembly();
-            var assembly2 = same ? CecilAssemblyTest.GetAssembly() : CecilAssemblyTest.GetOtherAssembly();
+            var assembly1 = GetAssembly();
+            var assembly2 = same ? GetAssembly() : GetOtherAssembly();
 
             Assert.That(assembly1.Equals(assembly2), Is.EqualTo(same));
             Assert.That(assembly1 == assembly2, Is.EqualTo(same));
@@ -39,14 +39,14 @@ namespace NBrowse.Test.Reflection.Mono
         [Test]
         public void FileName()
         {
-            Assert.That(CecilAssemblyTest.GetAssembly().FileName,
+            Assert.That(GetAssembly().FileName,
                 Is.EqualTo(typeof(CecilAssemblyTest).Assembly.Location));
         }
 
         [Test]
         public void Name()
         {
-            Assert.That(CecilAssemblyTest.GetAssembly().Name,
+            Assert.That(GetAssembly().Name,
                 Is.EqualTo(typeof(CecilAssemblyTest).Assembly.GetName().Name));
         }
 
@@ -55,14 +55,14 @@ namespace NBrowse.Test.Reflection.Mono
         {
             var references = typeof(CecilAssemblyTest).Assembly.GetReferencedAssemblies().Select(a => a.FullName);
 
-            Assert.That(CecilAssemblyTest.GetAssembly().References.Select(r => r.Identifier),
+            Assert.That(GetAssembly().References.Select(r => r.Identifier),
                 Is.EquivalentTo(references));
         }
 
         [Test]
         public void Types()
         {
-            Assert.That(CecilAssemblyTest.GetAssembly().Types,
+            Assert.That(GetAssembly().Types,
                 Has.Some.Matches<Type>(t => t.Identifier == typeof(CecilAssemblyTest).FullName));
         }
 
@@ -71,7 +71,7 @@ namespace NBrowse.Test.Reflection.Mono
         {
             var expected = typeof(CecilAssemblyTest).Assembly.GetName().Version;
 
-            Assert.That(CecilAssemblyTest.GetAssembly().Version, Is.EqualTo(expected));
+            Assert.That(GetAssembly().Version, Is.EqualTo(expected));
         }
 
         private static Assembly GetAssembly()

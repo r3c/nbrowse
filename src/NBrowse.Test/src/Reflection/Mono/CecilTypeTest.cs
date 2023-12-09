@@ -22,7 +22,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeAttributes2), "CompilerGeneratedAttribute,DescriptionAttribute")]
         public void Attributes(string name, string expected)
         {
-            Assert.That(string.Join(",", CecilTypeTest.GetType(name).Attributes.Select(a => a.Type.Name)),
+            Assert.That(string.Join(",", GetType(name).Attributes.Select(a => a.Type.Name)),
                 Is.EqualTo(expected));
         }
 
@@ -32,7 +32,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase("MemberTypeParameters2", "CecilTypeTest+CecilMemberTypeParameters`2+TParameter1,CecilTypeTest+CecilMemberTypeParameters`2+TParameter2")]
         public void Arguments(string fieldName, string expected)
         {
-            var fieldType = CecilTypeTest.GetType("CecilMemberTypeParameters").Fields.First(field => field.Name == fieldName).Type;
+            var fieldType = GetType("CecilMemberTypeParameters").Fields.First(field => field.Name == fieldName).Type;
             Assert.That(string.Join(",", fieldType.Arguments.Select(p => p.Name)),
                 Is.EqualTo(expected));
         }
@@ -41,16 +41,16 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeBaseOrNullIsDefined), "Stream")]
         public void BaseOrNullIsDefined(string name, string expected)
         {
-            Assert.That(CecilTypeTest.GetType(name).BaseOrNull, Is.Not.Null);
-            Assert.That(CecilTypeTest.GetType(name).BaseOrNull.Name, Is.EqualTo(expected));
+            Assert.That(GetType(name).BaseOrNull, Is.Not.Null);
+            Assert.That(GetType(name).BaseOrNull.Name, Is.EqualTo(expected));
         }
 
         [Test]
         [TestCase(nameof(CecilTypeBaseOrNullIsObject))]
         public void BaseOrNullIsNull(string name)
         {
-            Assert.That(CecilTypeTest.GetType(name).BaseOrNull, Is.Not.Null);
-            Assert.That(CecilTypeTest.GetType(name).BaseOrNull.Name, Is.EqualTo(nameof(System.Object)));
+            Assert.That(GetType(name).BaseOrNull, Is.Not.Null);
+            Assert.That(GetType(name).BaseOrNull.Name, Is.EqualTo(nameof(System.Object)));
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(3, false, "")]
         public void ElementOrNull(int index, bool defined, string expected)
         {
-            var type = CecilTypeTest.GetType(nameof(CecilTypeElementOrNull));
+            var type = GetType(nameof(CecilTypeElementOrNull));
             var method = type.Methods.Single(m => m.Definition == Definition.Abstract);
             var argument = method.Arguments.ToArray()[index];
 
@@ -73,8 +73,8 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeAttributes0), nameof(CecilTypeAttributes1), false)]
         public void Equals(string name1, string name2, bool expected)
         {
-            var type1 = CecilTypeTest.GetType(name1);
-            var type2 = CecilTypeTest.GetType(name2);
+            var type1 = GetType(name1);
+            var type2 = GetType(name2);
 
             Assert.That(type1.Equals(type2), Is.EqualTo(expected));
             Assert.That(type1 == type2, Is.EqualTo(expected));
@@ -87,7 +87,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeFields2), "Field1,Field2")]
         public void Fields(string name, string expected)
         {
-            Assert.That(string.Join(",", CecilTypeTest.GetType(name).Fields.Select(f => f.Name)),
+            Assert.That(string.Join(",", GetType(name).Fields.Select(f => f.Name)),
                 Is.EqualTo(expected));
         }
 
@@ -97,7 +97,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeImplementationVirtual), Definition.Virtual)]
         public void Implementation(string name, Definition expected)
         {
-            Assert.That(CecilTypeTest.GetType(name).Definition, Is.EqualTo(expected));
+            Assert.That(GetType(name).Definition, Is.EqualTo(expected));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeInterfaces2), "IDisposable,ISerializable")]
         public void Interfaces(string name, string expected)
         {
-            Assert.That(string.Join(",", CecilTypeTest.GetType(name).Interfaces.Select(i => i.Name)),
+            Assert.That(string.Join(",", GetType(name).Interfaces.Select(i => i.Name)),
                 Is.EqualTo(expected));
         }
 
@@ -116,7 +116,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeMethods2), "Method1,Method2,.ctor")]
         public void Methods(string name, string expected)
         {
-            Assert.That(string.Join(",", CecilTypeTest.GetType(name).Methods.Select(m => m.Name)),
+            Assert.That(string.Join(",", GetType(name).Methods.Select(m => m.Name)),
                 Is.EqualTo(expected));
         }
 
@@ -130,7 +130,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(6, NBrowse.Reflection.Model.Structure)]
         public void Model(int index, Model expected)
         {
-            var type = CecilTypeTest.GetType(nameof(CecilTypeModel));
+            var type = GetType(nameof(CecilTypeModel));
             var method = type.Methods.Single(m => m.Definition == Definition.Abstract);
             var argument = method.Arguments.ToArray()[index];
 
@@ -141,14 +141,14 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeName))]
         public void Name(string name)
         {
-            Assert.That(CecilTypeTest.GetType(name).Name, Is.EqualTo($"{nameof(CecilTypeTest)}+{name}"));
+            Assert.That(GetType(name).Name, Is.EqualTo($"{nameof(CecilTypeTest)}+{name}"));
         }
 
         [Test]
         [TestCase(nameof(CecilTypeNamespace))]
         public void Namespace(string name)
         {
-            Assert.That(CecilTypeTest.GetType(name).Namespace, Is.EqualTo(typeof(CecilTypeTest).Namespace));
+            Assert.That(GetType(name).Namespace, Is.EqualTo(typeof(CecilTypeTest).Namespace));
         }
 
         [Test]
@@ -157,7 +157,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeNestedTypes2), "CecilTypeTest+CecilTypeNestedTypes2+NestedType1,CecilTypeTest+CecilTypeNestedTypes2+NestedType2")]
         public void NestedTypes(string name, string expected)
         {
-            Assert.That(string.Join(",", CecilTypeTest.GetType(name).NestedTypes.Select(n => n.Name)),
+            Assert.That(string.Join(",", GetType(name).NestedTypes.Select(n => n.Name)),
                 Is.EqualTo(expected));
         }
 
@@ -167,7 +167,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase("CecilTypeParameters2", "TParameter1,TParameter2")]
         public void Parameters(string name, string expected)
         {
-            Assert.That(string.Join(",", CecilTypeTest.GetType(name).Parameters.Select(p => p.Name)),
+            Assert.That(string.Join(",", GetType(name).Parameters.Select(p => p.Name)),
                 Is.EqualTo(expected));
         }
 
@@ -175,7 +175,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeParent), "NBrowse.Test")]
         public void Parent(string name, string expected)
         {
-            Assert.That(CecilTypeTest.GetType(name).Parent.Name, Is.EqualTo(expected));
+            Assert.That(GetType(name).Parent.Name, Is.EqualTo(expected));
         }
 
         [Test]
@@ -185,7 +185,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilTypeVisibilityPublic), NBrowse.Reflection.Visibility.Public)]
         public void Visibility(string name, Visibility expected)
         {
-            Assert.That(CecilTypeTest.GetType(name).Visibility, Is.EqualTo(expected));
+            Assert.That(GetType(name).Visibility, Is.EqualTo(expected));
         }
 
         private static Method GetMethod(string name)

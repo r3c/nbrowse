@@ -16,7 +16,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilArgumentMethod), 2, "hello")]
         public void DefaultValue(string method, int index, object expected)
         {
-            var argument = CecilArgumentTest.GetArgumentFrom(method, index);
+            var argument = GetArgumentFrom(method, index);
 
             Assert.That(argument.DefaultValue, Is.EqualTo(expected));
         }
@@ -27,7 +27,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilArgumentMethod), 2, true)]
         public void HasDefaultValue(string method, int index, bool expected)
         {
-            var argument = CecilArgumentTest.GetArgumentFrom(method, index);
+            var argument = GetArgumentFrom(method, index);
 
             Assert.That(argument.HasDefaultValue, Is.EqualTo(expected));
         }
@@ -38,7 +38,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilArgumentMethod), 2, "c")]
         public void Name(string method, int index, string expected)
         {
-            var argument = CecilArgumentTest.GetArgumentFrom(method, index);
+            var argument = GetArgumentFrom(method, index);
 
             Assert.That(argument.Name, Is.EqualTo(expected));
         }
@@ -49,7 +49,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilArgumentMethod), 2, NBrowse.Reflection.Modifier.None)]
         public void Modifier(string method, int index, Modifier expected)
         {
-            var argument = CecilArgumentTest.GetArgumentFrom(method, index);
+            var argument = GetArgumentFrom(method, index);
 
             Assert.That(argument.Modifier, Is.EqualTo(expected));
         }
@@ -60,7 +60,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilArgumentMethod), 2, nameof(String))]
         public void Type(string method, int index, string expected)
         {
-            var argument = CecilArgumentTest.GetArgumentFrom(method, index);
+            var argument = GetArgumentFrom(method, index);
 
             Assert.That(argument.Type.Name, Is.EqualTo(expected));
         }

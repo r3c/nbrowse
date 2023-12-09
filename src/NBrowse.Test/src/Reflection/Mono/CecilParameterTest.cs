@@ -19,7 +19,7 @@ namespace NBrowse.Test.Reflection.Mono
         public void ConstraintsOfMethodAttribute(string name, int index, string expected)
         {
             var constraints = string.Join(",",
-                CecilParameterTest.GetParameterFromMethod(name, index).Constraints.Select(c => c.Name));
+                GetParameterFromMethod(name, index).Constraints.Select(c => c.Name));
 
             Assert.That(constraints, Is.EqualTo(expected));
         }
@@ -31,7 +31,7 @@ namespace NBrowse.Test.Reflection.Mono
         public void ConstraintsOfTypeAttribute(string name, int index, string expected)
         {
             var constraints = string.Join(",",
-                CecilParameterTest.GetParameterFromType(name, index).Constraints.Select(c => c.Name));
+                GetParameterFromType(name, index).Constraints.Select(c => c.Name));
 
             Assert.That(constraints, Is.EqualTo(expected));
         }
@@ -42,8 +42,8 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilParameterName), 0, nameof(TestClass.CecilParameterConstraints), 1, false)]
         public void Equals(string name1, int index1, string name2, int index2, bool expected)
         {
-            var parameter1 = CecilParameterTest.GetParameterFromMethod(name1, index1);
-            var parameter2 = CecilParameterTest.GetParameterFromMethod(name2, index2);
+            var parameter1 = GetParameterFromMethod(name1, index1);
+            var parameter2 = GetParameterFromMethod(name2, index2);
 
             Assert.That(parameter1.Equals(parameter2), Is.EqualTo(expected));
             Assert.That(parameter1 == parameter2, Is.EqualTo(expected));
@@ -56,7 +56,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(2, true)]
         public void HasDefaultConstructorConstraintOfMethodAttribute(int index, bool expected)
         {
-            var parameter = CecilParameterTest.GetParameterFromMethod(
+            var parameter = GetParameterFromMethod(
                 nameof(TestClass.CecilParameterHasConstraint), index);
 
             Assert.That(parameter.HasDefaultConstructorConstraint, Is.EqualTo(expected));
@@ -68,7 +68,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(2, true)]
         public void HasDefaultConstructorConstraintOfTypeAttribute(int index, bool expected)
         {
-            var parameter = CecilParameterTest.GetParameterFromType(
+            var parameter = GetParameterFromType(
                 nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", index);
 
             Assert.That(parameter.HasDefaultConstructorConstraint, Is.EqualTo(expected));
@@ -80,7 +80,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(2, false)]
         public void HasReferenceTypeConstraintOfMethodAttribute(int index, bool expected)
         {
-            var parameter = CecilParameterTest.GetParameterFromMethod(
+            var parameter = GetParameterFromMethod(
                 nameof(TestClass.CecilParameterHasConstraint), index);
 
             Assert.That(parameter.HasReferenceTypeConstraint, Is.EqualTo(expected));
@@ -92,7 +92,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(2, false)]
         public void HasReferenceTypeConstraintOfTypeAttribute(int index, bool expected)
         {
-            var parameter = CecilParameterTest.GetParameterFromType(
+            var parameter = GetParameterFromType(
                 nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", index);
 
             Assert.That(parameter.HasReferenceTypeConstraint, Is.EqualTo(expected));
@@ -104,7 +104,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(2, true)]
         public void HasValueTypeConstraintOfMethodAttribute(int index, bool expected)
         {
-            var parameter = CecilParameterTest.GetParameterFromMethod(
+            var parameter = GetParameterFromMethod(
                 nameof(TestClass.CecilParameterHasConstraint), index);
 
             Assert.That(parameter.HasValueTypeConstraint, Is.EqualTo(expected));
@@ -116,7 +116,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(2, true)]
         public void HasValueTypeConstraintOfTypeAttribute(int index, bool expected)
         {
-            var parameter = CecilParameterTest.GetParameterFromType(
+            var parameter = GetParameterFromType(
                 nameof(CecilParameterTest) + "+ICecilParameterHasDefaultConstructor", index);
 
             Assert.That(parameter.HasValueTypeConstraint, Is.EqualTo(expected));
@@ -127,7 +127,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilParameterName), 1, "TParameter2")]
         public void NameOfMethodAttribute(string name, int index, string expected)
         {
-            Assert.That(CecilParameterTest.GetParameterFromMethod(name, index).Name, Is.EqualTo(expected));
+            Assert.That(GetParameterFromMethod(name, index).Name, Is.EqualTo(expected));
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilParameterTest) + "+ICecilParameterName", 1, "TParameter2")]
         public void NameOfTypeAttribute(string name, int index, string expected)
         {
-            Assert.That(CecilParameterTest.GetParameterFromType(name, index).Name, Is.EqualTo(expected));
+            Assert.That(GetParameterFromType(name, index).Name, Is.EqualTo(expected));
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(CecilParameterTest) + "+ICecilParameterVariance", 2, NBrowse.Reflection.Variance.Invariant)]
         public void Variance(string name, int index, Variance expected)
         {
-            Assert.That(CecilParameterTest.GetParameterFromType(name, index).Variance, Is.EqualTo(expected));
+            Assert.That(GetParameterFromType(name, index).Variance, Is.EqualTo(expected));
         }
 
         private static Parameter GetParameterFromMethod(string name, int index)

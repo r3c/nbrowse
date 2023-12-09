@@ -4,142 +4,141 @@ using System.Linq;
 using Mono.Cecil;
 using NBrowse.Reflection.Empty;
 
-namespace NBrowse.Reflection.Mono
+namespace NBrowse.Reflection.Mono;
+
+internal class CecilType : Type
 {
-    internal class CecilType : Type
+    public override IEnumerable<Attribute> Attributes =>
+        _definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, _project)) ??
+        Array.Empty<CecilAttribute>();
+
+    public override IEnumerable<Type> Arguments
     {
-        public override IEnumerable<Attribute> Attributes =>
-            this.definition?.CustomAttributes.Select(attribute => new CecilAttribute(attribute, this.project)) ??
-            Array.Empty<CecilAttribute>();
-
-        public override IEnumerable<Type> Arguments
+        get
         {
-            get
-            {
-                if (!this.reference.IsGenericInstance)
-                    return Array.Empty<Type>();
-                return ((GenericInstanceType)this.reference).GenericArguments.Select(arg =>
-                    new CecilType(arg, this.project));
-            }
+            if (!_reference.IsGenericInstance)
+                return Array.Empty<Type>();
+            return ((GenericInstanceType)_reference).GenericArguments.Select(arg =>
+                new CecilType(arg, _project));
         }
+    }
 
-        public override Type BaseOrNull => this.definition?.BaseType != null
-            ? new CecilType(this.definition.BaseType, this.project)
-            : default(Type);
+    public override Type BaseOrNull => _definition?.BaseType != null
+        ? new CecilType(_definition.BaseType, _project)
+        : default(Type);
 
-        public override Type ElementOrNull => this.reference is ArrayType arrayType
-            ? (arrayType.ElementType != null ? new CecilType(arrayType.ElementType, this.project) : default(Type))
-            : (this.reference is PointerType pointerType
-                ? (pointerType.ElementType != null
-                    ? new CecilType(pointerType.ElementType, this.project)
-                    : default(Type))
-                : (this.reference is ByReferenceType byReferenceType
-                    ? (byReferenceType.ElementType != null
-                        ? new CecilType(byReferenceType.ElementType, this.project)
-                        : default(Type))
-                    : default));
+    public override Type ElementOrNull => _reference is ArrayType arrayType
+        ? arrayType.ElementType != null ? new CecilType(arrayType.ElementType, _project) : default(Type)
+        : _reference is PointerType pointerType
+            ? pointerType.ElementType != null
+                ? new CecilType(pointerType.ElementType, _project)
+                : default(Type)
+            : _reference is ByReferenceType byReferenceType
+                ? byReferenceType.ElementType != null
+                    ? new CecilType(byReferenceType.ElementType, _project)
+                    : default(Type)
+                : default;
 
-        public override IEnumerable<Field> Fields =>
-            this.definition?.Fields.Select(field => new CecilField(field, this.project)) ?? Array.Empty<CecilField>();
+    public override IEnumerable<Field> Fields =>
+        _definition?.Fields.Select(field => new CecilField(field, _project)) ?? Array.Empty<CecilField>();
 
-        public override string Identifier =>
-            $"{this.Namespace}{(string.IsNullOrEmpty(this.Namespace) ? "" : ".")}{this.Name}";
+    public override string Identifier =>
+        $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
 
-        public override Definition Definition => this.definition == null
-            ? Definition.Unknown
-            : (this.definition.IsAbstract
-                ? Definition.Abstract
-                : (this.definition.IsSealed
-                    ? Definition.Final
-                    : Definition.Virtual));
+    public override Definition Definition => _definition == null
+        ? Definition.Unknown
+        : _definition.IsAbstract
+            ? Definition.Abstract
+            : _definition.IsSealed
+                ? Definition.Final
+                : Definition.Virtual;
 
-        public override IEnumerable<Type> Interfaces =>
-            this.definition?.Interfaces.Select(i => new CecilType(i.InterfaceType, this.project)) ??
-            Array.Empty<CecilType>();
+    public override IEnumerable<Type> Interfaces =>
+        _definition?.Interfaces.Select(i => new CecilType(i.InterfaceType, _project)) ??
+        Array.Empty<CecilType>();
 
-        public override IEnumerable<Method> Methods =>
-            this.definition?.Methods.Select(method => new CecilMethod(method, this.project)) ??
-            Array.Empty<CecilMethod>();
+    public override IEnumerable<Method> Methods =>
+        _definition?.Methods.Select(method => new CecilMethod(method, _project)) ??
+        Array.Empty<CecilMethod>();
 
-        public override Model Model => this.reference.IsValueType
-            ? (this.definition?.IsEnum ?? false ? Model.Enumeration : Model.Structure)
-            : (this.definition?.IsInterface ?? false
-                ? Model.Interface
-                : (this.reference.IsArray
-                    ? Model.Array
-                    : (this.reference.IsPointer
-                        ? Model.Pointer
-                        : (this.reference.IsByReference ? Model.Reference : Model.Class))));
+    public override Model Model => _reference.IsValueType
+        ? _definition?.IsEnum ?? false ? Model.Enumeration : Model.Structure
+        : _definition?.IsInterface ?? false
+            ? Model.Interface
+            : _reference.IsArray
+                ? Model.Array
+                : _reference.IsPointer
+                    ? Model.Pointer
+                    : _reference.IsByReference
+                        ? Model.Reference
+                        : Model.Class;
 
-        public override string Name => this.reference.IsNested
-            ? $"{new CecilType(this.reference.DeclaringType, this.project).Name}+{this.reference.Name}"
-            : this.reference.Name;
+    public override string Name => _reference.IsNested
+        ? $"{new CecilType(_reference.DeclaringType, _project).Name}+{_reference.Name}"
+        : _reference.Name;
 
-        public override string Namespace => this.reference.IsNested
-            ? new CecilType(this.reference.DeclaringType, this.project).Namespace
-            : this.reference.Namespace;
+    public override string Namespace => _reference.IsNested
+        ? new CecilType(_reference.DeclaringType, _project).Namespace
+        : _reference.Namespace;
 
-        public override IEnumerable<Type> NestedTypes =>
-            this.definition?.NestedTypes.Select(type => new CecilType(type, this.project)) ?? Array.Empty<CecilType>();
+    public override IEnumerable<Type> NestedTypes =>
+        _definition?.NestedTypes.Select(type => new CecilType(type, _project)) ?? Array.Empty<CecilType>();
 
-        public override IEnumerable<Parameter> Parameters =>
-            this.reference.GenericParameters.Select(parameter => new CecilParameter(parameter, this.project));
+    public override IEnumerable<Parameter> Parameters =>
+        _reference.GenericParameters.Select(parameter => new CecilParameter(parameter, _project));
 
-        public override Assembly Parent => this.definition != null
-            ? new CecilAssembly(this.definition.Module.Assembly, this.project)
-            : EmptyAssembly.Instance;
+    public override Assembly Parent => _definition != null
+        ? new CecilAssembly(_definition.Module.Assembly, _project)
+        : EmptyAssembly.Instance;
 
-        public override Visibility Visibility => this.definition == null
-            ? Visibility.Unknown
-            : (this.definition.IsNested
-                ? (this.definition.IsNestedPublic
-                    ? Visibility.Public
-                    : (this.definition.IsNestedFamily
-                        ? Visibility.Protected
-                        : (this.definition.IsNestedPrivate
-                            ? Visibility.Private
-                            : Visibility.Internal)))
-                : (this.definition.IsPublic
-                    ? Visibility.Public
-                    : (this.definition.IsNotPublic
+    public override Visibility Visibility => _definition == null
+        ? Visibility.Unknown
+        : _definition.IsNested
+            ? _definition.IsNestedPublic
+                ? Visibility.Public
+                : _definition.IsNestedFamily
+                    ? Visibility.Protected
+                    : _definition.IsNestedPrivate
                         ? Visibility.Private
-                        : Visibility.Internal)));
+                        : Visibility.Internal
+            : _definition.IsPublic
+                ? Visibility.Public
+                : _definition.IsNotPublic
+                    ? Visibility.Private
+                    : Visibility.Internal;
 
-        private readonly TypeDefinition definition;
-        private readonly Project project;
-        private readonly TypeReference reference;
+    private readonly TypeDefinition _definition;
+    private readonly Project _project;
+    private readonly TypeReference _reference;
 
-        public CecilType(TypeReference reference, Project project)
-        {
-            if (reference == null)
-                throw new ArgumentNullException(nameof(reference));
+    public CecilType(TypeReference reference, Project project)
+    {
+        if (reference == null)
+            throw new ArgumentNullException(nameof(reference));
 
-            if (!(reference is TypeDefinition definition))
+        if (!(reference is TypeDefinition definition))
+            try
             {
-                try
-                {
-                    definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
-                        ? reference.Resolve()
-                        : null;
-                }
-                // FIXME: Mono.Cecil throws an exception when trying to resolve a
-                // non-loaded assembly and I don't know how I can safely avoid that
-                // without catching the exception.
-                catch (AssemblyResolutionException)
-                {
-                    definition = null;
-                }
+                definition = reference.IsDefinition || reference.Module.AssemblyResolver != null
+                    ? reference.Resolve()
+                    : null;
+            }
+            // FIXME: Mono.Cecil throws an exception when trying to resolve a
+            // non-loaded assembly and I don't know how I can safely avoid that
+            // without catching the exception.
+            catch (AssemblyResolutionException)
+            {
+                definition = null;
             }
 
-            this.definition = definition;
-            this.project = project;
-            this.reference = reference;
-        }
+        _definition = definition;
+        _project = project;
+        _reference = reference;
+    }
 
-        public override bool Equals(Type other)
-        {
-            return !object.ReferenceEquals(other, null) && this.Namespace == other.Namespace &&
-                   this.Name == other.Name && this.Parameters.SequenceEqual(other.Parameters);
-        }
+    public override bool Equals(Type other)
+    {
+        return !ReferenceEquals(other, null) && Namespace == other.Namespace &&
+               Name == other.Name && Parameters.SequenceEqual(other.Parameters);
     }
 }
