@@ -38,14 +38,14 @@ public static class Usage
         return IsUsing(source.NType, target, state);
     }
 
-    private static bool IsReferencing(Reflection.NAttribute source, NMethod target, State state)
+    private static bool IsReferencing(NAttribute source, NMethod target, State state)
     {
         return
             IsUsing(source.Constructor, target, state) ||
             IsUsing(source.NType, target, state);
     }
 
-    private static bool IsReferencing(Reflection.NAttribute source, NType target, State state)
+    private static bool IsReferencing(NAttribute source, NType target, State state)
     {
         return
             IsUsing(source.Constructor, target, state) ||

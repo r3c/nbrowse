@@ -122,7 +122,7 @@ public class UsageTest
         argument.Setup(a => a.NType).Returns(matchArguments ? resolve : EmptyNType);
         source.Setup(t => t.Arguments).Returns(new[] { argument.Object });
 
-        var attribute = new Mock<NBrowse.Reflection.NAttribute>();
+        var attribute = new Mock<NAttribute>();
         var attributeMethod = new Mock<NMethod>();
 
         attributeMethod.Setup(m => m.NImplementation).Returns(EmptyNImplementation);
@@ -220,7 +220,7 @@ public class UsageTest
         if (setupRecursive)
         {
             var indirect = new Mock<NType>();
-            var indirectAttribute = new Mock<NBrowse.Reflection.NAttribute>();
+            var indirectAttribute = new Mock<NAttribute>();
             var indirectAttributeConstructor = new Mock<NMethod>();
 
             indirectAttributeConstructor.Setup(m => m.NImplementation).Returns(EmptyNImplementation);
@@ -234,7 +234,7 @@ public class UsageTest
         else
             resolve = target.Object;
 
-        var attribute = new Mock<NBrowse.Reflection.NAttribute>();
+        var attribute = new Mock<NAttribute>();
         var attributeConstructor = new Mock<NMethod>();
 
         attributeConstructor.Setup(m => m.NImplementation).Returns(EmptyNImplementation);
