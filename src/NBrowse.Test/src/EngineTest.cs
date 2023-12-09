@@ -14,6 +14,13 @@ namespace NBrowse.Test
         [TestCase("a => x", "(a, _) => x")]
         [TestCase("(a) => x", "(a, _) => x")]
         [TestCase("(a, b) => x", "(a, b) => x")]
+        [TestCase("    a => x", "(a, _) => x")]
+        [TestCase("\n\ta => x", "(a, _) => x")]
+        [TestCase("/* comment */ a => x", "(a, _) => x")]
+        [TestCase("    /* comment */    a => x", "(a, _) => x")]
+        [TestCase("// comment\na => x", "(a, _) => x")]
+        [TestCase("  // comment\r\na => x", "(a, _) => x")]
+        [TestCase("  /* mix */// white\n/* stuff */  a => x", "(a, _) => x")]
         public void NormalizeQuery(string query, string expected)
         {
             Assert.That(Engine.NormalizeQuery(query), Is.EqualTo(expected));
