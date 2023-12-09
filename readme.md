@@ -19,12 +19,11 @@ This example will search in assembly `NBrowse.dll` for every type that
 implements interface `IPrinter` and print them to standard output:
 
     $ dotnet NBrowse.CLI.dll -c '
-        /* Take all loaded assemblies */
-        p => p.Assemblies
-        /* Select declared types from each of them */
-        .SelectMany(a => a.Types)
-        /* Filter on types having an interface named "IPrinter" */
-        .Where(t => t.Interfaces.Any(i => i.Name == "IPrinter"))' NBrowse.dll
+        project // From current project
+            .Assemblies // ...pick all loaded assemblies
+            .SelectMany(a => a.Types) // ...find their declared types
+            .Where(t => // ...keep those implementing interface `IPrinter`
+                t.Interfaces.Any(i => i.Name == "IPrinter"))' NBrowse.dll
 
 Usage
 -----

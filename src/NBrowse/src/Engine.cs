@@ -9,12 +9,25 @@ namespace NBrowse;
 
 public static class Engine
 {
-    private static readonly (Regex, Func<Match, string>)[] Normalizers =
+    private const string Symbol = "[A-Za-z_][A-Za-z0-9_]*";
+    private const string White = @"(?:/\*(?:[^*]|\*[^/])*\*/|//[^\n\r]*[\n\r]|\s)*";
+
+    private readonly record struct Normalizer(Regex Regex, Func<GroupCollection, string> Formatter);
+
+    private static readonly IReadOnlyList<Normalizer> Normalizers = new Normalizer[]
     {
-        (new(@"^\s*(?:\((?<a>[A-Za-z_][A-Za-z0-9_]*)\)|(?<a>[A-Za-z_][A-Za-z0-9_]*))\s*=>\s*(?<body>.*)$", RegexOptions.Singleline),
-            match => $"({match.Groups["a"].Value}, _) => {match.Groups["body"].Value}"),
-        (new(@"^\s*\((?<a>[A-Za-z_][A-Za-z0-9_]*)\s*,\s*(?<b>[A-Za-z_][A-Za-z0-9_]*)\s*\)\s*=>\s*(?<body>.*)$", RegexOptions.Singleline),
-            match => $"({match.Groups["a"].Value}, {match.Groups["b"].Value}) => {match.Groups["body"].Value}")
+        new(
+            new(
+                @$"^{White}(?:\((?<p>{Symbol})\)|(?<p>{Symbol})){White}=>{White}(?<b>.*)$",
+                RegexOptions.Singleline),
+            groups => $"({groups["p"].Value}, _) => {groups["b"].Value}"
+        ),
+        new(
+            new(
+                @$"^{White}\((?<p>{Symbol}){White},{White}(?<a>{Symbol}){White}\){White}=>{White}(?<b>.*)$",
+                RegexOptions.Singleline),
+            groups => $"({groups["p"].Value}, {groups["a"].Value}) => {groups["b"].Value}"
+        )
     };
 
     public static string NormalizeQuery(string query)
@@ -24,7 +37,7 @@ public static class Engine
             var match = regex.Match(query);
 
             if (match.Success)
-                return format(match);
+                return format(match.Groups);
         }
 
         return $"(project, arguments) => {query}";
@@ -35,9 +48,8 @@ public static class Engine
     {
         var evaluator = Evaluator.CreateRoslyn();
 
-        using (var project = new CecilProject(sources))
-        {
-            printer.Print(await evaluator.Evaluate<object>(project, arguments, query));
-        }
+        using var project = new CecilProject(sources);
+
+        printer.Print(await evaluator.Evaluate<object>(project, arguments, query));
     }
 }
