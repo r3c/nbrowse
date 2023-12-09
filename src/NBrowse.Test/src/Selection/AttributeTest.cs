@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace NBrowse.Test.Selection;
 
-public class NAttributeTest
+public class AttributeTest
 {
     [Test]
     [TestCase("MethodHasAttributeNone", false)]
@@ -20,8 +20,8 @@ public class NAttributeTest
     }
 
     [Test]
-    [TestCase("NAttributeTest+ClassHasAttributeNone", false)]
-    [TestCase("NAttributeTest+ClassHasAttributeOne", true)]
+    [TestCase("AttributeTest+ClassHasAttributeNone", false)]
+    [TestCase("AttributeTest+ClassHasAttributeOne", true)]
     public void HasAttributeOnType(string name, bool expected)
     {
         var type = GetType(name);
@@ -40,8 +40,8 @@ public class NAttributeTest
     }
 
     [Test]
-    [TestCase("NAttributeTest+IsGeneratedStructure", true)]
-    [TestCase("NAttributeTest+IsNotGeneratedStructure", false)]
+    [TestCase("AttributeTest+IsGeneratedStructure", true)]
+    [TestCase("AttributeTest+IsNotGeneratedStructure", false)]
     public void IsGeneratedOnType(string name, bool expected)
     {
         var type = GetType(name);

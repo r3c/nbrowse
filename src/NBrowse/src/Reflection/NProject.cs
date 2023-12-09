@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace NBrowse.Reflection;
@@ -21,4 +22,9 @@ public abstract class NProject
 
     [Description("Find type by name")]
     public abstract NType FindType(string search);
+
+    public override string ToString()
+    {
+        return $"{{Project={Assemblies.Count()} assembly(ies)}}";
+    }
 }
