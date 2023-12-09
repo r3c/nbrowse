@@ -19,7 +19,7 @@ internal class RoslynEvaluator : IEvaluator
     {
         var imports = new[]
         {
-            typeof(Binding).Namespace, typeof(Usage).Namespace, "System", "System.Collections.Generic",
+            typeof(NBinding).Namespace, typeof(Usage).Namespace, "System", "System.Collections.Generic",
             "System.Linq"
         };
 
@@ -30,13 +30,13 @@ internal class RoslynEvaluator : IEvaluator
             .WithReferences(references);
     }
 
-    public async Task<TResult> Evaluate<TResult>(Project project, IReadOnlyList<string> arguments,
+    public async Task<TResult> Evaluate<TResult>(NProject nProject, IReadOnlyList<string> arguments,
         string expression)
     {
         var selector =
-            await CSharpScript.EvaluateAsync<Func<Project, IReadOnlyList<string>, TResult>>(expression,
+            await CSharpScript.EvaluateAsync<Func<NProject, IReadOnlyList<string>, TResult>>(expression,
                 _options);
 
-        return selector(project, arguments);
+        return selector(nProject, arguments);
     }
 }

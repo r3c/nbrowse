@@ -8,71 +8,71 @@ public static class Usage
 {
     public static int CacheSize { get; set; } = 32768;
 
-    private static readonly Cache<(Method, Method), bool> MethodToMethod = new();
-    private static readonly Cache<(Method, Type), bool> MethodToType = new();
-    private static readonly Cache<(Type, Method), bool> TypeToMethod = new();
-    private static readonly Cache<(Type, Type), bool> TypeToType = new();
+    private static readonly Cache<(NMethod, NMethod), bool> MethodToMethod = new();
+    private static readonly Cache<(NMethod, NType), bool> MethodToType = new();
+    private static readonly Cache<(NType, NMethod), bool> TypeToMethod = new();
+    private static readonly Cache<(NType, NType), bool> TypeToType = new();
 
-    public static bool IsUsing(this Method source, Method target, bool includeIndirectUsage = false)
+    public static bool IsUsing(this NMethod source, NMethod target, bool includeIndirectUsage = false)
     {
         return IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
     }
 
-    public static bool IsUsing(this Method source, Type target, bool includeIndirectUsage = false)
+    public static bool IsUsing(this NMethod source, NType target, bool includeIndirectUsage = false)
     {
         return IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
     }
 
-    public static bool IsUsing(this Type source, Method target, bool includeIndirectUsage = false)
+    public static bool IsUsing(this NType source, NMethod target, bool includeIndirectUsage = false)
     {
         return IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
     }
 
-    public static bool IsUsing(this Type source, Type target, bool includeIndirectUsage = false)
+    public static bool IsUsing(this NType source, NType target, bool includeIndirectUsage = false)
     {
         return IsUsing(source, target, new State(includeIndirectUsage ? int.MaxValue : 1));
     }
 
-    private static bool IsReferencing(Argument source, Type target, State state)
+    private static bool IsReferencing(NArgument source, NType target, State state)
     {
-        return IsUsing(source.Type, target, state);
+        return IsUsing(source.NType, target, state);
     }
 
-    private static bool IsReferencing(Reflection.Attribute source, Method target, State state)
+    private static bool IsReferencing(Reflection.NAttribute source, NMethod target, State state)
     {
         return
             IsUsing(source.Constructor, target, state) ||
-            IsUsing(source.Type, target, state);
+            IsUsing(source.NType, target, state);
     }
 
-    private static bool IsReferencing(Reflection.Attribute source, Type target, State state)
+    private static bool IsReferencing(Reflection.NAttribute source, NType target, State state)
     {
         return
             IsUsing(source.Constructor, target, state) ||
-            IsUsing(source.Type, target, state);
+            IsUsing(source.NType, target, state);
     }
 
-    private static bool IsReferencing(Field source, Type target, State state)
+    private static bool IsReferencing(NField source, NType target, State state)
     {
-        return IsUsing(source.Type, target, state);
+        return IsUsing(source.NType, target, state);
     }
 
-    private static bool IsReferencing(Implementation source, Method target, State state)
+    private static bool IsReferencing(NImplementation source, NMethod target, State state)
     {
         return source.ReferencedMethods.Any(method => IsUsing(method, target, state));
     }
 
-    private static bool IsReferencing(Implementation source, Type target, State state)
+    private static bool IsReferencing(NImplementation source, NType target, State state)
     {
         return source.ReferencedTypes.Any(type => IsUsing(type, target, state));
     }
 
-    private static bool IsReferencing(Parameter source, Type target, State state)
+    private static bool IsReferencing(NParameter source, NType target, State state)
     {
         return source.Constraints.Any(constraint => IsUsing(constraint, target, state));
     }
 
-    private static bool IsUsing(Method source, Method target, State state)
+    private static bool IsUsing(NMethod source, NMethod target, State state)
     {
         if (!state.ContinueWith(source))
             return false;
@@ -85,7 +85,7 @@ public static class Usage
             (state.TryRecurse() &&
              (
                  source.Attributes.Any(attribute => IsReferencing(attribute, target, state)) ||
-                 IsReferencing(source.Implementation, target, state)
+                 IsReferencing(source.NImplementation, target, state)
              ));
 
         MethodToMethod.Set((source, target), usage);
@@ -93,7 +93,7 @@ public static class Usage
         return usage;
     }
 
-    private static bool IsUsing(Method source, Type target, State state)
+    private static bool IsUsing(NMethod source, NType target, State state)
     {
         if (!state.ContinueWith(source))
             return false;
@@ -104,11 +104,11 @@ public static class Usage
         usage =
             state.TryRecurse() &&
             (
-                IsUsing(source.ReturnType, target, state) ||
+                IsUsing(source.ReturnNType, target, state) ||
                 source.Arguments.Any(argument => IsReferencing(argument, target, state)) ||
                 source.Attributes.Any(attribute => IsReferencing(attribute, target, state)) ||
                 source.Parameters.Any(parameter => IsReferencing(parameter, target, state)) ||
-                IsReferencing(source.Implementation, target, state)
+                IsReferencing(source.NImplementation, target, state)
             );
 
         MethodToType.Set((source, target), usage);
@@ -116,7 +116,7 @@ public static class Usage
         return usage;
     }
 
-    private static bool IsUsing(Type source, Method target, State state)
+    private static bool IsUsing(NType source, NMethod target, State state)
     {
         if (!state.ContinueWith(source))
             return false;
@@ -131,7 +131,7 @@ public static class Usage
         return usage;
     }
 
-    private static bool IsUsing(Type source, Type target, State state)
+    private static bool IsUsing(NType source, NType target, State state)
     {
         if (!state.ContinueWith(source))
             return false;
@@ -216,22 +216,22 @@ public static class Usage
     private class State
     {
         private int _depth;
-        private readonly ISet<Method> _methods = new HashSet<Method>();
-        private readonly ISet<Type> _types = new HashSet<Type>();
+        private readonly ISet<NMethod> _methods = new HashSet<NMethod>();
+        private readonly ISet<NType> _types = new HashSet<NType>();
 
         public State(int depth)
         {
             _depth = depth;
         }
 
-        public bool ContinueWith(Method method)
+        public bool ContinueWith(NMethod nMethod)
         {
-            return _methods.Add(method);
+            return _methods.Add(nMethod);
         }
 
-        public bool ContinueWith(Type type)
+        public bool ContinueWith(NType nType)
         {
-            return _types.Add(type);
+            return _types.Add(nType);
         }
 
         public bool TryRecurse()

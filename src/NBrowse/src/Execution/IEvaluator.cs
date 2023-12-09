@@ -6,5 +6,5 @@ namespace NBrowse.Execution;
 
 internal interface IEvaluator
 {
-    Task<TResult> Evaluate<TResult>(Project project, IReadOnlyList<string> arguments, string expression);
+    Task<TResult> Evaluate<TResult>(NProject nProject, IReadOnlyList<string> arguments, string expression);
 }

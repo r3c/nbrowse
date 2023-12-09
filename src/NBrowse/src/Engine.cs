@@ -48,7 +48,7 @@ public static class Engine
     {
         var evaluator = Evaluator.CreateRoslyn();
 
-        using var project = new CecilProject(sources);
+        using var project = new CecilNProject(sources);
 
         printer.Print(await evaluator.Evaluate<object>(project, arguments, query));
     }

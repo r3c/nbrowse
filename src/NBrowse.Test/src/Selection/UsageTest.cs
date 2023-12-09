@@ -9,26 +9,26 @@ namespace NBrowse.Test.Selection
 {
     public class UsageTest
     {
-        private static Implementation EmptyImplementation;
-        private static Method EmptyMethod;
-        private static NBrowse.Reflection.Type EmptyType;
+        private static NImplementation EmptyNImplementation;
+        private static NMethod EmptyNMethod;
+        private static NType EmptyNType;
 
         [OneTimeSetUp]
         public void Setup()
         {
-            var implementation = new Mock<Implementation>();
+            var implementation = new Mock<NImplementation>();
 
-            implementation.Setup(i => i.ReferencedMethods).Returns(Array.Empty<Method>());
-            implementation.Setup(i => i.ReferencedTypes).Returns(Array.Empty<NBrowse.Reflection.Type>());
+            implementation.Setup(i => i.ReferencedMethods).Returns(Array.Empty<NMethod>());
+            implementation.Setup(i => i.ReferencedTypes).Returns(Array.Empty<NType>());
 
-            EmptyImplementation = implementation.Object;
+            EmptyNImplementation = implementation.Object;
 
-            var method = new Mock<Method>();
+            var method = new Mock<NMethod>();
 
-            method.Setup(m => m.Implementation).Returns(implementation.Object);
+            method.Setup(m => m.NImplementation).Returns(implementation.Object);
 
-            EmptyMethod = method.Object;
-            EmptyType = Mock.Of<NBrowse.Reflection.Type>();
+            EmptyNMethod = method.Object;
+            EmptyNType = Mock.Of<NType>();
         }
 
         [Test]
@@ -41,33 +41,33 @@ namespace NBrowse.Test.Selection
         public void IsUsing_Method_Method(bool matchImplementation, bool setupRecursive, bool usingRecursive,
             bool expected)
         {
-            var source = new Mock<Method>();
-            var target = new Mock<Method>();
+            var source = new Mock<NMethod>();
+            var target = new Mock<NMethod>();
 
             target.Setup(t => t.Equals(target.Object)).Returns(true);
 
-            Method resolve;
+            NMethod resolve;
 
             if (setupRecursive)
             {
-                var indirect = new Mock<Method>();
-                var indirectImplementation = new Mock<Implementation>();
+                var indirect = new Mock<NMethod>();
+                var indirectImplementation = new Mock<NImplementation>();
 
                 indirectImplementation.Setup(i => i.ReferencedMethods).Returns(new[] { target.Object });
-                indirect.Setup(i => i.Implementation).Returns(indirectImplementation.Object);
+                indirect.Setup(i => i.NImplementation).Returns(indirectImplementation.Object);
 
                 resolve = indirect.Object;
             }
             else
                 resolve = target.Object;
 
-            var implementation = new Mock<Implementation>();
+            var implementation = new Mock<NImplementation>();
 
             implementation.Setup(i => i.ReferencedMethods)
-                .Returns(matchImplementation ? new[] { resolve } : Array.Empty<Method>());
-            implementation.Setup(i => i.ReferencedTypes).Returns(Array.Empty<NBrowse.Reflection.Type>());
+                .Returns(matchImplementation ? new[] { resolve } : Array.Empty<NMethod>());
+            implementation.Setup(i => i.ReferencedTypes).Returns(Array.Empty<NType>());
 
-            source.Setup(t => t.Implementation).Returns(implementation.Object);
+            source.Setup(t => t.NImplementation).Returns(implementation.Object);
 
             Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
         }
@@ -94,22 +94,22 @@ namespace NBrowse.Test.Selection
         public void IsUsing_Method_Type(bool matchArguments, bool matchAttributes, bool matchParameters,
             bool matchImplementation, bool matchReturnType, bool setupRecursive, bool usingRecursive, bool expected)
         {
-            var source = new Mock<Method>();
-            var target = new Mock<NBrowse.Reflection.Type>();
+            var source = new Mock<NMethod>();
+            var target = new Mock<NType>();
 
             target.Setup(t => t.Equals(target.Object)).Returns(true);
 
-            NBrowse.Reflection.Type resolve;
+            NType resolve;
 
             if (setupRecursive)
             {
-                var indirectArgument = new Mock<Argument>();
-                var indirectMethod = new Mock<Method>();
-                var indirectType = new Mock<NBrowse.Reflection.Type>();
+                var indirectArgument = new Mock<NArgument>();
+                var indirectMethod = new Mock<NMethod>();
+                var indirectType = new Mock<NType>();
 
-                indirectArgument.Setup(a => a.Type).Returns(target.Object);
+                indirectArgument.Setup(a => a.NType).Returns(target.Object);
                 indirectMethod.Setup(i => i.Arguments).Returns(new[] { indirectArgument.Object });
-                indirectMethod.Setup(i => i.ReturnType).Returns(EmptyType);
+                indirectMethod.Setup(i => i.ReturnNType).Returns(EmptyNType);
                 indirectType.Setup(t => t.Methods).Returns(new[] { indirectMethod.Object });
 
                 resolve = indirectType.Object;
@@ -117,32 +117,32 @@ namespace NBrowse.Test.Selection
             else
                 resolve = target.Object;
 
-            var argument = new Mock<Argument>();
+            var argument = new Mock<NArgument>();
 
-            argument.Setup(a => a.Type).Returns(matchArguments ? resolve : EmptyType);
+            argument.Setup(a => a.NType).Returns(matchArguments ? resolve : EmptyNType);
             source.Setup(t => t.Arguments).Returns(new[] { argument.Object });
 
-            var attribute = new Mock<NBrowse.Reflection.Attribute>();
-            var attributeMethod = new Mock<Method>();
+            var attribute = new Mock<NBrowse.Reflection.NAttribute>();
+            var attributeMethod = new Mock<NMethod>();
 
-            attributeMethod.Setup(m => m.Implementation).Returns(EmptyImplementation);
-            attributeMethod.Setup(m => m.ReturnType).Returns(EmptyType);
+            attributeMethod.Setup(m => m.NImplementation).Returns(EmptyNImplementation);
+            attributeMethod.Setup(m => m.ReturnNType).Returns(EmptyNType);
             attribute.Setup(a => a.Constructor).Returns(attributeMethod.Object);
-            attribute.Setup(a => a.Type).Returns(matchAttributes ? resolve : EmptyType);
+            attribute.Setup(a => a.NType).Returns(matchAttributes ? resolve : EmptyNType);
             source.Setup(t => t.Attributes).Returns(new[] { attribute.Object });
 
-            var parameter = new Mock<Parameter>();
+            var parameter = new Mock<NParameter>();
 
-            parameter.Setup(p => p.Constraints).Returns(new[] { matchParameters ? resolve : EmptyType });
+            parameter.Setup(p => p.Constraints).Returns(new[] { matchParameters ? resolve : EmptyNType });
             source.Setup(t => t.Parameters).Returns(new[] { parameter.Object });
 
-            var implementation = new Mock<Implementation>();
+            var implementation = new Mock<NImplementation>();
 
             implementation.Setup(i => i.ReferencedTypes)
-                .Returns(matchImplementation ? new[] { resolve } : Array.Empty<NBrowse.Reflection.Type>());
+                .Returns(matchImplementation ? new[] { resolve } : Array.Empty<NType>());
 
-            source.Setup(t => t.Implementation).Returns(implementation.Object);
-            source.Setup(t => t.ReturnType).Returns(matchReturnType ? resolve : EmptyType);
+            source.Setup(t => t.NImplementation).Returns(implementation.Object);
+            source.Setup(t => t.ReturnNType).Returns(matchReturnType ? resolve : EmptyNType);
 
             Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
         }
@@ -156,27 +156,27 @@ namespace NBrowse.Test.Selection
         [TestCase(true, true, true, true)]
         public void IsUsing_Type_Method(bool matchMethods, bool setupRecursive, bool usingRecursive, bool expected)
         {
-            var source = new Mock<NBrowse.Reflection.Type>();
-            var target = new Mock<Method>();
+            var source = new Mock<NType>();
+            var target = new Mock<NMethod>();
 
             target.Setup(t => t.Equals(target.Object)).Returns(true);
 
-            Method resolve;
+            NMethod resolve;
 
             if (setupRecursive)
             {
-                var indirect = new Mock<Method>();
-                var indirectImplementation = new Mock<Implementation>();
+                var indirect = new Mock<NMethod>();
+                var indirectImplementation = new Mock<NImplementation>();
 
                 indirectImplementation.Setup(i => i.ReferencedMethods).Returns(new[] { target.Object });
-                indirect.Setup(t => t.Implementation).Returns(indirectImplementation.Object);
+                indirect.Setup(t => t.NImplementation).Returns(indirectImplementation.Object);
 
                 resolve = indirect.Object;
             }
             else
                 resolve = target.Object;
 
-            source.Setup(t => t.Methods).Returns(new[] { matchMethods ? resolve : EmptyMethod });
+            source.Setup(t => t.Methods).Returns(new[] { matchMethods ? resolve : EmptyNMethod });
 
             Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
         }
@@ -210,23 +210,23 @@ namespace NBrowse.Test.Selection
             bool matchInterfaces, bool matchNestedTypes, bool matchParameters, bool setupRecursive, bool usingRecursive,
             bool expected)
         {
-            var source = new Mock<NBrowse.Reflection.Type>();
-            var target = new Mock<NBrowse.Reflection.Type>();
+            var source = new Mock<NType>();
+            var target = new Mock<NType>();
 
             target.Setup(t => t.Equals(target.Object)).Returns(true);
 
-            NBrowse.Reflection.Type resolve;
+            NType resolve;
 
             if (setupRecursive)
             {
-                var indirect = new Mock<NBrowse.Reflection.Type>();
-                var indirectAttribute = new Mock<NBrowse.Reflection.Attribute>();
-                var indirectAttributeConstructor = new Mock<Method>();
+                var indirect = new Mock<NType>();
+                var indirectAttribute = new Mock<NBrowse.Reflection.NAttribute>();
+                var indirectAttributeConstructor = new Mock<NMethod>();
 
-                indirectAttributeConstructor.Setup(m => m.Implementation).Returns(EmptyImplementation);
-                indirectAttributeConstructor.Setup(m => m.ReturnType).Returns(EmptyType);
+                indirectAttributeConstructor.Setup(m => m.NImplementation).Returns(EmptyNImplementation);
+                indirectAttributeConstructor.Setup(m => m.ReturnNType).Returns(EmptyNType);
                 indirectAttribute.Setup(a => a.Constructor).Returns(indirectAttributeConstructor.Object);
-                indirectAttribute.Setup(a => a.Type).Returns(target.Object);
+                indirectAttribute.Setup(a => a.NType).Returns(target.Object);
                 indirect.Setup(i => i.Attributes).Returns(new[] { indirectAttribute.Object });
 
                 resolve = indirect.Object;
@@ -234,32 +234,32 @@ namespace NBrowse.Test.Selection
             else
                 resolve = target.Object;
 
-            var attribute = new Mock<NBrowse.Reflection.Attribute>();
-            var attributeConstructor = new Mock<Method>();
+            var attribute = new Mock<NBrowse.Reflection.NAttribute>();
+            var attributeConstructor = new Mock<NMethod>();
 
-            attributeConstructor.Setup(m => m.Implementation).Returns(EmptyImplementation);
-            attributeConstructor.Setup(m => m.ReturnType).Returns(EmptyType);
+            attributeConstructor.Setup(m => m.NImplementation).Returns(EmptyNImplementation);
+            attributeConstructor.Setup(m => m.ReturnNType).Returns(EmptyNType);
             attribute.Setup(a => a.Constructor).Returns(attributeConstructor.Object);
-            attribute.Setup(a => a.Type).Returns(matchAttributes ? resolve : EmptyType);
+            attribute.Setup(a => a.NType).Returns(matchAttributes ? resolve : EmptyNType);
             source.Setup(t => t.Attributes).Returns(new[] { attribute.Object });
             source.Setup(t => t.BaseOrNull).Returns(matchBaseOrNull ? resolve : null);
 
-            var field = new Mock<Field>();
+            var field = new Mock<NField>();
 
-            field.Setup(a => a.Type).Returns(matchFields ? resolve : EmptyType);
+            field.Setup(a => a.NType).Returns(matchFields ? resolve : EmptyNType);
             source.Setup(t => t.Fields).Returns(new[] { field.Object });
-            source.Setup(t => t.Interfaces).Returns(matchInterfaces ? new[] { resolve } : Array.Empty<NBrowse.Reflection.Type>());
-            source.Setup(t => t.NestedTypes).Returns(matchNestedTypes ? new[] { resolve } : Array.Empty<NBrowse.Reflection.Type>());
+            source.Setup(t => t.Interfaces).Returns(matchInterfaces ? new[] { resolve } : Array.Empty<NType>());
+            source.Setup(t => t.NestedTypes).Returns(matchNestedTypes ? new[] { resolve } : Array.Empty<NType>());
 
-            var parameter = new Mock<Parameter>();
+            var parameter = new Mock<NParameter>();
 
-            parameter.Setup(p => p.Constraints).Returns(new[] { matchParameters ? resolve : EmptyType });
+            parameter.Setup(p => p.Constraints).Returns(new[] { matchParameters ? resolve : EmptyNType });
             source.Setup(t => t.Parameters).Returns(new[] { parameter.Object });
 
-            var method = new Mock<Method>();
+            var method = new Mock<NMethod>();
 
-            method.Setup(m => m.Implementation).Returns(EmptyImplementation);
-            method.Setup(m => m.ReturnType).Returns(EmptyType);
+            method.Setup(m => m.NImplementation).Returns(EmptyNImplementation);
+            method.Setup(m => m.ReturnNType).Returns(EmptyNType);
             source.Setup(t => t.Methods).Returns(new[] { method.Object });
 
             Assert.That(source.Object.IsUsing(target.Object, usingRecursive), Is.EqualTo(expected));
@@ -271,7 +271,7 @@ namespace NBrowse.Test.Selection
         public void IsUsing_Type_Type_WithCache(int cacheSize, int expectedComparisons)
         {
             // Force flush cache by setting size to zero and asking for usage of some type not previously used
-            var fake = CecilProjectTest.CreateProject().FindType(typeof(FakeType).FullName);
+            var fake = CecilNProjectTest.CreateProject().FindType(typeof(FakeType).FullName);
 
             Usage.CacheSize = 0;
 
@@ -280,8 +280,8 @@ namespace NBrowse.Test.Selection
             Usage.CacheSize = cacheSize;
 
             // Configure mocks to equal themselves so they pass cache verification
-            var source = new Mock<NBrowse.Reflection.Type>();
-            var target = new Mock<NBrowse.Reflection.Type>();
+            var source = new Mock<NType>();
+            var target = new Mock<NType>();
 
             source.Setup(type => type.Equals(source.Object)).Returns(true);
             target.Setup(type => type.Equals(target.Object)).Returns(true);
