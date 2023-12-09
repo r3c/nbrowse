@@ -1,11 +1,10 @@
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection;
+
+public enum Visibility
 {
-    public enum Visibility
-    {
-        Unknown,
-        Private,
-        Internal,
-        Protected,
-        Public
-    }
+    Unknown,
+    Private,
+    Internal,
+    Protected,
+    Public
 }

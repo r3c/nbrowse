@@ -1,7 +1,6 @@
-namespace NBrowse.Execution
+namespace NBrowse.Execution;
+
+public interface IPrinter
 {
-    public interface IPrinter
-    {
-        void Print<TValue>(TValue result);
-    }
+    void Print<TValue>(TValue result);
 }

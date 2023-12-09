@@ -1,53 +1,50 @@
 using System;
 using System.ComponentModel;
 
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection;
+
+public abstract class Argument : IEquatable<Argument>
 {
-    public abstract class Argument : IEquatable<Argument>
+    public static bool operator ==(Argument lhs, Argument rhs)
     {
-        public static bool operator ==(Argument lhs, Argument rhs)
-        {
-            return lhs?.Equals(rhs) ?? ReferenceEquals(rhs, null);
-        }
+        return lhs?.Equals(rhs) ?? ReferenceEquals(rhs, null);
+    }
 
-        public static bool operator !=(Argument lhs, Argument rhs)
-        {
-            return !lhs?.Equals(rhs) ?? !ReferenceEquals(rhs, null);
-        }
+    public static bool operator !=(Argument lhs, Argument rhs)
+    {
+        return !lhs?.Equals(rhs) ?? !ReferenceEquals(rhs, null);
+    }
 
-        [Description("Default value if any or null otherwise")]
-        public abstract object DefaultValue { get; }
+    [Description("Default value if any or null otherwise")]
+    public abstract object DefaultValue { get; }
 
-        [Description("True if argument has default value")]
-        public abstract bool HasDefaultValue { get; }
+    [Description("True if argument has default value")]
+    public abstract bool HasDefaultValue { get; }
 
-        [Description("Unique human-readable identifier")]
-        public abstract string Identifier { get; }
+    [Description("Unique human-readable identifier")]
+    public abstract string Identifier { get; }
 
-        [Description("By-reference passing modifier")]
-        public abstract Modifier Modifier { get; }
+    [Description("By-reference passing modifier")]
+    public abstract Modifier Modifier { get; }
 
-        [Description("Argument name")]
-        public abstract string Name { get; }
+    [Description("Argument name")] public abstract string Name { get; }
 
-        [Description("Argument type")]
-        public abstract Type Type { get; }
+    [Description("Argument type")] public abstract Type Type { get; }
 
-        public abstract bool Equals(Argument other);
+    public abstract bool Equals(Argument other);
 
-        public override bool Equals(object obj)
-        {
-            return obj is Argument other && this.Equals(other);
-        }
+    public override bool Equals(object obj)
+    {
+        return obj is Argument other && Equals(other);
+    }
 
-        public override int GetHashCode()
-        {
-            return this.Identifier.GetHashCode();
-        }
+    public override int GetHashCode()
+    {
+        return Identifier.GetHashCode();
+    }
 
-        public override string ToString()
-        {
-            return $"{{Argument={this.Name}}}";
-        }
+    public override string ToString()
+    {
+        return $"{{Argument={Name}}}";
     }
 }

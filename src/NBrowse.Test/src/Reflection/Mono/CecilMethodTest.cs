@@ -16,7 +16,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodArguments2), "a,b")]
         public void Arguments(string name, string expected)
         {
-            var arguments = string.Join(",", CecilMethodTest.GetMethod(name).Arguments.Select(a => a.Name));
+            var arguments = string.Join(",", GetMethod(name).Arguments.Select(a => a.Name));
 
             Assert.That(arguments, Is.EqualTo(expected));
         }
@@ -27,7 +27,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodAttributes2), "MTAThreadAttribute,STAThreadAttribute")]
         public void Attributes(string name, string expected)
         {
-            var attributes = string.Join(",", CecilMethodTest.GetMethod(name).Attributes.Select(a => a.Type.Name));
+            var attributes = string.Join(",", GetMethod(name).Attributes.Select(a => a.Type.Name));
 
             Assert.That(attributes, Is.EqualTo(expected));
         }
@@ -38,7 +38,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodBindingStatic), NBrowse.Reflection.Binding.Static)]
         public void Binding(string name, Binding expected)
         {
-            Assert.That(CecilMethodTest.GetMethod(name).Binding, Is.EqualTo(expected));
+            Assert.That(GetMethod(name).Binding, Is.EqualTo(expected));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodDefinitionVirtual), NBrowse.Reflection.Definition.Virtual)]
         public void Definition(string name, Definition expected)
         {
-            Assert.That(CecilMethodTest.GetMethod(name).Definition, Is.EqualTo(expected));
+            Assert.That(GetMethod(name).Definition, Is.EqualTo(expected));
         }
 
         [Test]
@@ -57,8 +57,8 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodArguments0), nameof(TestClass.CecilMethodArguments1), false)]
         public void Equals(string name1, string name2, bool expected)
         {
-            var method1 = CecilMethodTest.GetMethod(name1);
-            var method2 = CecilMethodTest.GetMethod(name2);
+            var method1 = GetMethod(name1);
+            var method2 = GetMethod(name2);
 
             Assert.That(method1.Equals(method2), Is.EqualTo(expected));
             Assert.That(method1 == method2, Is.EqualTo(expected));
@@ -69,7 +69,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodName), "CecilMethodName")]
         public void Name(string name, string expected)
         {
-            Assert.That(CecilMethodTest.GetMethod(name).Name, Is.EqualTo(expected));
+            Assert.That(GetMethod(name).Name, Is.EqualTo(expected));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodParameters2), "TParameter1,TParameter2")]
         public void Parameters(string name, string expected)
         {
-            var attributes = string.Join(",", CecilMethodTest.GetMethod(name).Parameters.Select(p => p.Name));
+            var attributes = string.Join(",", GetMethod(name).Parameters.Select(p => p.Name));
 
             Assert.That(attributes, Is.EqualTo(expected));
         }
@@ -87,7 +87,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodParent), "CecilMethodTest+TestClass")]
         public void Parent(string name, string expected)
         {
-            Assert.That(CecilMethodTest.GetMethod(name).Parent.Name, Is.EqualTo(expected));
+            Assert.That(GetMethod(name).Parent.Name, Is.EqualTo(expected));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodReturnTypeVoid), "Void")]
         public void ReturnType(string name, string expected)
         {
-            Assert.That(CecilMethodTest.GetMethod(name).ReturnType.Name, Is.EqualTo(expected));
+            Assert.That(GetMethod(name).ReturnType.Name, Is.EqualTo(expected));
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace NBrowse.Test.Reflection.Mono
         [TestCase(nameof(TestClass.CecilMethodVisibilityPublic), NBrowse.Reflection.Visibility.Public)]
         public void Visibility(string name, Visibility expected)
         {
-            Assert.That(CecilMethodTest.GetMethod(name).Visibility, Is.EqualTo(expected));
+            Assert.That(GetMethod(name).Visibility, Is.EqualTo(expected));
         }
 
         private static Method GetMethod(string name)

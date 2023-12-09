@@ -1,20 +1,19 @@
 using System.IO;
 using Newtonsoft.Json;
 
-namespace NBrowse.Execution.Printers
+namespace NBrowse.Execution.Printers;
+
+internal class JsonPrinter : IPrinter
 {
-    internal class JsonPrinter : IPrinter
+    private readonly TextWriter _output;
+
+    public JsonPrinter(TextWriter output)
     {
-        private readonly TextWriter output;
+        _output = output;
+    }
 
-        public JsonPrinter(TextWriter output)
-        {
-            this.output = output;
-        }
-
-        public void Print<TValue>(TValue result)
-        {
-            this.output.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
-        }
+    public void Print<TValue>(TValue result)
+    {
+        _output.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
 }

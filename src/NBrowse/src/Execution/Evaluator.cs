@@ -1,12 +1,11 @@
 using NBrowse.Execution.Evaluators;
 
-namespace NBrowse.Execution
+namespace NBrowse.Execution;
+
+internal static class Evaluator
 {
-    internal static class Evaluator
+    public static IEvaluator CreateRoslyn()
     {
-        public static IEvaluator CreateRoslyn()
-        {
-            return new RoslynEvaluator();
-        }
+        return new RoslynEvaluator();
     }
 }

@@ -25,7 +25,7 @@ namespace NBrowse.CLI
                 {"c|command", "assume first argument is a query, not a file path", s => command = s != null},
                 {
                     "f|format=", "change output format (value: csv, json, pretty)",
-                    f => printer = Program.CreatePrinter(f)
+                    f => printer = CreatePrinter(f)
                 },
                 {"h|help", "show this message and user manual", h => displayHelp = true},
                 {"i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i)}
@@ -55,19 +55,19 @@ namespace NBrowse.CLI
             // Display help on request or missing input arguments
             if (displayHelp || remainder.Count < 1)
             {
-                Program.ShowHelp(Console.Error, options, displayHelp);
+                ShowHelp(Console.Error, options, displayHelp);
 
                 return;
             }
 
             // Read assemblies and query from input arguments, then execute query on target assemblies
-            var assemblies = Program.ReadAssemblies(sources.Concat(remainder.Skip(1)).ToArray());
+            var assemblies = ReadAssemblies(sources.Concat(remainder.Skip(1)).ToArray());
             var query = command ? remainder[0] : File.ReadAllText(remainder[0]);
 
             if (assemblies.Count == 0)
                 Console.Error.WriteLine("warning: empty assemblies list passed as argument");
 
-            Program.ExecuteQuery(assemblies, arguments, query, printer).Wait();
+            ExecuteQuery(assemblies, arguments, query, printer).Wait();
         }
 
         private static IPrinter CreatePrinter(string format)
@@ -116,7 +116,7 @@ namespace NBrowse.CLI
             {
                 if (Directory.Exists(source))
                 {
-                    assemblies.AddRange(Program.ReadAssemblies(Directory.EnumerateDirectories(source)));
+                    assemblies.AddRange(ReadAssemblies(Directory.EnumerateDirectories(source)));
                     assemblies.AddRange(Directory.EnumerateFiles(source, "*.dll"));
                 }
                 else if (File.Exists(source))

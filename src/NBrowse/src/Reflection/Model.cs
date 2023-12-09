@@ -1,14 +1,13 @@
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection;
+
+public enum Model
 {
-    public enum Model
-    {
-        Unknown,
-        Array,
-        Class,
-        Enumeration,
-        Interface,
-        Pointer,
-        Reference,
-        Structure
-    }
+    Unknown,
+    Array,
+    Class,
+    Enumeration,
+    Interface,
+    Pointer,
+    Reference,
+    Structure
 }

@@ -1,9 +1,8 @@
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection;
+
+public enum Modifier
 {
-    public enum Modifier
-    {
-        None,
-        In,
-        Out
-    }
+    None,
+    In,
+    Out
 }

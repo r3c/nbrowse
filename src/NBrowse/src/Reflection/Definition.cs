@@ -1,11 +1,10 @@
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection;
+
+public enum Definition
 {
-    public enum Definition
-    {
-        Unknown,
-        Concrete,
-        Abstract,
-        Virtual,
-        Final
-    }
+    Unknown,
+    Concrete,
+    Abstract,
+    Virtual,
+    Final
 }

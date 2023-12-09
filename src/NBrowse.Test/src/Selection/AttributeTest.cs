@@ -14,7 +14,7 @@ namespace NBrowse.Test.Selection
         [TestCase("MethodHasAttributeOne", true)]
         public void HasAttributeOnMethod(string name, bool expected)
         {
-            var method = AttributeTest.GetMethod(name);
+            var method = GetMethod(name);
 
             Assert.That(method.HasAttribute<ObsoleteAttribute>(), Is.EqualTo(expected));
         }
@@ -24,7 +24,7 @@ namespace NBrowse.Test.Selection
         [TestCase("AttributeTest+ClassHasAttributeOne", true)]
         public void HasAttributeOnType(string name, bool expected)
         {
-            var type = AttributeTest.GetType(name);
+            var type = GetType(name);
 
             Assert.That(type.HasAttribute<ObsoleteAttribute>(), Is.EqualTo(expected));
         }
@@ -34,7 +34,7 @@ namespace NBrowse.Test.Selection
         [TestCase("IsNotGenerated", false)]
         public void IsGeneratedOnMethod(string name, bool expected)
         {
-            var method = AttributeTest.GetMethod(name);
+            var method = GetMethod(name);
 
             Assert.That(method.IsGenerated(), Is.EqualTo(expected));
         }
@@ -44,7 +44,7 @@ namespace NBrowse.Test.Selection
         [TestCase("AttributeTest+IsNotGeneratedStructure", false)]
         public void IsGeneratedOnType(string name, bool expected)
         {
-            var type = AttributeTest.GetType(name);
+            var type = GetType(name);
 
             Assert.That(type.IsGenerated(), Is.EqualTo(expected));
         }

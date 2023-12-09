@@ -1,10 +1,9 @@
-namespace NBrowse.Reflection
+namespace NBrowse.Reflection;
+
+public enum Binding
 {
-    public enum Binding
-    {
-        Unknown,
-        Instance,
-        Constructor,
-        Static
-    }
+    Unknown,
+    Instance,
+    Constructor,
+    Static
 }

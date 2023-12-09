@@ -37,10 +37,10 @@ namespace NBrowse.CLI
                     {
                         var propertyDescription = property.GetCustomAttribute<DescriptionAttribute>();
                         var propertyType = property.PropertyType;
-                        var targetType = Help.GetFirstNonGenericType(property.PropertyType);
+                        var targetType = GetFirstNonGenericType(property.PropertyType);
 
                         writer.WriteLine(
-                            $"    .{property.Name}: {Help.GetTypeName(propertyType)}{(propertyDescription != null ? " // " + propertyDescription.Description : string.Empty)}");
+                            $"    .{property.Name}: {GetTypeName(propertyType)}{(propertyDescription != null ? " // " + propertyDescription.Description : string.Empty)}");
 
                         if (targetType.Namespace == entity.Namespace && uniques.Add(targetType))
                             entities.Enqueue(targetType);
@@ -53,10 +53,10 @@ namespace NBrowse.CLI
 
                         var methodDescription = method.GetCustomAttribute<DescriptionAttribute>();
                         var methodParameters = method.GetParameters()
-                            .Select(p => $"{Help.GetTypeName(p.ParameterType)} {p.Name}");
+                            .Select(p => $"{GetTypeName(p.ParameterType)} {p.Name}");
 
                         writer.WriteLine(
-                            $"    .{method.Name}({string.Join(", ", methodParameters)}): {Help.GetTypeName(method.ReturnType)}{(methodDescription != null ? " // " + methodDescription.Description : string.Empty)}");
+                            $"    .{method.Name}({string.Join(", ", methodParameters)}): {GetTypeName(method.ReturnType)}{(methodDescription != null ? " // " + methodDescription.Description : string.Empty)}");
                     }
                 }
             }
@@ -76,7 +76,7 @@ namespace NBrowse.CLI
                 return type.Name;
 
             var typeName = Regex.Replace(type.Name, "`[0-9]+$", string.Empty);
-            var argumentNames = string.Join(", ", type.GetGenericArguments().Select(Help.GetTypeName));
+            var argumentNames = string.Join(", ", type.GetGenericArguments().Select(GetTypeName));
 
             return $"{typeName}<{argumentNames}>";
         }
