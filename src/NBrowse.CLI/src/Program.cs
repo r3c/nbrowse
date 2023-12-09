@@ -21,14 +21,17 @@ namespace NBrowse.CLI
 
             var options = new OptionSet
             {
-                {"a|argument=", "append string to `arguments` variable", a => arguments.Add(a)},
-                {"c|command", "assume first argument is a query, not a file path", s => command = s != null},
+                { "a|argument=", "append string to `arguments` variable", a => arguments.Add(a) },
+                { "c|command", "assume first argument is a query, not a file path", s => command = s != null },
                 {
                     "f|format=", "change output format (value: csv, json, pretty)",
                     f => printer = CreatePrinter(f)
                 },
-                {"h|help", "show this message and user manual", h => displayHelp = true},
-                {"i|input=", "read assemblies from text file lines (value: path)", i => sources = File.ReadAllLines(i)}
+                { "h|help", "show this message and user manual", h => displayHelp = true },
+                {
+                    "i|input=", "read assemblies from text file lines (value: path)",
+                    i => sources = File.ReadAllLines(i)
+                }
             };
 
             List<string> remainder;
