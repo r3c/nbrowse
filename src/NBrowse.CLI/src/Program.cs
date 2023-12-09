@@ -14,23 +14,31 @@ internal static class Program
     private static void Main(string[] args)
     {
         var arguments = new List<string>();
-        var command = false;
         var displayHelp = false;
         var printer = Printer.CreatePretty(Console.Out);
-        var sources = Array.Empty<string>();
+        var readFile = false;
 
         var options = new OptionSet
         {
-            { "a|argument=", "append string to `arguments` variable", a => arguments.Add(a) },
-            { "c|command", "assume first argument is a query, not a file path", s => command = s != null },
             {
-                "f|format=", "change output format (value: csv, json, pretty)",
-                f => printer = CreatePrinter(f)
+                "a|argument=",
+                "append value to `arguments` variable",
+                value => arguments.Add(value)
             },
-            { "h|help", "show this message and user manual", h => displayHelp = true },
             {
-                "i|input=", "read assemblies from text file lines (value: path)",
-                i => sources = File.ReadAllLines(i)
+                "f|file",
+                "read query from file, not inline script",
+                _ => readFile = true
+            },
+            {
+                "h|help",
+                "show this message and user manual",
+                _ => displayHelp = true
+            },
+            {
+                "o|output=",
+                "specify output format (value: csv, json, pretty)",
+                value => printer = CreatePrinter(value)
             }
         };
 
@@ -64,8 +72,8 @@ internal static class Program
         }
 
         // Read assemblies and query from input arguments, then execute query on target assemblies
-        var assemblies = ReadAssemblies(sources.Concat(remainder.Skip(1)).ToArray());
-        var query = command ? remainder[0] : File.ReadAllText(remainder[0]);
+        var assemblies = ReadAssemblies(remainder.Skip(1)).Result;
+        var query = readFile ? File.ReadAllText(remainder[0]) : remainder[0];
 
         if (assemblies.Count == 0)
             Console.Error.WriteLine("warning: empty assemblies list passed as argument");
@@ -73,9 +81,9 @@ internal static class Program
         ExecuteQuery(assemblies, arguments, query, printer).Wait();
     }
 
-    private static IPrinter CreatePrinter(string format)
+    private static IPrinter CreatePrinter(string output)
     {
-        switch (format)
+        switch (output)
         {
             case "csv":
                 return Printer.CreateCsv(Console.Out);
@@ -92,7 +100,7 @@ internal static class Program
                 return Printer.CreatePretty(Console.Out);
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(format), format, "unknown output format");
+                throw new ArgumentOutOfRangeException(nameof(output), output, "unknown output format");
         }
     }
 
@@ -105,29 +113,31 @@ internal static class Program
         }
         catch (CompilationErrorException exception)
         {
-            Console.Error.WriteLine($"error: could not compile query, {exception.Message}");
+            await Console.Error.WriteLineAsync($"error: could not compile query, {exception.Message}");
 
-            Environment.Exit(3);
+            Environment.Exit(2);
         }
     }
 
-    private static IReadOnlyList<string> ReadAssemblies(IEnumerable<string> sources)
+    private static async Task<IReadOnlyList<string>> ReadAssemblies(IEnumerable<string> assemblyPaths)
     {
         var assemblies = new List<string>();
 
-        foreach (var source in sources)
+        foreach (var path in assemblyPaths)
         {
-            if (Directory.Exists(source))
+            if (Directory.Exists(path))
             {
-                assemblies.AddRange(ReadAssemblies(Directory.EnumerateDirectories(source)));
-                assemblies.AddRange(Directory.EnumerateFiles(source, "*.dll"));
+                var childAssemblies = await ReadAssemblies(Directory.EnumerateDirectories(path));
+
+                assemblies.AddRange(childAssemblies);
+                assemblies.AddRange(Directory.EnumerateFiles(path, "*.dll"));
             }
-            else if (File.Exists(source))
-                assemblies.Add(source);
+            else if (File.Exists(path))
+                assemblies.Add(path);
             else
             {
-                Console.Error.WriteLine($"error: '{source}' is not an assembly nor a directory");
-                Environment.Exit(2);
+                await Console.Error.WriteLineAsync(
+                    $"warning: '{path}' is not a valid path to an assembly nor a directory");
             }
         }
 
@@ -139,7 +149,7 @@ internal static class Program
         writer.WriteLine(".NET assembly query utility");
         writer.WriteLine();
         writer.WriteLine("Usage: NBrowse [options] PathOrQuery AssemblyOrDirectory1 [AssemblyOrDirectory2...]");
-        writer.WriteLine("Example: NBrowse -c \"p => p.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
+        writer.WriteLine("Example: NBrowse \"project.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
         writer.WriteLine();
 
         options.WriteOptionDescriptions(writer);

@@ -18,7 +18,7 @@ equivalent with no graphical interface.
 This example will search in assembly `NBrowse.dll` for every type that
 implements interface `IPrinter` and print them to standard output:
 
-    $ dotnet NBrowse.CLI.dll -c '
+    $ dotnet NBrowse.CLI.dll '
         project // From current project
             .Assemblies // ...pick all loaded assemblies
             .SelectMany(a => a.Types) // ...find their declared types

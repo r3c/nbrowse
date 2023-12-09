@@ -11,6 +11,8 @@ namespace NBrowse.CLI;
 
 internal static class Help
 {
+    private const BindingFlags Bindings = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public;
+
     public static void Write(TextWriter writer)
     {
         writer.WriteLine();
@@ -31,34 +33,68 @@ internal static class Help
                 writer.WriteLine($"     {string.Join(" | ", Enum.GetNames(entity))}");
             else if (entity.IsClass)
             {
-                foreach (var property in entity.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                foreach (var property in entity.GetProperties(Bindings))
                 {
-                    var propertyDescription = property.GetCustomAttribute<DescriptionAttribute>();
-                    var propertyType = property.PropertyType;
                     var targetType = GetFirstNonGenericType(property.PropertyType);
-
-                    writer.WriteLine(
-                        $"    .{property.Name}: {GetTypeName(propertyType)}{(propertyDescription != null ? " // " + propertyDescription.Description : string.Empty)}");
 
                     if (targetType.Namespace == entity.Namespace && uniques.Add(targetType))
                         entities.Enqueue(targetType);
+
+                    writer.WriteLine($"    {FormatProperty(property)}");
                 }
 
-                foreach (var method in entity.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance |
-                                                         BindingFlags.Public))
+                foreach (var method in entity.GetMethods(Bindings))
                 {
                     if (method.IsSpecialName)
                         continue;
 
-                    var methodDescription = method.GetCustomAttribute<DescriptionAttribute>();
-                    var methodParameters = method.GetParameters()
-                        .Select(p => $"{GetTypeName(p.ParameterType)} {p.Name}");
-
-                    writer.WriteLine(
-                        $"    .{method.Name}({string.Join(", ", methodParameters)}): {GetTypeName(method.ReturnType)}{(methodDescription != null ? " // " + methodDescription.Description : string.Empty)}");
+                    writer.WriteLine($"    {FormatMethod(method)}");
                 }
             }
         }
+    }
+
+    private static string FormatArgument(ParameterInfo parameterInfo)
+    {
+        return $"{FormatType(parameterInfo.ParameterType)} {parameterInfo.Name}";
+    }
+
+    private static string FormatDescription(DescriptionAttribute descriptionAttribute)
+    {
+        return descriptionAttribute != null ? " // " + descriptionAttribute.Description : string.Empty;
+    }
+
+    private static string FormatMember(MemberInfo memberInfo)
+    {
+        return $".{memberInfo.Name}";
+    }
+
+    private static string FormatMethod(MethodInfo methodInfo)
+    {
+        var description = methodInfo.GetCustomAttribute<DescriptionAttribute>();
+        var parameters = string.Join(", ", methodInfo.GetParameters().Select(FormatArgument));
+        var returnType = methodInfo.ReturnType;
+
+        return $"{FormatMember(methodInfo)}({parameters}): {FormatType(returnType)}{FormatDescription(description)}";
+    }
+
+    private static string FormatProperty(PropertyInfo propertyInfo)
+    {
+        var propertyDescription = propertyInfo.GetCustomAttribute<DescriptionAttribute>();
+        var propertyType = propertyInfo.PropertyType;
+
+        return $"{FormatMember(propertyInfo)}: {FormatType(propertyType)}{FormatDescription(propertyDescription)}";
+    }
+
+    private static string FormatType(Type type)
+    {
+        if (!type.IsGenericType)
+            return type.Name;
+
+        var argumentNames = string.Join(", ", type.GetGenericArguments().Select(FormatType));
+        var typeName = Regex.Replace(type.Name, "`[0-9]+$", string.Empty);
+
+        return $"{typeName}<{argumentNames}>";
     }
 
     private static Type GetFirstNonGenericType(Type type)
@@ -67,16 +103,5 @@ internal static class Help
             type = type.GetGenericArguments()[0];
 
         return type;
-    }
-
-    private static string GetTypeName(Type type)
-    {
-        if (!type.IsGenericType)
-            return type.Name;
-
-        var typeName = Regex.Replace(type.Name, "`[0-9]+$", string.Empty);
-        var argumentNames = string.Join(", ", type.GetGenericArguments().Select(GetTypeName));
-
-        return $"{typeName}<{argumentNames}>";
     }
 }
