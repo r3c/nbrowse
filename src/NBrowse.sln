@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBrowse.CLI", "NBrowse.CLI\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBrowse.Test", "NBrowse.Test\NBrowse.Test.csproj", "{2C7DDE36-C5CD-4DF8-81BE-D577AEDF2C71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBrowse.CLI.Test", "NBrowse.CLI.Test\NBrowse.CLI.Test.csproj", "{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,5 +60,17 @@ Global
 		{2C7DDE36-C5CD-4DF8-81BE-D577AEDF2C71}.Release|x64.Build.0 = Release|Any CPU
 		{2C7DDE36-C5CD-4DF8-81BE-D577AEDF2C71}.Release|x86.ActiveCfg = Release|Any CPU
 		{2C7DDE36-C5CD-4DF8-81BE-D577AEDF2C71}.Release|x86.Build.0 = Release|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Debug|x64.Build.0 = Debug|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Debug|x86.Build.0 = Debug|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Release|x64.ActiveCfg = Release|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Release|x64.Build.0 = Release|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Release|x86.ActiveCfg = Release|Any CPU
+		{4193A790-4749-40B0-B7DB-EAAC4BD6DDD2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

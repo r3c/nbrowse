@@ -42,7 +42,7 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - run: dotnet build src/NBrowse.CLI --framework ${{ matrix.dotnet.framework }}
+      - run: dotnet build src/NBrowse.sln --framework ${{ matrix.dotnet.framework }}
 
   test:
     name: Run tests
@@ -53,4 +53,6 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - run: dotnet test src/NBrowse.Test --framework net7.0
+      - run: dotnet build src/NBrowse.sln --framework net7.0
+      - run: dotnet test src/NBrowse.Test --framework net7.0 --no-build --no-restore
+      - run: dotnet test src/NBrowse.CLI.Test --framework net7.0 --no-build --no-restore

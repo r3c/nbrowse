@@ -11,7 +11,7 @@ namespace NBrowse.CLI;
 
 internal static class Program
 {
-    private static void Main(string[] args)
+    private static async Task<int> Main(string[] args)
     {
         var arguments = new List<string>();
         var displayHelp = false;
@@ -32,7 +32,7 @@ internal static class Program
             },
             {
                 "h|help",
-                "show this message and user manual",
+                "print user manual after this message",
                 _ => displayHelp = true
             },
             {
@@ -50,17 +50,15 @@ internal static class Program
         }
         catch (ArgumentOutOfRangeException exception)
         {
-            Console.Error.WriteLine($"error: invalid argument, {exception.Message}");
-            Environment.Exit(1);
+            await Console.Error.WriteLineAsync($"error: invalid argument, {exception.Message}");
 
-            return;
+            return 1;
         }
         catch (OptionException exception)
         {
-            Console.Error.WriteLine($"error: invalid option, {exception.Message}");
-            Environment.Exit(1);
+            await Console.Error.WriteLineAsync($"error: invalid option, {exception.Message}");
 
-            return;
+            return 1;
         }
 
         // Display help on request or missing input arguments
@@ -68,17 +66,17 @@ internal static class Program
         {
             ShowHelp(Console.Error, options, displayHelp);
 
-            return;
+            return 0;
         }
 
         // Read assemblies and query from input arguments, then execute query on target assemblies
-        var assemblies = ReadAssemblies(remainder.Skip(1)).Result;
-        var query = readFile ? File.ReadAllText(remainder[0]) : remainder[0];
+        var assemblies = await LoadAssemblies(remainder.Skip(1), ".", true);
+        var query = readFile ? await File.ReadAllTextAsync(remainder[0]) : remainder[0];
 
         if (assemblies.Count == 0)
-            Console.Error.WriteLine("warning: empty assemblies list passed as argument");
+            await Console.Error.WriteLineAsync("warning: empty assemblies list passed as argument");
 
-        ExecuteQuery(assemblies, arguments, query, printer).Wait();
+        return await ExecuteQuery(assemblies, arguments, query, printer);
     }
 
     private static IPrinter CreatePrinter(string output)
@@ -104,41 +102,60 @@ internal static class Program
         }
     }
 
-    private static async Task ExecuteQuery(IEnumerable<string> assemblies, IReadOnlyList<string> arguments,
+    private static async Task<int> ExecuteQuery(IEnumerable<string> assemblies, IReadOnlyList<string> arguments,
         string query, IPrinter printer)
     {
         try
         {
             await Engine.QueryAndPrint(assemblies, arguments, Engine.NormalizeQuery(query), printer);
+
+            return 0;
         }
         catch (CompilationErrorException exception)
         {
             await Console.Error.WriteLineAsync($"error: could not compile query, {exception.Message}");
 
-            Environment.Exit(2);
+            return 2;
         }
     }
 
-    private static async Task<IReadOnlyList<string>> ReadAssemblies(IEnumerable<string> assemblyPaths)
+    private static async Task<IReadOnlyList<string>> LoadAssemblies(IEnumerable<string> sources, string parent,
+        bool strict)
     {
         var assemblies = new List<string>();
 
-        foreach (var path in assemblyPaths)
+        foreach (var source in sources)
         {
-            if (Directory.Exists(path))
+            if (Directory.Exists(source))
             {
-                var childAssemblies = await ReadAssemblies(Directory.EnumerateDirectories(path));
+                var childSources = Directory.EnumerateFileSystemEntries(source);
+                var childAssemblies = await LoadAssemblies(childSources, source, false);
 
                 assemblies.AddRange(childAssemblies);
-                assemblies.AddRange(Directory.EnumerateFiles(path, "*.dll"));
             }
-            else if (File.Exists(path))
-                assemblies.Add(path);
-            else
+            else if (File.Exists(source))
             {
-                await Console.Error.WriteLineAsync(
-                    $"warning: '{path}' is not a valid path to an assembly nor a directory");
+                var extension = Path.GetExtension(source);
+
+                if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    assemblies.Add(source);
+                }
+                else if (extension.Equals(".txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    var baseDirectory = Path.GetDirectoryName(source) ?? ".";
+                    var lines = await File.ReadAllLinesAsync(source);
+                    var childSources = lines.Select(line => Path.Combine(baseDirectory, line));
+                    var childAssemblies = await LoadAssemblies(childSources, source, true);
+
+                    assemblies.AddRange(childAssemblies);
+                }
+                else if (strict)
+                    await Console.Error.WriteLineAsync($"warning: ignoring unsupported file '{source}' in '{parent}'");
             }
+            else if (strict)
+                await Console.Error.WriteLineAsync($"warning: ignoring missing file '{source}' in '{parent}'");
         }
 
         return assemblies;
@@ -148,9 +165,11 @@ internal static class Program
     {
         writer.WriteLine(".NET assembly query utility");
         writer.WriteLine();
-        writer.WriteLine("Usage: NBrowse [options] PathOrQuery AssemblyOrDirectory1 [AssemblyOrDirectory2...]");
+        writer.WriteLine("Usage: NBrowse [options] Query Assembly1 [Assembly2...]");
         writer.WriteLine("Example: NBrowse \"project.Assemblies.SelectMany(a => a.Types)\" MyAssembly.dll");
         writer.WriteLine();
+        writer.WriteLine("  Query can be any valid C# code processing loaded assemblies into an output");
+        writer.WriteLine("  Assembly[N] can be a .{dll,exe} file, directory or .txt file with one assembly per line");
 
         options.WriteOptionDescriptions(writer);
 
