@@ -1,11 +1,9 @@
-NBrowse: .NET assembly query utility
-====================================
+# NBrowse: .NET assembly query utility
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/r3c/nbrowse/validate.yml?branch=master)](https://github.com/r3c/nbrowse/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/r3c/nbrowse/verify.yml?branch=master)](https://github.com/r3c/nbrowse/actions/workflows/verify.yml)
 [![License](https://img.shields.io/github/license/r3c/nbrowse.svg)](https://opensource.org/licenses/MIT)
 
-Overview
---------
+## Overview
 
 NBrowse is a command-line utility to browse and execute search queries in .NET
 compiled assemblies. It exposes loaded assemblies through a standard set of
@@ -25,8 +23,7 @@ implements interface `IPrinter` and print them to standard output:
             .Where(t => // ...keep those implementing interface `IPrinter`
                 t.Interfaces.Any(i => i.Name == "IPrinter"))' NBrowse.dll
 
-Usage
------
+## Usage
 
 Download latest [release](https://github.com/r3c/nbrowse/releases) from GitHub
 or checkout code and build using your preferred
@@ -37,13 +34,7 @@ argument to display help.
 
     $ dotnet NBrowse.CLI -h
 
-Licence
--------
+## Resource
 
-This project is open-source, released under MIT licence. See `LICENSE.md` file
-for details.
-
-Author
-------
-
-[Rémi Caput](http://remi.caput.fr/) (github.com+nbrowse [at] mirari [dot] fr)
+- Contact: v.github.com+nbrowse [at] mirari [dot] fr
+- License: [license.md](license.md)
