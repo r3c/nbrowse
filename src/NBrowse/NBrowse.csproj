@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CsvHelper" Version="31.0.0"/>
+        <PackageReference Include="CsvHelper" Version="32.0.0"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.2"/>
         <PackageReference Include="Mono.Cecil" Version="0.11.0"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
