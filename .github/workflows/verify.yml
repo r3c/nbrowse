@@ -56,3 +56,15 @@ jobs:
       - run: dotnet build src/NBrowse.sln --framework net7.0
       - run: dotnet test src/NBrowse.Test --framework net7.0 --no-build --no-restore
       - run: dotnet test src/NBrowse.CLI.Test --framework net7.0 --no-build --no-restore
+
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    needs:
+      - build
+      - check
+      - test
+
+    steps:
+      - run: true
