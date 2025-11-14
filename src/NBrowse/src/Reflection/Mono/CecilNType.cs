@@ -40,7 +40,7 @@ internal class CecilNType : NType
                 : default;
 
     public override IEnumerable<NField> Fields =>
-        _definition?.Fields.Select(field => new CecilNField(field, _nProject)) ?? Array.Empty<CecilNField>();
+        _definition?.Fields.Select(f => new CecilNField(f, _nProject)) ?? Array.Empty<CecilNField>();
 
     public override string Identifier =>
         $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
