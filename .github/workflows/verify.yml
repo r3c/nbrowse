@@ -34,8 +34,9 @@ jobs:
     strategy:
       matrix:
         dotnet: # https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/releases-index.json
-          - framework: net6.0
-          - framework: net7.0
+          - framework: net8.0
+          - framework: net9.0
+          - framework: net10.0
 
     steps:
       - uses: actions/checkout@v5
@@ -53,9 +54,9 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - run: dotnet build src/NBrowse.sln --framework net7.0
-      - run: dotnet test src/NBrowse.Test --framework net7.0 --no-build --no-restore
-      - run: dotnet test src/NBrowse.CLI.Test --framework net7.0 --no-build --no-restore
+      - run: dotnet build src/NBrowse.sln --framework net10.0
+      - run: dotnet test src/NBrowse.Test --framework net10.0 --no-build --no-restore
+      - run: dotnet test src/NBrowse.CLI.Test --framework net10.0 --no-build --no-restore
 
   validate:
     name: Validate

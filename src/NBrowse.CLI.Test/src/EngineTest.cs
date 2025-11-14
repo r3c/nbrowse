@@ -14,7 +14,7 @@ public class EngineTest
     /// <summary>
     /// Relative path to NBrowse DLL.
     /// </summary>
-    private const string NBrowsePath = "../../../../NBrowse/bin/Debug/net7.0/NBrowse.dll";
+    private const string NBrowsePath = "../../../../NBrowse/bin/Debug/net10.0/NBrowse.dll";
 
     [Test]
     public async Task AssemblyText()
@@ -44,7 +44,7 @@ public class EngineTest
         {
             "run",
             "--framework",
-            "net7.0",
+            "net10.0",
             "--no-build",
             "--no-restore",
             "--project",

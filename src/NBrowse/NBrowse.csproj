@@ -4,7 +4,7 @@
         <AssemblyName>NBrowse</AssemblyName>
         <Description>.NET assembly query utility</Description>
         <LangVersion>latest</LangVersion>
-        <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
         <Version>0.5.2</Version>
     </PropertyGroup>
 

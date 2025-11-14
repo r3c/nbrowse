@@ -1,2 +1,2 @@
-﻿../../../../../../NBrowse/bin/Debug/net7.0/NBrowse.dll
-../../../../../../NBrowse.CLI/bin/Debug/net7.0/NBrowse.CLI.dll
+﻿../../../../../../NBrowse/bin/Debug/net10.0/NBrowse.dll
+../../../../../../NBrowse.CLI/bin/Debug/net10.0/NBrowse.CLI.dll
