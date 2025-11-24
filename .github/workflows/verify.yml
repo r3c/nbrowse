@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-dotnet@v5
       - run: dotnet format --no-restore --verify-no-changes src/NBrowse.sln
 
@@ -36,7 +36,7 @@ jobs:
           - framework: net10.0
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-dotnet@v5
       - run: dotnet build src/NBrowse.sln --framework ${{ matrix.dotnet.framework }}
 
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-dotnet@v5
       - run: dotnet build src/NBrowse.sln --framework net10.0
       - run: dotnet test src/NBrowse.Test --framework net10.0 --no-build --no-restore
