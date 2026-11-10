@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using CsvHelper;
-using CsvHelper.Configuration;
 
 namespace NBrowse.Execution.Printers;
 
@@ -18,20 +15,19 @@ internal class CsvPrinter : IPrinter
 
     public void Print<TValue>(TValue result)
     {
-        var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
+        var options = new CsvWriterOptions
         {
-            Delimiter = ";",
-            Encoding = Encoding.UTF8,
+            Separator = ';',
             Escape = '\\',
             NewLine = "\n",
-            Quote = '"'
+            Quoting = CsvQuoting.WhenNeeded
         };
 
-        using var csv = new CsvWriter(_output, configuration);
+        using var csv = CsvWriter.Create(_output, options);
 
-        if (result is IEnumerable enumerable)
+        if (result is IEnumerable<object> enumerable)
             csv.WriteRecords(enumerable);
         else
-            csv.WriteRecords(new[] { result });
+            csv.WriteRecords([result]);
     }
 }
